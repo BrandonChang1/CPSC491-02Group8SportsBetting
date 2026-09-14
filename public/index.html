@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBA API Test</title>
+</head>
+
+<body>
+
+    <h1>NBA Data Test</h1>
+
+    <button id="testButton">
+        Run Test
+    </button>
+
+    <p id="result"></p>
+
+    <script>
+        const button = document.getElementById("testButton");
+        const result = document.getElementById("result");
+
+        button.addEventListener("click", async () => {
+
+            result.textContent = "Running test...";
+
+            try {
+
+                const response = await fetch("/run-test");
+
+                const data = await response.json();
+
+                if (data.success) {
+                    result.textContent =
+                        "Success: " + data.message;
+                } else {
+                    result.textContent =
+                        "Error: " + data.message;
+                }
+
+            } catch (error) {
+
+                result.textContent =
+                    "Error communicating with server: "
+                    + error.message;
+
+            }
+        });
+    </script>
+
+</body>
+</html>

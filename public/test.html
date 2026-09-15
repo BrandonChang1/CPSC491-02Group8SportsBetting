@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>NBA Team Data Test</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        select {
+            padding: 10px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        table {
+            margin-top: 20px;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+        .home-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 18px;
+
+            background-color: #222;
+            color: white;
+
+            text-decoration: none;
+            border-radius: 5px;
+            }
+
+        .home-button:hover {
+            background-color: #444;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>NBA Team Data Test</h1>
+
+    <div class="controls">
+
+        <label for="teamSelect">
+            Select an NBA Team:
+        </label>
+
+        <select id="teamSelect">
+
+            <option value="">
+                -- Select a Team --
+            </option>
+
+            <option value="Atlanta Hawks">
+                Atlanta Hawks
+            </option>
+
+            <option value="Boston Celtics">
+                Boston Celtics
+            </option>
+
+            <option value="Brooklyn Nets">
+                Brooklyn Nets
+            </option>
+
+            <option value="Charlotte Hornets">
+                Charlotte Hornets
+            </option>
+
+            <option value="Chicago Bulls">
+                Chicago Bulls
+            </option>
+
+            <option value="Cleveland Cavaliers">
+                Cleveland Cavaliers
+            </option>
+
+            <option value="Dallas Mavericks">
+                Dallas Mavericks
+            </option>
+
+            <option value="Denver Nuggets">
+                Denver Nuggets
+            </option>
+
+            <option value="Detroit Pistons">
+                Detroit Pistons
+            </option>
+
+            <option value="Golden State Warriors">
+                Golden State Warriors
+            </option>
+
+            <option value="Houston Rockets">
+                Houston Rockets
+            </option>
+
+            <option value="Indiana Pacers">
+                Indiana Pacers
+            </option>
+
+            <option value="LA Clippers">
+                LA Clippers
+            </option>
+
+            <option value="Los Angeles Lakers">
+                Los Angeles Lakers
+            </option>
+
+            <option value="Memphis Grizzlies">
+                Memphis Grizzlies
+            </option>
+
+            <option value="Miami Heat">
+                Miami Heat
+            </option>
+
+            <option value="Milwaukee Bucks">
+                Milwaukee Bucks
+            </option>
+
+            <option value="Minnesota Timberwolves">
+                Minnesota Timberwolves
+            </option>
+
+            <option value="New Orleans Pelicans">
+                New Orleans Pelicans
+            </option>
+
+            <option value="New York Knicks">
+                New York Knicks
+            </option>
+
+            <option value="Oklahoma City Thunder">
+                Oklahoma City Thunder
+            </option>
+
+            <option value="Orlando Magic">
+                Orlando Magic
+            </option>
+
+            <option value="Philadelphia 76ers">
+                Philadelphia 76ers
+            </option>
+
+            <option value="Phoenix Suns">
+                Phoenix Suns
+            </option>
+
+            <option value="Portland Trail Blazers">
+                Portland Trail Blazers
+            </option>
+
+            <option value="Sacramento Kings">
+                Sacramento Kings
+            </option>
+
+            <option value="San Antonio Spurs">
+                San Antonio Spurs
+            </option>
+
+            <option value="Toronto Raptors">
+                Toronto Raptors
+            </option>
+
+            <option value="Utah Jazz">
+                Utah Jazz
+            </option>
+
+            <option value="Washington Wizards">
+                Washington Wizards
+            </option>
+
+        </select>
+
+        <button id="testButton">
+            Get Team Data
+        </button>
+        
+        <a href="/" class="home-button">
+        Return to Home Page
+        </a>
+
+    </div>
+
+    <p id="result"></p>
+
+    <div id="dataContainer"></div>
+
+
+    <script>
+
+        const button =
+            document.getElementById("testButton");
+
+        const teamSelect =
+            document.getElementById("teamSelect");
+
+        const result =
+            document.getElementById("result");
+
+        const dataContainer =
+            document.getElementById("dataContainer");
+
+
+        button.addEventListener("click", async () => {
+
+            const selectedTeam = teamSelect.value;
+
+            // Make sure a team was selected
+            if (!selectedTeam) {
+
+                result.textContent =
+                    "Please select an NBA team.";
+
+                dataContainer.innerHTML = "";
+
+                return;
+            }
+
+
+            result.textContent =
+                "Loading " + selectedTeam + " data...";
+
+            dataContainer.innerHTML = "";
+
+
+            try {
+
+                const response = await fetch(
+                    "/run-test?team=" +
+                    encodeURIComponent(selectedTeam)
+                );
+
+
+                const data = await response.json();
+
+
+                if (!data.success) {
+
+                    result.textContent =
+                        "Error: " + data.message;
+
+                    return;
+                }
+
+
+                result.textContent =
+                    "Success: " + data.message;
+
+
+                // Check if game data was returned
+                if (!data.data ||
+                    data.data.length === 0) {
+
+                    dataContainer.textContent =
+                        "No game data returned.";
+
+                    return;
+                }
+
+
+                // --------------------------------
+                // Create Table
+                // --------------------------------
+
+                const table =
+                    document.createElement("table");
+
+
+                const headerRow =
+                    document.createElement("tr");
+
+
+                const columns =
+                    Object.keys(data.data[0]);
+
+
+                // Create column headers
+                columns.forEach(column => {
+
+                    const th =
+                        document.createElement("th");
+
+                    th.textContent = column;
+
+                    headerRow.appendChild(th);
+
+                });
+
+
+                table.appendChild(headerRow);
+
+
+                // --------------------------------
+                // Create Rows
+                // --------------------------------
+
+                data.data.forEach(game => {
+
+                    const row =
+                        document.createElement("tr");
+
+
+                    columns.forEach(column => {
+
+                        const td =
+                            document.createElement("td");
+
+                        td.textContent =
+                            game[column];
+
+                        row.appendChild(td);
+
+                    });
+
+
+                    table.appendChild(row);
+
+                });
+
+
+                dataContainer.appendChild(table);
+
+            }
+
+            catch (error) {
+
+                result.textContent =
+                    "Error communicating with server: "
+                    + error.message;
+
+            }
+            
+
+        });
+
+    </script>
+
+</body>
+
+</html>

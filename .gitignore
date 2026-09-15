@@ -1,1 +1,12 @@
+# Python environments and build artifacts
 .venv/
+__pycache__/
+*.py[cod]
+
+# JavaScript dependencies and builds
+node_modules/
+dist/
+
+# Local configuration and operating-system files
+.env
+.DS_Store

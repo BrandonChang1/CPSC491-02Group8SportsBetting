@@ -10,3 +10,8 @@ dist/
 # Local configuration and operating-system files
 .env
 .DS_Store
+
+
+# Data files
+*.csv
+data/**

@@ -21,7 +21,7 @@ app.get("/run-test", (req, res) => {
 
     execFile(
         "python",
-        ["Test.py", team],
+        ["webpage_team_search.py", team],
         (error, stdout, stderr) => {
 
             if (error) {

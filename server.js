@@ -18,10 +18,15 @@ app.get("/run-test", (req, res) => {
             data: []
         });
     }
+    const scriptPath = path.join(
+            __dirname,
+            "scripts",
+            "webpage_team_search.py"
+        );
 
     execFile(
         "python",
-        ["webpage_team_search.py", team],
+        [scriptPath, team],
         (error, stdout, stderr) => {
 
             if (error) {

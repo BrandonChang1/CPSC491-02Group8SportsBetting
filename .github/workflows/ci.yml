@@ -125,6 +125,13 @@ jobs:
             echo "commit=${GITHUB_SHA}"
           } > build/build-metadata.txt
 
+      - name: Display build version
+        run: |
+          echo "================================"
+          echo "Application Build Version"
+          echo "${BUILD_VERSION}"
+          echo "================================"    
+
       - name: Upload build metadata
         uses: actions/upload-artifact@v4
         with:

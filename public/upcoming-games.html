@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upcoming NBA Games</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            color: #1f2937;
+        }
+        header {
+            background: #111827;
+            color: #fff;
+            padding: 18px 24px;
+        }
+        .header-inner {
+            width: min(1000px, 100%);
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+        .back-link {
+            color: #fff;
+            text-decoration: none;
+            border: 1px solid #6b7280;
+            border-radius: 6px;
+            padding: 8px 12px;
+        }
+        main {
+            width: min(1000px, calc(100% - 32px));
+            margin: 32px auto;
+        }
+        .intro {
+            background: white;
+            padding: 22px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,.08);
+            margin-bottom: 20px;
+        }
+        h1, h2, p { margin-top: 0; }
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        button {
+            border: 0;
+            border-radius: 6px;
+            padding: 10px 16px;
+            background: #222;
+            color: white;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        button:hover { background: #444; }
+        button:disabled { opacity: .55; cursor: wait; }
+        #status { color: #555; margin: 0; }
+        .date-group { margin: 24px 0; }
+        .date-group h2 {
+            font-size: 18px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 8px;
+        }
+        .game-card {
+            background: white;
+            border-radius: 10px;
+            padding: 18px 20px;
+            margin: 12px 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,.08);
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 16px;
+            align-items: center;
+        }
+        .matchup { font-size: 18px; font-weight: 700; }
+        .details { color: #666; margin-top: 7px; line-height: 1.45; }
+        .tipoff { font-weight: 700; white-space: nowrap; }
+        .message {
+            background: white;
+            border-radius: 10px;
+            padding: 22px;
+            box-shadow: 0 3px 10px rgba(0,0,0,.08);
+        }
+        .error { color: #b91c1c; }
+        @media (max-width: 640px) {
+            .game-card { grid-template-columns: 1fr; }
+            .tipoff { white-space: normal; }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="header-inner">
+        <strong>NBA Prediction App</strong>
+        <a class="back-link" href="/">Back to Home</a>
+    </div>
+</header>
+
+<main>
+    <section class="intro">
+        <h1>Upcoming NBA Games</h1>
+        <p>Scheduled NBA games in the next two weeks, loaded through the project's <code>nba_api</code> integration.</p>
+        <div class="toolbar">
+            <p id="status">Loading upcoming games...</p>
+            <button id="refresh" type="button">Refresh</button>
+        </div>
+    </section>
+
+    <div id="games" aria-live="polite"></div>
+</main>
+
+<script>
+    const gamesElement = document.getElementById("games");
+    const statusElement = document.getElementById("status");
+    const refreshButton = document.getElementById("refresh");
+
+    function formatDate(date) {
+        return new Intl.DateTimeFormat(undefined, {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+            year: "numeric"
+        }).format(date);
+    }
+
+    function formatTime(date) {
+        return new Intl.DateTimeFormat(undefined, {
+            hour: "numeric",
+            minute: "2-digit",
+            timeZoneName: "short"
+        }).format(date);
+    }
+
+    function arenaText(arena) {
+        const location = [arena?.city, arena?.state].filter(Boolean).join(", ");
+        return [arena?.name, location].filter(Boolean).join(" - ");
+    }
+
+    function renderGames(games) {
+        gamesElement.innerHTML = "";
+
+        if (!games.length) {
+            gamesElement.innerHTML = '<div class="message">No NBA games are scheduled in the next two weeks.</div>';
+            return;
+        }
+
+        const groups = new Map();
+        for (const game of games) {
+            const tipoff = new Date(game.tipoffUtc);
+            const key = tipoff.toLocaleDateString("en-CA");
+            if (!groups.has(key)) groups.set(key, []);
+            groups.get(key).push({ ...game, tipoff });
+        }
+
+        for (const [, dayGames] of groups) {
+            const section = document.createElement("section");
+            section.className = "date-group";
+
+            const heading = document.createElement("h2");
+            heading.textContent = formatDate(dayGames[0].tipoff);
+            section.appendChild(heading);
+
+            for (const game of dayGames) {
+                const card = document.createElement("article");
+                card.className = "game-card";
+
+                const left = document.createElement("div");
+                const matchup = document.createElement("div");
+                matchup.className = "matchup";
+                matchup.textContent = `${game.awayTeam.name} at ${game.homeTeam.name}`;
+
+                const details = document.createElement("div");
+                details.className = "details";
+                const detailsParts = [];
+                if (game.gameLabel) detailsParts.push(game.gameLabel);
+                const arena = arenaText(game.arena);
+                if (arena) detailsParts.push(arena);
+                details.textContent = detailsParts.join(" • ") || game.status;
+
+                const time = document.createElement("div");
+                time.className = "tipoff";
+                time.textContent = formatTime(game.tipoff);
+
+                left.append(matchup, details);
+                card.append(left, time);
+                section.appendChild(card);
+            }
+
+            gamesElement.appendChild(section);
+        }
+    }
+
+    async function loadGames() {
+        refreshButton.disabled = true;
+        statusElement.textContent = "Loading upcoming games...";
+        gamesElement.innerHTML = "";
+
+        try {
+            const response = await fetch("/api/upcoming-games", { cache: "no-store" });
+            const payload = await response.json();
+
+            if (!response.ok || !payload.success) {
+                throw new Error(payload.message || "Unable to retrieve NBA games.");
+            }
+
+            statusElement.textContent = `${payload.count} scheduled game${payload.count === 1 ? "" : "s"} found.`;
+            renderGames(payload.games || []);
+        } catch (error) {
+            statusElement.textContent = "Unable to load the schedule.";
+            gamesElement.innerHTML = `<div class="message error"></div>`;
+            gamesElement.querySelector(".error").textContent = error.message;
+        } finally {
+            refreshButton.disabled = false;
+        }
+    }
+
+    refreshButton.addEventListener("click", loadGames);
+    loadGames();
+</script>
+</body>
+</html>

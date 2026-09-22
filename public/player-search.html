@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBA Player Search</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        .home-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 18px;
+            background-color: #222;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .home-button:hover {
+            background-color: #444;
+        }
+
+        .player-search-container {
+            position: relative;
+            max-width: 420px;
+        }
+
+        #playerSearch {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        #playerSuggestions {
+            position: absolute;
+            width: 100%;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-top: none;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        .player-suggestion {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .player-suggestion:hover {
+            background-color: #f2f2f2;
+        }
+
+        #status {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        #averageContainer {
+            margin-top: 25px;
+        }
+
+        .average-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .average-card {
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            padding: 12px 16px;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .average-card strong {
+            display: block;
+            font-size: 20px;
+            margin-top: 5px;
+        }
+
+        table {
+            margin-top: 20px;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+
+<body>
+
+    <a href="/" class="home-button">Return to Home Page</a>
+
+    <h1>NBA Player Search</h1>
+
+    <div class="player-search-container">
+        <label for="playerSearch">Search NBA Player:</label>
+
+        <input
+            type="text"
+            id="playerSearch"
+            placeholder="Start typing a player name..."
+            autocomplete="off"
+        >
+
+        <div id="playerSuggestions"></div>
+    </div>
+
+    <p id="status"></p>
+
+    <div id="averageContainer"></div>
+    <div id="gameContainer"></div>
+
+    <script>
+        const playerSearch =
+            document.getElementById("playerSearch");
+
+        const playerSuggestions =
+            document.getElementById("playerSuggestions");
+
+        const status =
+            document.getElementById("status");
+
+        const averageContainer =
+            document.getElementById("averageContainer");
+
+        const gameContainer =
+            document.getElementById("gameContainer");
+
+        let searchTimeout;
+
+
+        playerSearch.addEventListener("input", () => {
+            clearTimeout(searchTimeout);
+
+            // A new typed value means the old selected player is no longer valid.
+            delete playerSearch.dataset.playerId;
+
+            searchTimeout = setTimeout(() => {
+                searchPlayers();
+            }, 250);
+        });
+
+
+        async function searchPlayers() {
+            const query = playerSearch.value.trim();
+
+            playerSuggestions.innerHTML = "";
+
+            if (query.length < 2) {
+                return;
+            }
+
+            try {
+                const response = await fetch(
+                    "/search-players?q=" +
+                    encodeURIComponent(query)
+                );
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    playerSuggestions.textContent =
+                        "Unable to search for players.";
+                    return;
+                }
+
+                if (!data.data || data.data.length === 0) {
+                    playerSuggestions.textContent =
+                        "No matching players found.";
+                    return;
+                }
+
+                data.data.forEach(player => {
+                    const suggestion =
+                        document.createElement("div");
+
+                    suggestion.className =
+                        "player-suggestion";
+
+                    suggestion.textContent =
+                        player.name +
+                        (player.is_active ? "" : " (inactive)");
+
+                    suggestion.addEventListener("click", () => {
+                        playerSearch.value = player.name;
+                        playerSearch.dataset.playerId = player.id;
+                        playerSuggestions.innerHTML = "";
+
+                        loadPlayerStats(player.id, player.name);
+                    });
+
+                    playerSuggestions.appendChild(suggestion);
+                });
+
+            } catch (error) {
+                console.error("Player search error:", error);
+
+                playerSuggestions.textContent =
+                    "Error communicating with the server.";
+            }
+        }
+
+
+        async function loadPlayerStats(playerId, playerName) {
+            status.textContent =
+                "Loading recent games for " + playerName + "...";
+
+            averageContainer.innerHTML = "";
+            gameContainer.innerHTML = "";
+
+            try {
+                const response = await fetch(
+                    "/player-stats?id=" +
+                    encodeURIComponent(playerId)
+                );
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    status.textContent =
+                        "Error: " + data.message;
+                    return;
+                }
+
+                status.textContent =
+                    data.player.name +
+                    " - " + data.season +
+                    " most recent games";
+
+                displayAverages(data.averages);
+                displayGames(data.data);
+
+            } catch (error) {
+                console.error("Player stats error:", error);
+
+                status.textContent =
+                    "Error communicating with the server: " +
+                    error.message;
+            }
+        }
+
+
+        function displayAverages(averages) {
+            if (!averages || Object.keys(averages).length === 0) {
+                averageContainer.textContent =
+                    "No average statistics available.";
+                return;
+            }
+
+            const heading = document.createElement("h2");
+            heading.textContent = "Averages Over These Games";
+            averageContainer.appendChild(heading);
+
+            const grid = document.createElement("div");
+            grid.className = "average-grid";
+
+            const statsToShow = [
+                ["points", "PTS"],
+                ["rebounds", "REB"],
+                ["assists", "AST"],
+                ["minutes", "MIN"],
+                ["plus_minus", "+/-"]
+            ];
+
+            statsToShow.forEach(([key, label]) => {
+                if (averages[key] === undefined ||
+                    averages[key] === null) {
+                    return;
+                }
+
+                const card = document.createElement("div");
+                card.className = "average-card";
+
+                const labelElement = document.createElement("span");
+                labelElement.textContent = label;
+
+                const valueElement = document.createElement("strong");
+                valueElement.textContent = averages[key];
+
+                card.appendChild(labelElement);
+                card.appendChild(valueElement);
+                grid.appendChild(card);
+            });
+
+            averageContainer.appendChild(grid);
+        }
+
+
+        function displayGames(games) {
+            if (!games || games.length === 0) {
+                gameContainer.textContent =
+                    "No game data returned.";
+                return;
+            }
+
+            const heading = document.createElement("h2");
+            heading.textContent =
+                "10 Most Recent Regular Season Games";
+            gameContainer.appendChild(heading);
+
+            const table = document.createElement("table");
+            const headerRow = document.createElement("tr");
+
+            const columns = Object.keys(games[0]);
+
+            columns.forEach(column => {
+                const th = document.createElement("th");
+                th.textContent = column;
+                headerRow.appendChild(th);
+            });
+
+            table.appendChild(headerRow);
+
+            games.forEach(game => {
+                const row = document.createElement("tr");
+
+                columns.forEach(column => {
+                    const td = document.createElement("td");
+                    td.textContent = game[column];
+                    row.appendChild(td);
+                });
+
+                table.appendChild(row);
+            });
+
+            gameContainer.appendChild(table);
+        }
+    </script>
+
+</body>
+</html>

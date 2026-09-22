@@ -1,0 +1,21 @@
+{
+  "name": "cpsc491-group8-sports-betting",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Backend server for the NBA prediction app (Express + PostgreSQL).",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "migrate": "node database/migrate.js",
+    "test": "node --test backend/tests/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "pg": "^8.13.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "supertest": "^7.0.0"
+  }
+}

@@ -24,9 +24,18 @@ app.get("/run-test", (req, res) => {
             "webpage_team_search.py"
         );
 
+<<<<<<< Updated upstream
     execFile(
         "python",
         [scriptPath, team],
+=======
+function runPythonScript(scriptPath, args, res) {
+    const pythonCommand = process.env.PYTHON_COMMAND || "python";
+
+    execFile(
+        pythonCommand,
+        [scriptPath, ...args],
+>>>>>>> Stashed changes
         (error, stdout, stderr) => {
 
             if (error) {
@@ -62,6 +71,71 @@ app.get("/run-test", (req, res) => {
     );
 });
 
+<<<<<<< Updated upstream
+=======
+
+app.get("/search-players", (req, res) => {
+    const query = req.query.q;
+
+    if (!query || query.trim().length < 2) {
+        return res.json({
+            success: true,
+            message: "Enter at least 2 characters.",
+            data: []
+        });
+    }
+
+    const scriptPath = path.join(
+        __dirname,
+        "scripts",
+        "webpage_player_search.py"
+    );
+
+    runPythonScript(
+        scriptPath,
+        ["search", query.trim()],
+        res
+    );
+});
+
+
+app.get("/player-stats", (req, res) => {
+    const playerId = req.query.id;
+
+    if (!playerId) {
+        return res.status(400).json({
+            success: false,
+            message: "No player ID was provided.",
+            data: []
+        });
+    }
+
+    const scriptPath = path.join(
+        __dirname,
+        "scripts",
+        "webpage_player_search.py"
+    );
+
+    runPythonScript(
+        scriptPath,
+        ["stats", playerId],
+        res
+    );
+});
+
+
+app.get("/api/upcoming-games", (req, res) => {
+    const scriptPath = path.join(
+        __dirname,
+        "scripts",
+        "upcoming_games.py"
+    );
+
+    runPythonScript(scriptPath, [], res);
+});
+
+
+>>>>>>> Stashed changes
 app.listen(PORT, () => {
     console.log(
         `Server running at http://localhost:${PORT}`

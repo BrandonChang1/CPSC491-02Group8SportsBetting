@@ -1,0 +1,56 @@
+name: CI Pipeline
+
+on:
+  pull_request:
+    branches:
+      - main
+
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Generate build version
+        id: version
+        shell: bash
+        run: |
+          SHORT_SHA="${GITHUB_SHA::7}"
+          BUILD_VERSION="0.1.${GITHUB_RUN_NUMBER}+${SHORT_SHA}"
+          echo "BUILD_VERSION=${BUILD_VERSION}" >> "$GITHUB_ENV"
+          echo "version=${BUILD_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Build version: ${BUILD_VERSION}"
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run Python tests
+        run: |
+          pytest
+
+      - name: Create build metadata
+        run: |
+          mkdir -p build
+          {
+            echo "version=${BUILD_VERSION}"
+            echo "commit=${GITHUB_SHA}"
+          } > build/build-metadata.txt
+
+      - name: Upload build metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: sports-betting-app-${{ steps.version.outputs.version }}
+          overwrite: true
+          path: build/build-metadata.txt

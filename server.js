@@ -2,10 +2,15 @@ const express = require("express");
 const { execFile } = require("child_process");
 const path = require("path");
 
+const healthRouter = require("./backend/app/routes/health");
+const playersRouter = require("./backend/app/routes/players");
+
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, "public")));
+app.use(healthRouter);
+app.use(playersRouter);
 
 app.get("/run-test", (req, res) => {
 

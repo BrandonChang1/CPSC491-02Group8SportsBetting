@@ -52,4 +52,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: sports-betting-app-${{ steps.version.outputs.version }}
+          overwrite: true
           path: build/build-metadata.txt

@@ -34,8 +34,85 @@ jobs:
 
       - name: Install Python dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # -----------------------------------------
+      # NBA API Library Check
+      # -----------------------------------------
+      - name: Check nba_api library
+        run: |
+          python - <<'PY'
+          from nba_api.stats.static import players, teams
+
+          nba_players = players.get_players()
+          nba_teams = teams.get_teams()
+
+          if not nba_players:
+              raise RuntimeError("nba_api returned no player data.")
+
+          if not nba_teams:
+              raise RuntimeError("nba_api returned no team data.")
+
+          print(f"nba_api player data available: {len(nba_players)} players")
+          print(f"nba_api team data available: {len(nba_teams)} teams")
+
+          curry = players.find_players_by_full_name("Stephen Curry")
+
+          if not curry:
+              raise RuntimeError(
+                  "Could not locate Stephen Curry in nba_api player data."
+              )
+
+          print(
+              "nba_api smoke test passed. "
+              f"Stephen Curry player ID: {curry[0]['id']}"
+          )
+          PY
+
+      # -----------------------------------------
+      # Live NBA Stats Endpoint Check
+      # -----------------------------------------
+      - name: Check live NBA Stats API
+        continue-on-error: true
+        timeout-minutes: 2
+        run: |
+          python - <<'PY'
+          from nba_api.stats.static import players
+          from nba_api.stats.endpoints import playergamelog
+
+          curry = players.find_players_by_full_name(
+              "Stephen Curry"
+          )[0]
+
+          print(
+              f"Testing NBA Stats API with player ID "
+              f"{curry['id']}..."
+          )
+
+          game_log = playergamelog.PlayerGameLog(
+              player_id=curry["id"],
+              season="2025-26",
+              season_type_all_star="Regular Season",
+              timeout=30
+          )
+
+          df = game_log.get_data_frames()[0]
+
+          if df.empty:
+              raise RuntimeError(
+                  "NBA Stats API returned an empty game log."
+              )
+
+          print(
+              f"NBA Stats API connection successful. "
+              f"Retrieved {len(df)} games."
+          )
+          PY
+
+      # -----------------------------------------
+      # Project Tests
+      # -----------------------------------------
       - name: Run Python tests
         run: |
           pytest
@@ -47,6 +124,13 @@ jobs:
             echo "version=${BUILD_VERSION}"
             echo "commit=${GITHUB_SHA}"
           } > build/build-metadata.txt
+
+      - name: Display build version
+        run: |
+          echo "================================"
+          echo "Application Build Version"
+          echo "${BUILD_VERSION}"
+          echo "================================"    
 
       - name: Upload build metadata
         uses: actions/upload-artifact@v4

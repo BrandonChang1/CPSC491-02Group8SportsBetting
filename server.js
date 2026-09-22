@@ -2,42 +2,22 @@ const express = require("express");
 const { execFile } = require("child_process");
 const path = require("path");
 
+const healthRouter = require("./backend/app/routes/health");
+const playersRouter = require("./backend/app/routes/players");
+
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, "public")));
+app.use(healthRouter);
+app.use(playersRouter);
 
-app.get("/run-test", (req, res) => {
 
-    const team = req.query.team;
-
-    if (!team) {
-        return res.status(400).json({
-            success: false,
-            message: "No team was selected.",
-            data: []
-        });
-    }
-    const scriptPath = path.join(
-            __dirname,
-            "scripts",
-            "webpage_team_search.py"
-        );
-
-<<<<<<< Updated upstream
+function runPythonScript(scriptPath, args, res) {
     execFile(
         "python",
-        [scriptPath, team],
-=======
-function runPythonScript(scriptPath, args, res) {
-    const pythonCommand = process.env.PYTHON_COMMAND || "python";
-
-    execFile(
-        pythonCommand,
         [scriptPath, ...args],
->>>>>>> Stashed changes
         (error, stdout, stderr) => {
-
             if (error) {
                 console.error("Python error:", error);
 
@@ -49,13 +29,9 @@ function runPythonScript(scriptPath, args, res) {
             }
 
             try {
-
                 const result = JSON.parse(stdout);
-
                 res.json(result);
-
             } catch (parseError) {
-
                 console.error(
                     "Could not parse Python output:",
                     parseError
@@ -69,10 +45,29 @@ function runPythonScript(scriptPath, args, res) {
             }
         }
     );
+}
+
+
+app.get("/run-test", (req, res) => {
+    const team = req.query.team;
+
+    if (!team) {
+        return res.status(400).json({
+            success: false,
+            message: "No team was selected.",
+            data: []
+        });
+    }
+
+    const scriptPath = path.join(
+        __dirname,
+        "scripts",
+        "webpage_team_search.py"
+    );
+
+    runPythonScript(scriptPath, [team], res);
 });
 
-<<<<<<< Updated upstream
-=======
 
 app.get("/search-players", (req, res) => {
     const query = req.query.q;
@@ -124,18 +119,6 @@ app.get("/player-stats", (req, res) => {
 });
 
 
-app.get("/api/upcoming-games", (req, res) => {
-    const scriptPath = path.join(
-        __dirname,
-        "scripts",
-        "upcoming_games.py"
-    );
-
-    runPythonScript(scriptPath, [], res);
-});
-
-
->>>>>>> Stashed changes
 app.listen(PORT, () => {
     console.log(
         `Server running at http://localhost:${PORT}`

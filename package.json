@@ -8,14 +8,16 @@
     "start": "node server.js",
     "dev": "node --watch server.js",
     "migrate": "node database/migrate.js",
-    "test": "node --test backend/tests/*.test.js"
+    "test": "node --test backend/tests/*.test.js",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
-    "express": "^4.19.2",
-    "pg": "^8.13.0",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "express": "^4.22.3",
+    "pg": "^8.13.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "supertest": "^7.0.0"
   }
 }

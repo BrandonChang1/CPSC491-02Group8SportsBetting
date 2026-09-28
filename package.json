@@ -9,7 +9,7 @@
     "dev": "node --watch server.js",
     "migrate": "node database/migrate.js",
     "test": "node --test backend/tests/*.test.js",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
     "test:backend": "node --check server.js"
   },
   "dependencies": {

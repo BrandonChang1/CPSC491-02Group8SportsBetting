@@ -1,0 +1,93 @@
+name: Backend CI
+
+# Matches the team CI/CD plan: run automatically on pull requests and on
+# pushes to main. Runs automated checks, does a build, tags it with a
+# unique build ID, and uploads a downloadable artifact. No deployment yet.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  backend-tests:
+    name: Backend tests (health, players, error handling)
+    runs-on: ubuntu-latest
+
+    # Spins up a real PostgreSQL instance for the job to run migrations
+    # and tests against — this is what SCRUM-52 (validate DB/migrations
+    # in CI) is asking for.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: nba_db
+        ports:
+          - 5432:5432
+        # Waits for Postgres to actually be ready before the job continues,
+        # instead of racing it and failing on a connection error.
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nba_db
+      PORT: 3000
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      # npm ci (not npm install) installs exactly what's in
+      # package-lock.json — required for a reproducible CI build.
+      - name: Install dependencies
+        run: npm ci
+
+      # Applies database/migrations/*.sql to the fresh Postgres instance
+      # above, so /health and the player endpoints have real tables to
+      # query against instead of failing on "relation does not exist".
+      - name: Run database migrations
+        run: npm run migrate
+
+      # This is the required quality gate from the plan: if any backend
+      # test fails, this step's non-zero exit code fails the whole job,
+      # which blocks the PR from being marked green.
+      - name: Run backend tests
+        run: npm test
+
+      # Assigns each CI run a unique build ID from the GitHub run number
+      # and the short commit SHA, exactly as described in the plan
+      # (e.g. s2-27-a1b2c3d).
+      - name: Compute build ID
+        id: build_id
+        run: |
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          BUILD_ID="s2-${{ github.run_number }}-${SHORT_SHA}"
+          echo "build_id=$BUILD_ID" >> "$GITHUB_OUTPUT"
+          echo "Build ID: $BUILD_ID"
+
+      # Packages the backend source (excluding node_modules/.git) into a
+      # single artifact tagged with that build ID, downloadable from the
+      # Actions run summary page.
+      - name: Package build artifact
+        run: |
+          mkdir -p dist
+          tar --exclude='./node_modules' --exclude='./.git' --exclude='./dist' \
+            -czf "dist/backend-${{ steps.build_id.outputs.build_id }}.tar.gz" .
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-${{ steps.build_id.outputs.build_id }}
+          path: dist/backend-${{ steps.build_id.outputs.build_id }}.tar.gz
+          retention-days: 14

@@ -4,6 +4,7 @@ const path = require("path");
 
 const healthRouter = require("./backend/app/routes/health");
 const playersRouter = require("./backend/app/routes/players");
+const { notFoundHandler, errorHandler } = require("./backend/app/middleware/errorHandler");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -66,6 +67,12 @@ app.get("/run-test", (req, res) => {
         }
     );
 });
+
+// Catches any request that didn't match a route above, and turns any
+// error thrown/rejected in a route into a consistent JSON error response.
+// Must be registered last — after every route, including /run-test.
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 app.listen(PORT, () => {
     console.log(

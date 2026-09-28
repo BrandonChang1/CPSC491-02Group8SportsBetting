@@ -50,6 +50,12 @@ function runPythonScript(scriptPath, args, res) {
     );
 }
 
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'ok',
+        service: 'sports-betting-backend'
+    });
+});
 
 app.get("/run-test", (req, res) => {
     const team = req.query.team;

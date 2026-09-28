@@ -11,9 +11,9 @@
     "test": "node --test backend/tests/*.test.js"
   },
   "dependencies": {
-    "express": "^4.19.2",
-    "pg": "^8.13.0",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "express": "^4.22.3",
+    "pg": "^8.13.0"
   },
   "devDependencies": {
     "supertest": "^7.0.0"

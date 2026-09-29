@@ -1,0 +1,209 @@
+name: CI Pipeline
+
+on:
+  pull_request:
+    branches:
+      - main
+
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # -----------------------------------------
+      # NBA API Library Check
+      # -----------------------------------------
+      - name: Check nba_api library
+        run: |
+          python - <<'PY'
+          from nba_api.stats.static import players, teams
+
+          nba_players = players.get_players()
+          nba_teams = teams.get_teams()
+
+          if not nba_players:
+              raise RuntimeError("nba_api returned no player data.")
+
+          if not nba_teams:
+              raise RuntimeError("nba_api returned no team data.")
+
+          print(f"nba_api player data available: {len(nba_players)} players")
+          print(f"nba_api team data available: {len(nba_teams)} teams")
+
+          curry = players.find_players_by_full_name("Stephen Curry")
+
+          if not curry:
+              raise RuntimeError(
+                  "Could not locate Stephen Curry in nba_api player data."
+              )
+
+          print(
+              "nba_api smoke test passed. "
+              f"Stephen Curry player ID: {curry[0]['id']}"
+          )
+          PY
+
+      # -----------------------------------------
+      # Live NBA Stats Endpoint Check
+      # -----------------------------------------
+      - name: Check live NBA Stats API
+        continue-on-error: true
+        timeout-minutes: 2
+        run: |
+          python - <<'PY'
+          from nba_api.stats.static import players
+          from nba_api.stats.endpoints import playergamelog
+
+          curry = players.find_players_by_full_name(
+              "Stephen Curry"
+          )[0]
+
+          print(
+              f"Testing NBA Stats API with player ID "
+              f"{curry['id']}..."
+          )
+
+          game_log = playergamelog.PlayerGameLog(
+              player_id=curry["id"],
+              season="2025-26",
+              season_type_all_star="Regular Season",
+              timeout=30
+          )
+
+          df = game_log.get_data_frames()[0]
+
+          if df.empty:
+              raise RuntimeError(
+                  "NBA Stats API returned an empty game log."
+              )
+
+          print(
+              f"NBA Stats API connection successful. "
+              f"Retrieved {len(df)} games."
+          )
+          PY
+      # -----------------------------------------
+      # Backend and API check
+      # -----------------------------------------
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Show environment
+        run: |
+          echo "Node:"
+          node --version
+
+          echo "NPM:"
+          npm --version
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run backend test
+        run: npm run test:backend
+
+      - name: Start backend
+        run: |
+          nohup npm start > server.log 2>&1 &
+          echo $! > server.pid
+
+      - name: Verify backend is running
+        run: |
+          for i in {1..15}; do
+            echo "Health check attempt $i..."
+
+            RESPONSE=$(curl -s -o response.txt -w "%{http_code}" http://localhost:3000/health || true)
+
+            echo "HTTP status: $RESPONSE"
+
+            if [ -f response.txt ]; then
+              echo "Response body:"
+              cat response.txt
+              echo ""
+            fi
+
+            if [ "$RESPONSE" = "200" ]; then
+              echo "Backend Node.js test PASSED."
+              exit 0
+            fi
+
+            sleep 2
+          done
+
+          echo "Backend Node.js test FAILED."
+          echo "Server output:"
+          cat server.log
+          exit 1
+
+      # -----------------------------------------
+      # Project Tests
+      # -----------------------------------------
+      - name: Run Python tests
+        run: |
+          python -m pytest
+
+      # -----------------------------
+      # VERSIONING
+      # -----------------------------
+
+      - name: Create build version
+        if: github.ref == 'refs/heads/main'
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          VERSION="build-${{ github.run_number }}-$SHORT_SHA"
+
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "$VERSION" > BUILD_VERSION.txt
+
+          echo "Created version: $VERSION"
+
+      # -----------------------------
+      # BUILD ARTIFACT
+      # -----------------------------
+
+      - name: Create build artifact
+        if: github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p build
+
+          cp package.json build/
+          cp package-lock.json build/
+          cp server.js build/
+          cp BUILD_VERSION.txt build/
+
+          # Add other backend folders as needed
+          if [ -d scripts ]; then
+            cp -r scripts build/
+          fi
+
+          tar -czf "${VERSION}.tar.gz" build/
+
+      - name: Upload build artifact
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.VERSION }}
+          path: ${{ env.VERSION }}.tar.gz
+          retention-days: 30
+          if-no-files-found: error

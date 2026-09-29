@@ -22,3 +22,8 @@ data/**
 !data/collection/*.py
 !data/sample/
 !data/sample/sample_player_game_logs.csv
+!data/ingestion/
+!data/ingestion/__init__.py
+!data/ingestion/*.py
+
+python-dotenv

@@ -1,27 +1,17 @@
 from pathlib import Path
 
 from nba_api.stats.static import players
-from nba_api.stats.endpoints import playergamelog
 
-from scripts.clean_nba_data import clean_player_game_log
+from data.collection.nba_game_logs import fetch_player_game_log
 
 
 def main():
     curry = players.find_players_by_full_name("Stephen Curry")[0]
 
-    game_log = playergamelog.PlayerGameLog(
+    clean_df = fetch_player_game_log(
         player_id=curry["id"],
         season="2025-26",
-        season_type_all_star="Regular Season",
     )
-
-    raw_df = game_log.get_data_frames()[0]
-
-    if raw_df.empty:
-        print("No game log data was returned.")
-        return
-
-    clean_df = clean_player_game_log(raw_df)
 
     if clean_df.empty:
         print("No cleaned game log data is available.")

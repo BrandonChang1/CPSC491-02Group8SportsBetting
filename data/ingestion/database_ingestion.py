@@ -3,6 +3,7 @@ import os
 import psycopg
 from dotenv import load_dotenv
 from nba_api.stats.static import players, teams
+
 from data.collection.nba_game_logs import fetch_player_game_log
 
 load_dotenv()
@@ -70,7 +71,7 @@ def ingest_teams() -> dict:
 
                 successful += 1
 
-            except Exception as error:
+            except (psycopg.Error, KeyError, TypeError) as error:
                 failed += 1
 
                 print(
@@ -136,7 +137,7 @@ def ingest_players() -> dict:
 
                 successful += 1
 
-            except Exception as error:
+            except (psycopg.Error, KeyError, TypeError) as error:
                 failed += 1
 
                 print(
@@ -273,7 +274,7 @@ def ingest_games(game_logs) -> dict:
 
                 successful += 1
 
-            except Exception as error:
+            except (psycopg.Error, KeyError, TypeError, ValueError) as error:
                 failed += 1
 
                 print(

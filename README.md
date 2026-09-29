@@ -8,8 +8,3 @@ Step 3 - Clone Repo and open Command Line in Repo folder<br>
 Step 4 - Run the command "node server.js"<br>
 Step 5 - Open the window at "[http:localhost:3000]"<br>
 Step 6 - Enjoy!<br>
-
-
-### for optional frontend testing with Playwright
-npm install
-npx playwright install

@@ -5,7 +5,9 @@ const playersRouter = require("./backend/app/routes/players");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const PYTHON_COMMAND = process.env.PYTHON_COMMAND || (process.platform === "win32" ? "python" : "python3");
+const PYTHON_COMMAND =
+    process.env.PYTHON_COMMAND ||
+    (process.platform === "win32" ? "python" : "python3");
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(playersRouter);
@@ -24,7 +26,10 @@ function runPythonScript(scriptPath, args, res) {
                     const result = JSON.parse(stdout);
                     return res.status(error ? 502 : 200).json(result);
                 } catch (parseError) {
-                    console.error("Could not parse Python output:", parseError);
+                    console.error(
+                        "Could not parse Python output:",
+                        parseError
+                    );
                 }
             }
 
@@ -33,7 +38,9 @@ function runPythonScript(scriptPath, args, res) {
 
                 return res.status(500).json({
                     success: false,
-                    message: (stderr && stderr.trim()) || error.message,
+                    message:
+                        (stderr && stderr.trim()) ||
+                        error.message,
                     data: []
                 });
             }
@@ -65,7 +72,11 @@ app.get("/run-test", (req, res) => {
         "webpage_team_search.py"
     );
 
-    runPythonScript(scriptPath, [team], res);
+    runPythonScript(
+        scriptPath,
+        [team],
+        res
+    );
 });
 
 
@@ -97,10 +108,26 @@ app.get("/search-players", (req, res) => {
 app.get("/player-stats", (req, res) => {
     const playerId = req.query.id;
 
+    // Default to the player's 5 most recent games.
+    const review =
+        (req.query.review || "5").toLowerCase();
+
+    const validReviews =
+        new Set(["5", "10", "season"]);
+
     if (!playerId) {
         return res.status(400).json({
             success: false,
             message: "No player ID was provided.",
+            data: []
+        });
+    }
+
+    if (!validReviews.has(review)) {
+        return res.status(400).json({
+            success: false,
+            message:
+                "Review must be 5, 10, or season.",
             data: []
         });
     }
@@ -113,7 +140,11 @@ app.get("/player-stats", (req, res) => {
 
     runPythonScript(
         scriptPath,
-        ["stats", playerId],
+        [
+            "stats",
+            playerId,
+            review
+        ],
         res
     );
 });
@@ -126,8 +157,13 @@ app.get("/api/upcoming-games", (req, res) => {
         "upcoming_games.py"
     );
 
-    runPythonScript(scriptPath, [], res);
+    runPythonScript(
+        scriptPath,
+        [],
+        res
+    );
 });
+
 
 app.get("/health", (req, res) => {
     res.status(200).json({
@@ -135,6 +171,7 @@ app.get("/health", (req, res) => {
         service: "sports-betting-backend"
     });
 });
+
 
 app.listen(PORT, () => {
     console.log(

@@ -1,6 +1,10 @@
 from datetime import datetime, timezone
 
-from scripts.upcoming_games import normalize_upcoming_games, season_for_date, seasons_for_window
+from scripts.upcoming_games import (
+    normalize_upcoming_games,
+    season_for_date,
+    seasons_for_window,
+)
 
 
 def sample_game(game_id, tipoff, status=1):

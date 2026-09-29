@@ -1,10 +1,9 @@
-import sys
 import json
+import sys
 
 import pandas as pd
-from nba_api.stats.static import players
 from nba_api.stats.endpoints import playergamelog
-
+from nba_api.stats.static import players
 
 DEFAULT_SEASON = "2025-26"
 MAX_SEARCH_RESULTS = 10
@@ -212,7 +211,7 @@ def main():
             "data": [],
         })
 
-    except Exception as error:
+    except Exception as error: # noqa: BLE001
         print_json({
             "success": False,
             "message": str(error),

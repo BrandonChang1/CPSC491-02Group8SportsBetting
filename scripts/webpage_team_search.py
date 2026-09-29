@@ -1,8 +1,8 @@
-import sys
 import json
+import sys
 
-from nba_api.stats.static import teams
 from nba_api.stats.endpoints import teamgamelog
+from nba_api.stats.static import teams
 
 
 def find_team(team_name):
@@ -101,7 +101,7 @@ def main():
 
         print(json.dumps(result))
 
-    except Exception as e:
+    except Exception as e: # noqa: BLE001
 
         print(json.dumps({
             "success": False,

@@ -1,5 +1,6 @@
-from nba_api.stats.static import players, teams
 from nba_api.stats.endpoints import playergamelog
+from nba_api.stats.static import players, teams
+
 from scripts.clean_nba_data import clean_player_game_log
 
 

@@ -37,7 +37,7 @@ jobs:
       # Python linting
       # -----------------------------------------
       - name: Run Python linting
-        run: ruff check .
+        run: ruff check --fix . --exclude ml,.venv,node_modules,.git,.github,venv,dist,build,__pycache__
 
       # -----------------------------------------
       # NBA API Library Check

@@ -3,7 +3,6 @@ const { execFile } = require("child_process");
 const path = require("path");
 const healthRouter = require("./backend/app/routes/health");
 const playersRouter = require("./backend/app/routes/players");
-const playersRouter = require("./backend/app/routes/players");
 const { notFoundHandler, errorHandler } = require("./backend/app/middleware/errorHandler");
 
 const app = express();

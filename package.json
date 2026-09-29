@@ -9,10 +9,11 @@
     "dev": "node --watch server.js",
     "migrate": "node database/migrate.js",
     "test": "node --test backend/tests/*.test.js",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:backend": "node --check server.js"
   },
   "dependencies": {
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.6.1",
     "express": "^4.22.3",
     "pg": "^8.13.0"
   },

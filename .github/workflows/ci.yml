@@ -22,16 +22,6 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Generate build version
-        id: version
-        shell: bash
-        run: |
-          SHORT_SHA="${GITHUB_SHA::7}"
-          BUILD_VERSION="0.1.${GITHUB_RUN_NUMBER}+${SHORT_SHA}"
-          echo "BUILD_VERSION=${BUILD_VERSION}" >> "$GITHUB_ENV"
-          echo "version=${BUILD_VERSION}" >> "$GITHUB_OUTPUT"
-          echo "Build version: ${BUILD_VERSION}"
-
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
@@ -109,32 +99,111 @@ jobs:
               f"Retrieved {len(df)} games."
           )
           PY
+      # -----------------------------------------
+      # Backend and API check
+      # -----------------------------------------
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Show environment
+        run: |
+          echo "Node:"
+          node --version
+
+          echo "NPM:"
+          npm --version
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run backend test
+        run: npm run test:backend
+
+      - name: Start backend
+        run: |
+          nohup npm start > server.log 2>&1 &
+          echo $! > server.pid
+
+      - name: Verify backend is running
+        run: |
+          for i in {1..15}; do
+            echo "Health check attempt $i..."
+
+            RESPONSE=$(curl -s -o response.txt -w "%{http_code}" http://localhost:3000/health || true)
+
+            echo "HTTP status: $RESPONSE"
+
+            if [ -f response.txt ]; then
+              echo "Response body:"
+              cat response.txt
+              echo ""
+            fi
+
+            if [ "$RESPONSE" = "200" ]; then
+              echo "Backend Node.js test PASSED."
+              exit 0
+            fi
+
+            sleep 2
+          done
+
+          echo "Backend Node.js test FAILED."
+          echo "Server output:"
+          cat server.log
+          exit 1
 
       # -----------------------------------------
       # Project Tests
       # -----------------------------------------
       - name: Run Python tests
         run: |
-          pytest
+          python -m pytest
 
-      - name: Create build metadata
+      # -----------------------------
+      # VERSIONING
+      # -----------------------------
+
+      - name: Create build version
+        if: github.ref == 'refs/heads/main'
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          VERSION="build-${{ github.run_number }}-$SHORT_SHA"
+
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "$VERSION" > BUILD_VERSION.txt
+
+          echo "Created version: $VERSION"
+
+      # -----------------------------
+      # BUILD ARTIFACT
+      # -----------------------------
+
+      - name: Create build artifact
+        if: github.ref == 'refs/heads/main'
         run: |
           mkdir -p build
-          {
-            echo "version=${BUILD_VERSION}"
-            echo "commit=${GITHUB_SHA}"
-          } > build/build-metadata.txt
 
-      - name: Display build version
-        run: |
-          echo "================================"
-          echo "Application Build Version"
-          echo "${BUILD_VERSION}"
-          echo "================================"    
+          cp package.json build/
+          cp package-lock.json build/
+          cp server.js build/
+          cp BUILD_VERSION.txt build/
 
-      - name: Upload build metadata
+          # Add other backend folders as needed
+          if [ -d scripts ]; then
+            cp -r scripts build/
+          fi
+
+          tar -czf "${VERSION}.tar.gz" build/
+
+      - name: Upload build artifact
+        if: github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
-          name: sports-betting-app-${{ steps.version.outputs.version }}
-          overwrite: true
-          path: build/build-metadata.txt
+          name: ${{ env.VERSION }}
+          path: ${{ env.VERSION }}.tar.gz
+          retention-days: 30
+          if-no-files-found: error

@@ -15,3 +15,10 @@ dist/
 # Data files
 *.csv
 data/**
+data/**
+!data/__init__.py
+!data/collection/
+!data/collection/__init__.py
+!data/collection/*.py
+!data/sample/
+!data/sample/sample_player_game_logs.csv

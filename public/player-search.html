@@ -57,6 +57,18 @@
             background-color: #f2f2f2;
         }
 
+        .review-controls {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .review-controls label {
+            cursor: pointer;
+        }
+
         #status {
             margin-top: 20px;
             font-weight: bold;
@@ -124,6 +136,25 @@
         <div id="playerSuggestions"></div>
     </div>
 
+    <div class="review-controls">
+        <strong>Review:</strong>
+
+        <label>
+            <input type="radio" name="reviewType" value="5" checked>
+            Last 5 Games
+        </label>
+
+        <label>
+            <input type="radio" name="reviewType" value="10">
+            Last 10 Games
+        </label>
+
+        <label>
+            <input type="radio" name="reviewType" value="season">
+            Season
+        </label>
+    </div>
+
     <p id="status"></p>
 
     <div id="averageContainer"></div>
@@ -145,6 +176,9 @@
         const gameContainer =
             document.getElementById("gameContainer");
 
+        const reviewInputs =
+            document.querySelectorAll('input[name="reviewType"]');
+
         let searchTimeout;
 
 
@@ -158,6 +192,26 @@
                 searchPlayers();
             }, 250);
         });
+
+
+        reviewInputs.forEach(input => {
+            input.addEventListener("change", () => {
+                const playerId = playerSearch.dataset.playerId;
+                const playerName = playerSearch.value.trim();
+
+                if (playerId) {
+                    loadPlayerStats(playerId, playerName);
+                }
+            });
+        });
+
+
+        function getSelectedReview() {
+            const selected =
+                document.querySelector('input[name="reviewType"]:checked');
+
+            return selected ? selected.value : "5";
+        }
 
 
         async function searchPlayers() {
@@ -221,8 +275,14 @@
 
 
         async function loadPlayerStats(playerId, playerName) {
+            const review = getSelectedReview();
+            const reviewText =
+                review === "season"
+                    ? "season review"
+                    : "last " + review + " games";
+
             status.textContent =
-                "Loading recent games for " + playerName + "...";
+                "Loading " + reviewText + " for " + playerName + "...";
 
             averageContainer.innerHTML = "";
             gameContainer.innerHTML = "";
@@ -230,7 +290,9 @@
             try {
                 const response = await fetch(
                     "/player-stats?id=" +
-                    encodeURIComponent(playerId)
+                    encodeURIComponent(playerId) +
+                    "&review=" +
+                    encodeURIComponent(review)
                 );
 
                 const data = await response.json();
@@ -244,10 +306,10 @@
                 status.textContent =
                     data.player.name +
                     " - " + data.season +
-                    " most recent games";
+                    " - " + data.review_label;
 
-                displayAverages(data.averages);
-                displayGames(data.data);
+                displayAverages(data.averages, data.review_label);
+                displayGames(data.data, data.review_label);
 
             } catch (error) {
                 console.error("Player stats error:", error);
@@ -259,7 +321,7 @@
         }
 
 
-        function displayAverages(averages) {
+        function displayAverages(averages, reviewLabel) {
             if (!averages || Object.keys(averages).length === 0) {
                 averageContainer.textContent =
                     "No average statistics available.";
@@ -267,7 +329,7 @@
             }
 
             const heading = document.createElement("h2");
-            heading.textContent = "Averages Over These Games";
+            heading.textContent = reviewLabel + " Averages";
             averageContainer.appendChild(heading);
 
             const grid = document.createElement("div");
@@ -305,7 +367,7 @@
         }
 
 
-        function displayGames(games) {
+        function displayGames(games, reviewLabel) {
             if (!games || games.length === 0) {
                 gameContainer.textContent =
                     "No game data returned.";
@@ -314,7 +376,9 @@
 
             const heading = document.createElement("h2");
             heading.textContent =
-                "10 Most Recent Regular Season Games";
+                reviewLabel === "Season Review"
+                    ? "Regular Season Games"
+                    : reviewLabel + " - Regular Season";
             gameContainer.appendChild(heading);
 
             const table = document.createElement("table");

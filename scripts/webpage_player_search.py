@@ -1,14 +1,14 @@
-import sys
 import json
+import sys
 
 import pandas as pd
-from nba_api.stats.static import players
 from nba_api.stats.endpoints import playergamelog
-
+from nba_api.stats.static import players
 
 DEFAULT_SEASON = "2025-26"
 MAX_SEARCH_RESULTS = 10
-RECENT_GAME_COUNT = 10
+DEFAULT_REVIEW = "5"
+VALID_REVIEWS = {"5", "10", "season"}
 
 
 def search_players(search_term):
@@ -29,12 +29,9 @@ def search_players(search_term):
                 "id": player["id"],
                 "name": full_name,
                 "is_active": player["is_active"],
-                # Used only for sorting; removed before returning.
                 "starts_with_search": lower_name.startswith(search_term),
             })
 
-    # Prefer active players, then names that start with the search text,
-    # then alphabetical order.
     matches.sort(
         key=lambda player: (
             not player["is_active"],
@@ -55,8 +52,13 @@ def search_players(search_term):
     return results
 
 
-def get_recent_games(player_id, season=DEFAULT_SEASON):
-    """Return the player's 10 most recent games and averages for those games."""
+def get_games_for_review(player_id, review=DEFAULT_REVIEW, season=DEFAULT_SEASON):
+    """Return games and averages for a 5-game, 10-game, or full-season review."""
+    review = str(review).lower()
+
+    if review not in VALID_REVIEWS:
+        review = DEFAULT_REVIEW
+
     game_log = playergamelog.PlayerGameLog(
         player_id=player_id,
         season=season,
@@ -66,11 +68,13 @@ def get_recent_games(player_id, season=DEFAULT_SEASON):
     df = game_log.get_data_frames()[0].copy()
 
     if df.empty:
-        return [], {}
+        return [], {}, review
 
-    # Convert the NBA API date to a real date so the newest games are first.
     df["GAME_DATE"] = pd.to_datetime(df["GAME_DATE"], errors="coerce")
-    df = df.sort_values("GAME_DATE", ascending=False).head(RECENT_GAME_COUNT)
+    df = df.sort_values("GAME_DATE", ascending=False)
+
+    if review in {"5", "10"}:
+        df = df.head(int(review))
 
     numeric_columns = ["MIN", "PTS", "REB", "AST", "PLUS_MINUS"]
 
@@ -93,10 +97,10 @@ def get_recent_games(player_id, season=DEFAULT_SEASON):
         column for column in display_columns if column in df.columns
     ]
 
-    recent_df = df[available_columns].copy()
+    review_df = df[available_columns].copy()
 
-    if "GAME_DATE" in recent_df.columns:
-        recent_df["GAME_DATE"] = recent_df["GAME_DATE"].dt.strftime("%Y-%m-%d")
+    if "GAME_DATE" in review_df.columns:
+        review_df["GAME_DATE"] = review_df["GAME_DATE"].dt.strftime("%Y-%m-%d")
 
     averages = {}
     average_labels = {
@@ -114,7 +118,7 @@ def get_recent_games(player_id, season=DEFAULT_SEASON):
                 None if pd.isna(average) else round(float(average), 1)
             )
 
-    return recent_df.to_dict(orient="records"), averages
+    return review_df.to_dict(orient="records"), averages, review
 
 
 def print_json(payload):
@@ -125,7 +129,10 @@ def main():
     if len(sys.argv) < 3:
         print_json({
             "success": False,
-            "message": "Usage: webpage_player_search.py search <name> OR stats <player_id>",
+            "message": (
+                "Usage: webpage_player_search.py search <name> OR "
+                "stats <player_id> [5|10|season]"
+            ),
             "data": [],
         })
         return
@@ -155,6 +162,16 @@ def main():
                 })
                 return
 
+            review = sys.argv[3].lower() if len(sys.argv) >= 4 else DEFAULT_REVIEW
+
+            if review not in VALID_REVIEWS:
+                print_json({
+                    "success": False,
+                    "message": "Review must be 5, 10, or season.",
+                    "data": [],
+                })
+                return
+
             player = players.find_player_by_id(player_id)
 
             if player is None:
@@ -165,17 +182,24 @@ def main():
                 })
                 return
 
-            games, averages = get_recent_games(player_id)
+            games, averages, review = get_games_for_review(player_id, review)
+
+            if review == "season":
+                review_label = "Season Review"
+            else:
+                review_label = f"Last {review} Games"
 
             print_json({
                 "success": True,
-                "message": f"Loaded {len(games)} recent games for {player['full_name']}.",
+                "message": f"Loaded {review_label.lower()} for {player['full_name']}.",
                 "player": {
                     "id": player["id"],
                     "name": player["full_name"],
                     "is_active": player["is_active"],
                 },
                 "season": DEFAULT_SEASON,
+                "review": review,
+                "review_label": review_label,
                 "averages": averages,
                 "data": games,
             })
@@ -187,7 +211,7 @@ def main():
             "data": [],
         })
 
-    except Exception as error:
+    except Exception as error: # noqa: BLE001
         print_json({
             "success": False,
             "message": str(error),

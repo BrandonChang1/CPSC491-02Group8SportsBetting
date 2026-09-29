@@ -10,7 +10,8 @@
     "migrate": "node database/migrate.js",
     "test": "node --test backend/tests/*.test.js",
     "test:e2e": "playwright test",
-    "test:backend": "node --check server.js"
+    "test:backend": "node --check server.js",
+    "lint": "eslint ."
   },
   "dependencies": {
     "dotenv": "^16.6.1",
@@ -19,6 +20,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
+    "eslint": "^10.11.0",
     "supertest": "^7.0.0"
   }
 }

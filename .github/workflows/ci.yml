@@ -193,6 +193,17 @@ jobs:
             kill $(cat server.pid) || true
           fi
 
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright frontend test
+        env:
+          CI: ""
+        run: npm run test:e2e
+
+      # -----------------------------
+      # VERSIONING
+      # -----------------------------
       # -----------------------------------------
       # Python project tests
       # -----------------------------------------

@@ -1,7 +1,9 @@
 const express = require("express");
 const { execFile } = require("child_process");
 const path = require("path");
+const healthRouter = require("./backend/app/routes/health");
 const playersRouter = require("./backend/app/routes/players");
+const { notFoundHandler, errorHandler } = require("./backend/app/middleware/errorHandler");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,6 +12,7 @@ const PYTHON_COMMAND =
     (process.platform === "win32" ? "python" : "python3");
 
 app.use(express.static(path.join(__dirname, "public")));
+app.use(healthRouter);
 app.use(playersRouter);
 
 
@@ -165,12 +168,12 @@ app.get("/api/upcoming-games", (req, res) => {
 });
 
 
-app.get("/health", (req, res) => {
-    res.status(200).json({
-        status: "ok",
-        service: "sports-betting-backend"
-    });
-});
+
+// Catches any request that didn't match a route above, and turns any
+// error thrown/rejected in a route into a consistent JSON error response.
+// Must be registered last — after every route, including /run-test.
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 
 app.listen(PORT, () => {

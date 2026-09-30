@@ -9,8 +9,9 @@ from __future__ import annotations
 
 import json
 import sys
+from collections.abc import Iterable
 from datetime import datetime, timedelta, timezone
-from typing import Any, Iterable
+from typing import Any
 
 LOOKAHEAD_DAYS = 14
 
@@ -172,7 +173,7 @@ def get_upcoming_games(now: datetime | None = None) -> dict[str, Any]:
 def main() -> None:
     try:
         print(json.dumps(get_upcoming_games()))
-    except Exception as exc:  # Return machine-readable failure for Express.
+    except Exception as exc:  # noqa: BLE001 Return machine-readable failure for Express.
         print(
             json.dumps(
                 {

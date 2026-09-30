@@ -1,0 +1,16 @@
+ALTER TABLE player_game_stats
+    ADD COLUMN IF NOT EXISTS field_goals_made INTEGER,
+    ADD COLUMN IF NOT EXISTS field_goals_attempted INTEGER,
+    ADD COLUMN IF NOT EXISTS field_goal_pct DOUBLE PRECISION,
+    ADD COLUMN IF NOT EXISTS three_pointers_made INTEGER,
+    ADD COLUMN IF NOT EXISTS three_pointers_attempted INTEGER,
+    ADD COLUMN IF NOT EXISTS three_point_pct DOUBLE PRECISION,
+    ADD COLUMN IF NOT EXISTS free_throws_made INTEGER,
+    ADD COLUMN IF NOT EXISTS free_throws_attempted INTEGER,
+    ADD COLUMN IF NOT EXISTS free_throw_pct DOUBLE PRECISION,
+    ADD COLUMN IF NOT EXISTS offensive_rebounds INTEGER,
+    ADD COLUMN IF NOT EXISTS defensive_rebounds INTEGER,
+    ADD COLUMN IF NOT EXISTS steals INTEGER,
+    ADD COLUMN IF NOT EXISTS blocks INTEGER,
+    ADD COLUMN IF NOT EXISTS turnovers INTEGER,
+    ADD COLUMN IF NOT EXISTS personal_fouls INTEGER;

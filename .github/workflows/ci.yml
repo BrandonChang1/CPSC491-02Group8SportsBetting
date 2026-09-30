@@ -38,9 +38,15 @@ jobs:
       PORT: 3000
 
     steps:
+      # -----------------------------------------
+      # Checkout
+      # -----------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # -----------------------------------------
+      # Python setup
+      # -----------------------------------------
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -50,6 +56,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      # -----------------------------------------
+      # Python linting
+      # -----------------------------------------
+      - name: Run Python linting
+        run: ruff check --fix . --exclude ml,.venv,node_modules,.git,.github,venv,dist,build,__pycache__
 
       # -----------------------------------------
       # NBA API Library Check
@@ -123,17 +135,17 @@ jobs:
               f"Retrieved {len(df)} games."
           )
           PY
-      # -----------------------------------------
-      # Backend and API check
-      # -----------------------------------------
 
+      # -----------------------------------------
+      # Node.js setup
+      # -----------------------------------------
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      - name: Show environment
+      - name: Show Node environment
         run: |
           echo "Node:"
           node --version
@@ -141,8 +153,14 @@ jobs:
           echo "NPM:"
           npm --version
 
-      - name: Install dependencies
+      - name: Install Node dependencies
         run: npm ci
+
+      # -----------------------------------------
+      # JavaScript linting
+      # -----------------------------------------
+      - name: Run JavaScript linting
+        run: npm run lint
 
       # SCRUM-52: applies database/migrations/*.sql to the Postgres service
       # above, so the backend has real tables before anything queries them.
@@ -156,11 +174,17 @@ jobs:
       - name: Run backend automated tests
         run: npm test
 
+      # -----------------------------------------
+      # Start backend
+      # -----------------------------------------
       - name: Start backend
         run: |
           nohup npm start > server.log 2>&1 &
           echo $! > server.pid
 
+      # -----------------------------------------
+      # Health check
+      # -----------------------------------------
       - name: Verify backend is running
         run: |
           for i in {1..15}; do
@@ -190,31 +214,49 @@ jobs:
           exit 1
 
       # -----------------------------------------
-      # Project Tests
+      # Stop backend
       # -----------------------------------------
-      - name: Run Python tests
+      - name: Stop backend
+        if: always()
         run: |
-          python -m pytest
+          if [ -f server.pid ]; then
+            kill $(cat server.pid) || true
+          fi
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright frontend test
+        env:
+          CI: ""
+        run: npm run test:e2e
 
       # -----------------------------
       # VERSIONING
       # -----------------------------
+      # -----------------------------------------
+      # Python project tests
+      # -----------------------------------------
+      - name: Run Python tests
+        run: python -m pytest
 
+      # -----------------------------------------
+      # Versioning
+      # -----------------------------------------
       - name: Create build version
         if: github.ref == 'refs/heads/main'
         run: |
           SHORT_SHA=$(git rev-parse --short HEAD)
           VERSION="build-${{ github.run_number }}-$SHORT_SHA"
 
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "$VERSION" > BUILD_VERSION.txt
 
           echo "Created version: $VERSION"
 
-      # -----------------------------
-      # BUILD ARTIFACT
-      # -----------------------------
-
+      # -----------------------------------------
+      # Build artifact
+      # -----------------------------------------
       - name: Create build artifact
         if: github.ref == 'refs/heads/main'
         run: |
@@ -225,13 +267,22 @@ jobs:
           cp server.js build/
           cp BUILD_VERSION.txt build/
 
-          # Add other backend folders as needed
           if [ -d scripts ]; then
             cp -r scripts build/
           fi
 
+          if [ -d backend ]; then
+            cp -r backend build/
+          fi
+
           tar -czf "${VERSION}.tar.gz" build/
 
+          echo "Created artifact:"
+          ls -lh "${VERSION}.tar.gz"
+
+      # -----------------------------------------
+      # Upload artifact
+      # -----------------------------------------
       - name: Upload build artifact
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4

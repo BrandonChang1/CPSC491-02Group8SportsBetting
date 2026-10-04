@@ -13,6 +13,30 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    # Provisions a real PostgreSQL instance for this job. Needed for two
+    # things: (1) SCRUM-52 — validating that migrations actually run against
+    # a real database in CI, and (2) the /health check further down, which
+    # now does a real DB connectivity check (SELECT 1) rather than always
+    # returning 200 — without this service, that check would fail here.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: nba_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nba_db
+      PORT: 3000
+
     steps:
       # -----------------------------------------
       # Checkout
@@ -138,11 +162,17 @@ jobs:
       - name: Run JavaScript linting
         run: npm run lint
 
-      # -----------------------------------------
-      # Backend syntax test
-      # -----------------------------------------
-      - name: Run backend syntax test
-        run: npm run test:backend
+      # SCRUM-52: applies database/migrations/*.sql to the Postgres service
+      # above, so the backend has real tables before anything queries them.
+      - name: Run database migrations
+        run: npm run migrate
+
+      # SCRUM-51: runs the actual backend/tests/*.test.js suite (health,
+      # player search/details/game-history, pagination, error handling)
+      # against the migrated database, rather than just a syntax check.
+      # A failing test here fails this job.
+      - name: Run backend automated tests
+        run: npm test
 
       # -----------------------------------------
       # Start backend

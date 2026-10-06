@@ -5,3 +5,4 @@ psycopg[binary]
 matplotlib==3.11.2
 scikit-learn==1.9.1
 ruff
+python-dotenv

@@ -1,10 +1,11 @@
 import os
 
 import psycopg
+import pandas as pd
 from dotenv import load_dotenv
 from nba_api.stats.static import players, teams
-
 from data.collection.nba_game_logs import fetch_player_game_log
+from data.processing.modeling_features import add_modeling_context
 
 load_dotenv()
 def get_database_url() -> str:
@@ -288,24 +289,194 @@ def ingest_games(game_logs) -> dict:
         "failed": failed,
     }
 
+def ingest_player_game_stats(game_logs) -> dict:
+    """
+    Insert cleaned player game-log rows into player_game_stats.
+
+    Adds Sprint 3 modeling context:
+        opponent_team_id
+        is_home
+        recent_minutes_avg
+
+    Existing player/game rows are updated instead of duplicated.
+    """
+
+    processed = 0
+    successful = 0
+    failed = 0
+
+    database_url = get_database_url()
+
+    # Add opponent, home/away, and rolling recent-minutes context.
+    contextualized_logs = add_modeling_context(game_logs)
+
+    with psycopg.connect(
+        database_url,
+        autocommit=True,
+    ) as connection:
+
+        team_ids = get_team_id_map(connection)
+
+        for _, row in contextualized_logs.iterrows():
+            processed += 1
+
+            try:
+                opponent_team_id = team_ids.get(
+                    row["opponent_abbreviation"]
+                )
+
+                if opponent_team_id is None:
+                    raise ValueError(
+                        "Unknown opponent team abbreviation: "
+                        f"{row['opponent_abbreviation']}"
+                    )
+
+                # pandas represents the first unavailable rolling average
+                # as NaN. Convert only that NaN value to SQL NULL.
+                if pd.isna(row["recent_minutes_avg"]):
+                    recent_minutes_avg = None
+                else:
+                    recent_minutes_avg = float(
+                        row["recent_minutes_avg"]
+                    )
+
+                connection.execute(
+                    """
+                    INSERT INTO player_game_stats (
+                        player_id,
+                        game_id,
+                        minutes,
+                        points,
+                        rebounds,
+                        assists,
+                        plus_minus,
+                        matchup,
+                        win_loss,
+                        field_goals_made,
+                        field_goals_attempted,
+                        field_goal_pct,
+                        three_pointers_made,
+                        three_pointers_attempted,
+                        three_point_pct,
+                        free_throws_made,
+                        free_throws_attempted,
+                        free_throw_pct,
+                        offensive_rebounds,
+                        defensive_rebounds,
+                        steals,
+                        blocks,
+                        turnovers,
+                        personal_fouls,
+                        opponent_team_id,
+                        is_home,
+                        recent_minutes_avg
+                    )
+                    VALUES (
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s
+                    )
+                    ON CONFLICT (player_id, game_id)
+                    DO UPDATE SET
+                        minutes = EXCLUDED.minutes,
+                        points = EXCLUDED.points,
+                        rebounds = EXCLUDED.rebounds,
+                        assists = EXCLUDED.assists,
+                        plus_minus = EXCLUDED.plus_minus,
+                        matchup = EXCLUDED.matchup,
+                        win_loss = EXCLUDED.win_loss,
+                        field_goals_made =
+                            EXCLUDED.field_goals_made,
+                        field_goals_attempted =
+                            EXCLUDED.field_goals_attempted,
+                        field_goal_pct =
+                            EXCLUDED.field_goal_pct,
+                        three_pointers_made =
+                            EXCLUDED.three_pointers_made,
+                        three_pointers_attempted =
+                            EXCLUDED.three_pointers_attempted,
+                        three_point_pct =
+                            EXCLUDED.three_point_pct,
+                        free_throws_made =
+                            EXCLUDED.free_throws_made,
+                        free_throws_attempted =
+                            EXCLUDED.free_throws_attempted,
+                        free_throw_pct =
+                            EXCLUDED.free_throw_pct,
+                        offensive_rebounds =
+                            EXCLUDED.offensive_rebounds,
+                        defensive_rebounds =
+                            EXCLUDED.defensive_rebounds,
+                        steals =
+                            EXCLUDED.steals,
+                        blocks =
+                            EXCLUDED.blocks,
+                        turnovers =
+                            EXCLUDED.turnovers,
+                        personal_fouls =
+                            EXCLUDED.personal_fouls,
+                        opponent_team_id =
+                            EXCLUDED.opponent_team_id,
+                        is_home =
+                            EXCLUDED.is_home,
+                        recent_minutes_avg =
+                            EXCLUDED.recent_minutes_avg
+                    """,
+                    (
+                        row["player_id"],
+                        row["game_id"],
+                        row["minutes"],
+                        row["points"],
+                        row["rebounds"],
+                        row["assists"],
+                        row["plus_minus"],
+                        row["matchup"],
+                        row["win_loss"],
+                        row["field_goals_made"],
+                        row["field_goals_attempted"],
+                        row["field_goal_pct"],
+                        row["three_pointers_made"],
+                        row["three_pointers_attempted"],
+                        row["three_point_pct"],
+                        row["free_throws_made"],
+                        row["free_throws_attempted"],
+                        row["free_throw_pct"],
+                        row["offensive_rebounds"],
+                        row["defensive_rebounds"],
+                        row["steals"],
+                        row["blocks"],
+                        row["turnovers"],
+                        row["personal_fouls"],
+                        opponent_team_id,
+                        bool(row["is_home"]),
+                        recent_minutes_avg,
+                    ),
+                )
+
+                successful += 1
+
+            except (
+                psycopg.Error,
+                KeyError,
+                TypeError,
+                ValueError,
+            ) as error:
+                failed += 1
+
+                print(
+                    "Failed to ingest player game stats "
+                    f"for game "
+                    f"{row.get('game_id', 'unknown')}: "
+                    f"{error}"
+                )
+
+    return {
+        "processed": processed,
+        "successful": successful,
+        "failed": failed,
+    }
+
 def main():
-    curry = players.find_players_by_full_name(
-        "Stephen Curry"
-    )[0]
-
-    curry_game_logs = fetch_player_game_log(
-        player_id=curry["id"],
-        season="2025-26",
-    )
-
-    game_results = ingest_games(curry_game_logs)
-
-    print(
-        "Games:",
-        f"processed={game_results['processed']}",
-        f"successful={game_results['successful']}",
-        f"failed={game_results['failed']}",
-    )
     print("Starting NBA database ingestion...")
 
     team_results = ingest_teams()
@@ -324,6 +495,35 @@ def main():
         f"processed={player_results['processed']}",
         f"successful={player_results['successful']}",
         f"failed={player_results['failed']}",
+    )
+
+    curry = players.find_players_by_full_name(
+        "Stephen Curry"
+    )[0]
+
+    curry_game_logs = fetch_player_game_log(
+        player_id=curry["id"],
+        season="2025-26",
+    )
+
+    game_results = ingest_games(curry_game_logs)
+
+    print(
+        "Games:",
+        f"processed={game_results['processed']}",
+        f"successful={game_results['successful']}",
+        f"failed={game_results['failed']}",
+    )
+
+    stats_results = ingest_player_game_stats(
+        curry_game_logs
+    )
+
+    print(
+        "Player game stats:",
+        f"processed={stats_results['processed']}",
+        f"successful={stats_results['successful']}",
+        f"failed={stats_results['failed']}",
     )
 
     print("NBA database ingestion complete.")

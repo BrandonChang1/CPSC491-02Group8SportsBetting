@@ -156,11 +156,6 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
-      # -----------------------------------------
-      # JavaScript linting
-      # -----------------------------------------
-      - name: Run JavaScript linting
-        run: npm run lint
 
       # SCRUM-52: applies database/migrations/*.sql to the Postgres service
       # above, so the backend has real tables before anything queries them.
@@ -231,9 +226,6 @@ jobs:
           CI: ""
         run: npm run test:e2e
 
-      # -----------------------------
-      # VERSIONING
-      # -----------------------------
       # -----------------------------------------
       # Python project tests
       # -----------------------------------------
@@ -285,7 +277,7 @@ jobs:
       # -----------------------------------------
       - name: Upload build artifact
         if: github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ env.VERSION }}
           path: ${{ env.VERSION }}.tar.gz

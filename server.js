@@ -1,8 +1,11 @@
+require("dotenv").config();
+
 const express = require("express");
 const { execFile } = require("child_process");
 const path = require("path");
 const healthRouter = require("./backend/app/routes/health");
 const playersRouter = require("./backend/app/routes/players");
+const { router: authRouter, requireAuth } = require("./backend/app/routes/auth");
 const { notFoundHandler, errorHandler } = require("./backend/app/middleware/errorHandler");
 
 const app = express();
@@ -11,19 +14,21 @@ const PYTHON_COMMAND =
     process.env.PYTHON_COMMAND ||
     (process.platform === "win32" ? "python" : "python3");
 
+app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
+app.use(authRouter);
 app.use(healthRouter);
 app.use(playersRouter);
 
+app.get("/app", requireAuth, (req, res) => {
+    res.sendFile(path.join(__dirname, "protected", "home.html"));
+});
 
 function runPythonScript(scriptPath, args, res) {
     execFile(
         PYTHON_COMMAND,
         [scriptPath, ...args],
         (error, stdout, stderr) => {
-            // The Python helpers return JSON on stdout, including controlled
-            // error responses. Parse that output first so the browser receives
-            // a useful message instead of only a child-process exit error.
             if (stdout && stdout.trim()) {
                 try {
                     const result = JSON.parse(stdout);
@@ -57,7 +62,6 @@ function runPythonScript(scriptPath, args, res) {
     );
 }
 
-
 app.get("/run-test", (req, res) => {
     const team = req.query.team;
 
@@ -75,13 +79,12 @@ app.get("/run-test", (req, res) => {
         "webpage_team_search.py"
     );
 
-    runPythonScript(
+    return runPythonScript(
         scriptPath,
         [team],
         res
     );
 });
-
 
 app.get("/search-players", (req, res) => {
     const query = req.query.q;
@@ -100,21 +103,17 @@ app.get("/search-players", (req, res) => {
         "webpage_player_search.py"
     );
 
-    runPythonScript(
+    return runPythonScript(
         scriptPath,
         ["search", query.trim()],
         res
     );
 });
 
-
 app.get("/player-stats", (req, res) => {
     const playerId = req.query.id;
-
-    // Default to the player's 5 most recent games.
     const review =
         (req.query.review || "5").toLowerCase();
-
     const validReviews =
         new Set(["5", "10", "season"]);
 
@@ -141,7 +140,7 @@ app.get("/player-stats", (req, res) => {
         "webpage_player_search.py"
     );
 
-    runPythonScript(
+    return runPythonScript(
         scriptPath,
         [
             "stats",
@@ -152,7 +151,6 @@ app.get("/player-stats", (req, res) => {
     );
 });
 
-
 app.get("/api/upcoming-games", (req, res) => {
     const scriptPath = path.join(
         __dirname,
@@ -160,24 +158,22 @@ app.get("/api/upcoming-games", (req, res) => {
         "upcoming_games.py"
     );
 
-    runPythonScript(
+    return runPythonScript(
         scriptPath,
         [],
         res
     );
 });
 
-
-
-// Catches any request that didn't match a route above, and turns any
-// error thrown/rejected in a route into a consistent JSON error response.
-// Must be registered last — after every route, including /run-test.
 app.use(notFoundHandler);
 app.use(errorHandler);
 
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(
+            `Server running at http://localhost:${PORT}`
+        );
+    });
+}
 
-app.listen(PORT, () => {
-    console.log(
-        `Server running at http://localhost:${PORT}`
-    );
-});
+module.exports = app;

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NBA Prediction App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f4f4f4;
+      min-height: 100vh;
+    }
+    header {
+      background: #111827;
+      color: white;
+      padding: 18px 24px;
+    }
+    .header-inner {
+      width: min(900px, calc(100% - 32px));
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    main {
+      width: min(900px, calc(100% - 32px));
+      margin: 32px auto;
+    }
+    .card {
+      background: white;
+      padding: 28px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .button-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 24px;
+    }
+    .nav-button, button {
+      display: inline-block;
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 6px;
+      background: #222;
+      color: white;
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 15px;
+      text-align: center;
+    }
+    .nav-button:hover, button:hover { background: #444; }
+    #welcome { color: #555; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <strong>NBA Prediction App</strong>
+      <button id="logoutButton" type="button">Log out</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="card">
+      <h1>Account Home</h1>
+      <p id="welcome">Loading account...</p>
+
+      <div class="button-grid">
+        <a class="nav-button" href="/player-search.html">Search NBA Players</a>
+        <a class="nav-button" href="/upcoming-games.html">View Upcoming Games</a>
+        <a class="nav-button" href="/test.html">Open NBA Data Test</a>
+        <a class="nav-button" href="/">Public Welcome Page</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    async function loadUser() {
+      const response = await fetch('/api/auth/me');
+
+      if (!response.ok) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      const result = await response.json();
+      document.getElementById('welcome').textContent =
+        `Logged in as ${result.user.username} (${result.user.email})`;
+    }
+
+    document.getElementById('logoutButton').addEventListener('click', async () => {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      window.location.href = '/login.html';
+    });
+
+    loadUser();
+  </script>
+</body>
+</html>

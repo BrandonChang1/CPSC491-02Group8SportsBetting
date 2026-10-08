@@ -2,6 +2,7 @@ module.exports = [
   {
     ignores: [
       "node_modules/**",
+      ".venv/**",
       "build/**"
     ]
   },

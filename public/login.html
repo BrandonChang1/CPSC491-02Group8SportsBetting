@@ -1,8 +1,8 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Welcome back | NBA Player Analytics</title><link rel="stylesheet" href="/styles.css"></head><body><header><div class="header-inner"><div class="brand">NBA <span>/</span> Player Analytics</div><a href="/" class="back-link">← Back to home</a></div></header><main><div class="auth-wrap"><div class="card"><p class="eyebrow">Secure account access</p><h1>Welcome back</h1><p class="subtitle">Log in to access your NBA analytics account.</p><form id="loginForm">
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Welcome back | NBA Player Analytics</title><link rel="stylesheet" href="/styles.css"></head><body><header><div class="header-inner"><div class="brand">NBA <span>/</span> Player Analytics</div><a href="/" class="back-link">← Back to home</a></div></header><main data-testid="login-page"><div class="auth-wrap"><div class="card"><p class="eyebrow">Secure account access</p><h1 data-testid="login-heading">Welcome back</h1><p class="subtitle">Log in to access your NBA analytics account.</p><form data-testid="login-form" id="loginForm">
     <label for="identifier">Username or Email</label>
     <input
       type="text"
-      id="identifier"
+      id="identifier" data-testid="login-identifier"
       name="identifier"
       autocomplete="username"
       required
@@ -11,14 +11,14 @@
     <label for="password">Password</label>
     <input
       type="password"
-      id="password"
+      id="password" data-testid="login-password"
       name="password"
       autocomplete="current-password"
       required
     >
 
-    <button type="submit">Login</button>
-    <p id="message" role="status" aria-live="polite"></p>
+    <button data-testid="login-submit" type="submit">Login</button>
+    <p id="message" data-testid="login-status" role="status" aria-live="polite"></p>
   </form><div class="auth-links"><a href="/create-account.html">Create an account</a><a href="/">Return to welcome page</a></div></div></div></main><script>
     const form = document.getElementById('loginForm');
     const message = document.getElementById('message');

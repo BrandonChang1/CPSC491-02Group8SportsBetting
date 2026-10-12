@@ -63,34 +63,34 @@
 </head>
 
 <body>
-    <header class="topbar"><div class="brand">NBA <span style="color:#91b5ff">/</span> Player Analytics</div><a href="/" class="home-button">← Back to home</a></header>
-    <main>
+    <header class="topbar"><div class="brand">NBA <span style="color:#91b5ff">/</span> Player Analytics</div><a data-testid="back-home" href="/" class="home-button">← Back to home</a></header>
+    <main data-testid="player-search-page">
         <p class="eyebrow">Player intelligence</p>
-        <h1>Player performance dashboard</h1>
+        <h1 data-testid="player-search-heading">Player performance dashboard</h1>
         <p class="subtitle">Explore game history, compare recent performance, and review next-game points estimates.</p>
         <div class="control-panel">
             <div class="player-search-container">
                 <label for="playerSearch" class="input-label">Find a player</label>
-                <input type="text" id="playerSearch" placeholder="Search by player name…" autocomplete="off">
-                <div id="playerSuggestions"></div>
+                <input type="text" id="playerSearch" data-testid="player-search-input" placeholder="Search by player name…" autocomplete="off">
+                <div id="playerSuggestions" data-testid="player-suggestions"></div>
             </div>
             <div class="review-controls" aria-label="Review game history">
                 <span class="review-title">Historical review range</span>
-                <label class="review-option"><input type="radio" name="reviewType" value="5" checked> Last 5 games</label>
-                <label class="review-option"><input type="radio" name="reviewType" value="10"> Last 10 games</label>
-                <label class="review-option"><input type="radio" name="reviewType" value="season"> Season</label>
+                <label class="review-option"><input type="radio" name="reviewType" value="5" data-testid="review-last-5" checked> Last 5 games</label>
+                <label class="review-option"><input type="radio" name="reviewType" value="10" data-testid="review-last-10"> Last 10 games</label>
+                <label class="review-option"><input type="radio" name="reviewType" value="season" data-testid="review-season"> Season</label>
             </div>
         </div>
-        <p id="status" role="status" aria-live="polite">Select a player to explore performance data.</p>
+        <p id="status" data-testid="player-status" role="status" aria-live="polite">Select a player to explore performance data.</p>
         <div class="dashboard">
             <section class="panel" aria-label="Historical statistics">
                 <div class="panel-heading"><h2>Historical performance</h2><span class="pill">GAME LOGS</span></div>
-                <div id="averageContainer"><p class="subtitle">Player averages appear here after selection.</p></div>
-                <div id="gameContainer"></div>
+                <div id="averageContainer" data-testid="player-averages"><p class="subtitle">Player averages appear here after selection.</p></div>
+                <div id="gameContainer" data-testid="player-game-history"></div>
             </section>
             <aside class="panel prediction-panel" aria-label="Player predictions">
                 <div class="panel-heading"><h2>Points projections</h2><span class="pill">NEXT GAME</span></div>
-                <section id="predictionContainer" aria-live="polite">Select a player to view baseline estimates for their next game.</section>
+                <section id="predictionContainer" data-testid="player-predictions" aria-live="polite">Select a player to view baseline estimates for their next game.</section>
                 <div class="footnote">Estimates use historical points data and are not guarantees of future performance.</div>
             </aside>
         </div>

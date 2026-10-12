@@ -1,8 +1,8 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Create your account | NBA Player Analytics</title><link rel="stylesheet" href="/styles.css"></head><body><header><div class="header-inner"><div class="brand">NBA <span>/</span> Player Analytics</div><a href="/" class="back-link">← Back to home</a></div></header><main><div class="auth-wrap"><div class="card"><p class="eyebrow">Secure account access</p><h1>Create your account</h1><p class="subtitle">Get started with the NBA analytics dashboard.</p><form id="createAccountForm">
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Create your account | NBA Player Analytics</title><link rel="stylesheet" href="/styles.css"></head><body><header><div class="header-inner"><div class="brand">NBA <span>/</span> Player Analytics</div><a href="/" class="back-link">← Back to home</a></div></header><main data-testid="create-account-page"><div class="auth-wrap"><div class="card"><p class="eyebrow">Secure account access</p><h1 data-testid="create-account-heading">Create your account</h1><p class="subtitle">Get started with the NBA analytics dashboard.</p><form data-testid="register-form" id="createAccountForm">
     <label for="username">Username</label>
     <input
       type="text"
-      id="username"
+      id="username" data-testid="register-username"
       name="username"
       autocomplete="username"
       minlength="3"
@@ -13,7 +13,7 @@
     <label for="email">Email</label>
     <input
       type="email"
-      id="email"
+      id="email" data-testid="register-email"
       name="email"
       autocomplete="email"
       required
@@ -22,15 +22,15 @@
     <label for="password">Password</label>
     <input
       type="password"
-      id="password"
+      id="password" data-testid="register-password"
       name="password"
       autocomplete="new-password"
       minlength="8"
       required
     >
 
-    <button type="submit">Create Account</button>
-    <p id="message" role="status" aria-live="polite"></p>
+    <button data-testid="register-submit" type="submit">Create Account</button>
+    <p id="message" data-testid="register-status" role="status" aria-live="polite"></p>
   </form><div class="auth-links"><a href="/login.html">Already have an account? Log in</a><a href="/">Return to welcome page</a></div></div></div></main><script>
     const form = document.getElementById('createAccountForm');
     const message = document.getElementById('message');

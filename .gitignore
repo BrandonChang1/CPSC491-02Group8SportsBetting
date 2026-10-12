@@ -15,6 +15,7 @@ dist/
 # Data files
 *.csv
 data/**
+data/modeling/**
 !data/__init__.py
 !data/collection/
 !data/collection/__init__.py
@@ -26,5 +27,6 @@ data/**
 !data/ingestion/*.py
 !data/processing/
 !data/processing/** 
+
 
 python-dotenv

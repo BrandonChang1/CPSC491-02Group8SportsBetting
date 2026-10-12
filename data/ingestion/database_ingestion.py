@@ -1,9 +1,10 @@
 import os
 
-import psycopg
 import pandas as pd
+import psycopg
 from dotenv import load_dotenv
 from nba_api.stats.static import players, teams
+
 from data.collection.nba_game_logs import fetch_player_game_log
 from data.processing.modeling_features import add_modeling_context
 
@@ -23,6 +24,50 @@ def get_database_url() -> str:
 
     return database_url
 
+def recalculate_recent_minutes_avg() -> None:
+    """
+    Recalculate the five-game recent-minutes average
+    for every stored player-game record.
+
+    Only games before the current game are included,
+    preventing data leakage.
+    """
+
+    database_url = get_database_url()
+
+    query = """
+        WITH rolling_minutes AS (
+            SELECT
+                pgs.player_id,
+                pgs.game_id,
+                AVG(pgs.minutes) OVER (
+                    PARTITION BY pgs.player_id
+                    ORDER BY
+                        g.game_date,
+                        pgs.game_id
+                    ROWS BETWEEN 5 PRECEDING
+                    AND 1 PRECEDING
+                ) AS recent_minutes_avg
+            FROM player_game_stats pgs
+            JOIN games g
+                ON pgs.game_id = g.id
+        )
+        UPDATE player_game_stats pgs
+        SET recent_minutes_avg =
+            rolling_minutes.recent_minutes_avg
+        FROM rolling_minutes
+        WHERE
+            pgs.player_id =
+                rolling_minutes.player_id
+            AND pgs.game_id =
+                rolling_minutes.game_id
+    """
+
+    with psycopg.connect(
+        database_url,
+        autocommit=True,
+    ) as connection:
+        connection.execute(query)
 
 def ingest_teams() -> dict:
     """

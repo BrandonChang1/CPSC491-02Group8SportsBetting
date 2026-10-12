@@ -8,7 +8,6 @@ import psycopg
 
 from data.ingestion.database_ingestion import get_database_url
 
-
 # Version of the dataset structure and generation process.
 DATASET_VERSION = "1.0.0"
 

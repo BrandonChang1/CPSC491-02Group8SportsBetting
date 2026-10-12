@@ -1,9 +1,10 @@
 import os
 
-import psycopg
 import pandas as pd
+import psycopg
 from dotenv import load_dotenv
 from nba_api.stats.static import players, teams
+
 from data.collection.nba_game_logs import fetch_player_game_log
 from data.processing.modeling_features import add_modeling_context
 

@@ -13,7 +13,6 @@ from data.ingestion.database_ingestion import (
     recalculate_recent_minutes_avg,
 )
 
-
 TARGET_STAT_ROWS = 5000
 
 SEASONS = [
@@ -121,7 +120,12 @@ def main():
 
                 time.sleep(1)
 
-            except Exception as error:
+            except (
+                ValueError,
+                KeyError,
+                TypeError,
+                psycopg.Error,
+            ) as error:
                 failures += 1
 
                 print(

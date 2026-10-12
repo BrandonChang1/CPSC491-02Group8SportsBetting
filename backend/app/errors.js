@@ -27,4 +27,32 @@ class NotFoundError extends AppError {
   }
 }
 
-module.exports = { AppError, ValidationError, NotFoundError };
+/** The request is valid but there isn't enough data to fulfil it (e.g. a player with no games to predict from). */
+class InsufficientDataError extends AppError {
+  constructor(message) {
+    super(message, 422);
+  }
+}
+
+/** The prediction model could not be reached or failed while running. */
+class ModelUnavailableError extends AppError {
+  constructor(message) {
+    super(message, 503);
+  }
+}
+
+/** The prediction model ran but returned something that isn't a usable result. */
+class ModelOutputError extends AppError {
+  constructor(message) {
+    super(message, 502);
+  }
+}
+
+module.exports = {
+  AppError,
+  ValidationError,
+  NotFoundError,
+  InsufficientDataError,
+  ModelUnavailableError,
+  ModelOutputError,
+};

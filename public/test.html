@@ -1,88 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>NBA Team Data Test</title>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-        }
-
-        h1 {
-            margin-bottom: 20px;
-        }
-
-        .controls {
-            margin-bottom: 20px;
-        }
-
-        select {
-            padding: 10px;
-            font-size: 16px;
-            margin-right: 10px;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        #result {
-            margin-top: 20px;
-            font-weight: bold;
-        }
-
-        table {
-            margin-top: 20px;
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        th,
-        td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: center;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-        .home-button {
-            display: inline-block;
-            margin-bottom: 20px;
-            padding: 10px 18px;
-
-            background-color: #222;
-            color: white;
-
-            text-decoration: none;
-            border-radius: 5px;
-            }
-
-        .home-button:hover {
-            background-color: #444;
-        }
-    </style>
-</head>
-
-<body>
-
-    <h1>NBA Team Data Test</h1>
-
-    <div class="controls">
-
-        <label for="teamSelect">
-            Select an NBA Team:
-        </label>
-
-        <select id="teamSelect">
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Team Statistics | NBA Player Analytics</title><link rel="stylesheet" href="/styles.css"></head><body><header><div class="header-inner"><div class="brand">NBA <span>/</span> Player Analytics</div><a href="/" class="back-link">← Back to home</a></div></header><main><p class="eyebrow">Team intelligence</p><h1>NBA team statistics</h1><p class="subtitle">Select a team to inspect their recent game results, points, rebounds, and assists.</p><section class="panel"><h2>Select a team</h2><div class="controls"><label for="teamSelect">NBA team</label><select id="teamSelect">
 
             <option value="">
                 -- Select a Team --
@@ -208,24 +124,7 @@
                 Washington Wizards
             </option>
 
-        </select>
-
-        <button id="testButton">
-            Get Team Data
-        </button>
-        
-        <a href="/" class="home-button">
-        Return to Home Page
-        </a>
-
-    </div>
-
-    <p id="result"></p>
-
-    <div id="dataContainer"></div>
-
-
-    <script>
+        </select><button id="testButton">Get team data</button></div><p id="result" role="status" aria-live="polite"></p></section><section class="panel"><h2>Recent game results</h2><div id="dataContainer"></div></section></main><script>
 
         const button =
             document.getElementById("testButton");
@@ -372,8 +271,4 @@
 
         });
 
-    </script>
-
-</body>
-
-</html>
+    </script></body></html>

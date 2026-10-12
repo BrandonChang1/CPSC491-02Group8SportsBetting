@@ -1,23 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 40px; }
-    form { max-width: 400px; }
-    label { display: block; margin-top: 15px; }
-    input { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; }
-    button { margin-top: 20px; padding: 10px 20px; cursor: pointer; }
-    a { display: inline-block; margin-top: 20px; }
-    #message { margin-top: 15px; min-height: 1.2em; }
-  </style>
-</head>
-<body>
-  <h1>Login</h1>
-
-  <form id="loginForm">
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Welcome back | NBA Player Analytics</title><link rel="stylesheet" href="/styles.css"></head><body><header><div class="header-inner"><div class="brand">NBA <span>/</span> Player Analytics</div><a href="/" class="back-link">← Back to home</a></div></header><main><div class="auth-wrap"><div class="card"><p class="eyebrow">Secure account access</p><h1>Welcome back</h1><p class="subtitle">Log in to access your NBA analytics account.</p><form id="loginForm">
     <label for="identifier">Username or Email</label>
     <input
       type="text"
@@ -38,12 +19,7 @@
 
     <button type="submit">Login</button>
     <p id="message" role="status" aria-live="polite"></p>
-  </form>
-
-  <a href="/create-account.html">Create an account</a><br>
-  <a href="/">Return to Welcome Page</a>
-
-  <script>
+  </form><div class="auth-links"><a href="/create-account.html">Create an account</a><a href="/">Return to welcome page</a></div></div></div></main><script>
     const form = document.getElementById('loginForm');
     const message = document.getElementById('message');
 
@@ -71,6 +47,4 @@
         message.textContent = 'Could not reach the server.';
       }
     });
-  </script>
-</body>
-</html>
+  </script></body></html>

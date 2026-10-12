@@ -5,6 +5,7 @@ const { execFile } = require("child_process");
 const path = require("path");
 const healthRouter = require("./backend/app/routes/health");
 const playersRouter = require("./backend/app/routes/players");
+const predictionsRouter = require("./backend/app/routes/predictions");
 const { router: authRouter, requireAuth } = require("./backend/app/routes/auth");
 const { notFoundHandler, errorHandler } = require("./backend/app/middleware/errorHandler");
 
@@ -19,6 +20,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(authRouter);
 app.use(healthRouter);
 app.use(playersRouter);
+app.use(predictionsRouter);
 
 app.get("/app", requireAuth, (req, res) => {
     res.sendFile(path.join(__dirname, "protected", "home.html"));

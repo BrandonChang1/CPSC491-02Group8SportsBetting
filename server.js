@@ -24,6 +24,28 @@ const frontendTestState = {
     nextMockGameId: 1
 };
 
+function parseMoneyAmount(value) {
+    const amount = Number(value);
+    if (amount === null) {
+        return null;
+    }
+
+    const cents = Math.round(amount * 100);
+    if (
+        !Number.isSafeInteger(cents) ||
+        cents <= 0 ||
+        Math.abs(amount * 100 - cents) > 1e-7
+    ) {
+        return null;
+    }
+
+    return cents / 100;
+}
+
+function roundMoney(value) {
+    return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(authRouter);
@@ -151,11 +173,14 @@ function settleBet(bet, winner) {
     }
 
     bet.status = bet.selection === winner ? "won" : "lost";
+    bet.winner = winner;
     bet.settledAt = new Date().toISOString();
-    bet.payout = bet.status === "won" ? bet.amount * 2 : 0;
+    bet.payout = bet.status === "won" ? roundMoney(bet.amount * 2) : 0;
 
     if (bet.status === "won") {
-        frontendTestState.balance += bet.payout;
+        frontendTestState.balance = roundMoney(
+            frontendTestState.balance + bet.payout
+        );
     }
 }
 
@@ -172,6 +197,7 @@ function settleMockBets() {
         const game = gamesById.get(bet.gameId);
         if (game && game.status === "final") {
             settleBet(bet, game.winner);
+            bet.finalScore = `${game.awayTeam} ${game.sampleTeam1Score} - ${game.homeTeam} ${game.sampleTeam2Score}`;
         }
     }
 }
@@ -349,24 +375,24 @@ app.get("/api/frontend-test-panel/state", async (req, res) => {
 });
 
 app.post("/api/frontend-test-panel/deposit", (req, res) => {
-    const amount = Number(req.body.amount);
-    if (!Number.isFinite(amount) || amount <= 0) {
+    const amount = parseMoneyAmount(req.body.amount);
+    if (amount === null) {
         return res.status(400).json({
             success: false,
-            message: "Deposit amount must be greater than zero."
+            message: "Deposit amount must be a positive value with no more than two decimal places."
         });
     }
 
-    frontendTestState.balance += amount;
+    frontendTestState.balance = roundMoney(frontendTestState.balance + amount);
     return res.json({ success: true, balance: frontendTestState.balance });
 });
 
 app.post("/api/frontend-test-panel/withdraw", (req, res) => {
-    const amount = Number(req.body.amount);
-    if (!Number.isFinite(amount) || amount <= 0) {
+    const amount = parseMoneyAmount(req.body.amount);
+    if (amount === null) {
         return res.status(400).json({
             success: false,
-            message: "Withdrawal amount must be greater than zero."
+            message: "Withdrawal amount must be a positive value with no more than two decimal places."
         });
     }
     if (amount > frontendTestState.balance) {
@@ -376,7 +402,7 @@ app.post("/api/frontend-test-panel/withdraw", (req, res) => {
         });
     }
 
-    frontendTestState.balance -= amount;
+    frontendTestState.balance = roundMoney(frontendTestState.balance - amount);
     return res.json({ success: true, balance: frontendTestState.balance });
 });
 
@@ -405,15 +431,15 @@ app.post("/api/frontend-test-panel/mock-games", (req, res) => {
 app.post("/api/frontend-test-panel/bets", async (req, res) => {
     await refreshFrontendTestState();
 
-    const amount = Number(req.body.amount);
+    const amount = parseMoneyAmount(req.body.amount);
     const gameType = req.body.gameType;
     const gameId = String(req.body.gameId || "");
     const selection = String(req.body.selection || "");
 
-    if (!Number.isFinite(amount) || amount <= 0) {
+    if (amount === null) {
         return res.status(400).json({
             success: false,
-            message: "Bet amount must be greater than zero."
+            message: "Bet amount must be a positive value with no more than two decimal places."
         });
     }
     if (amount > frontendTestState.balance) {
@@ -430,10 +456,14 @@ app.post("/api/frontend-test-panel/bets", async (req, res) => {
         const game = frontendTestState.mockGames.find(
             (item) => item.id === gameId
         );
-        if (!game || game.status !== "scheduled") {
+        if (
+            !game ||
+            game.status !== "scheduled" ||
+            Date.now() >= Date.parse(game.startsAt)
+        ) {
             return res.status(400).json({
                 success: false,
-                message: "That mock game is no longer available for betting."
+                message: "Betting is closed because that mock game has started."
             });
         }
         gameLabel = `${game.awayTeam} vs ${game.homeTeam}`;
@@ -450,10 +480,10 @@ app.post("/api/frontend-test-panel/bets", async (req, res) => {
         }
 
         const game = realGames.find((item) => item.gameId === gameId);
-        if (!game) {
+        if (!game || Date.now() >= Date.parse(game.tipoffUtc)) {
             return res.status(400).json({
                 success: false,
-                message: "That NBA game is no longer available for betting."
+                message: "Betting is closed because that NBA game has started."
             });
         }
         gameLabel = `${game.awayTeam.name} vs ${game.homeTeam.name}`;
@@ -472,7 +502,7 @@ app.post("/api/frontend-test-panel/bets", async (req, res) => {
         });
     }
 
-    frontendTestState.balance -= amount;
+    frontendTestState.balance = roundMoney(frontendTestState.balance - amount);
     const bet = {
         id: frontendTestState.nextBetId++,
         gameType,
@@ -485,7 +515,8 @@ app.post("/api/frontend-test-panel/bets", async (req, res) => {
         payout: 0,
         placedAt: new Date().toISOString(),
         settledAt: null,
-        finalScore: null
+        finalScore: null,
+        winner: null
     };
     frontendTestState.bets.unshift(bet);
 

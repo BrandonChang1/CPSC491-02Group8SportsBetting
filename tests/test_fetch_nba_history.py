@@ -1,7 +1,7 @@
 """Unit tests for NBA history retrieval, without live API requests."""
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import MagicMock
 
 import pandas as pd
@@ -11,12 +11,12 @@ from ml import fetch_nba_history
 
 
 def test_seasons_to_try_after_season_start():
-    now = datetime(2026, 10, 12, tzinfo=timezone.utc)
+    now = datetime(2026, 10, 12, tzinfo=UTC)
     assert fetch_nba_history.seasons_to_try(now) == ["2026-27", "2025-26"]
 
 
 def test_seasons_to_try_before_season_start():
-    now = datetime(2026, 9, 30, tzinfo=timezone.utc)
+    now = datetime(2026, 9, 30, tzinfo=UTC)
     assert fetch_nba_history.seasons_to_try(now) == ["2025-26", "2024-25"]
 
 

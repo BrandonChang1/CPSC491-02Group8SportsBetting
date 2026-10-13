@@ -11,7 +11,8 @@
     "test": "node --test backend/tests/*.test.js",
     "test:e2e": "playwright test",
     "test:backend": "node --check server.js",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test:coverage": "node --test --experimental-test-coverage backend/tests/*.test.js"
   },
   "dependencies": {
     "dotenv": "^16.6.1",

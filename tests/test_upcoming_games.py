@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from scripts.upcoming_games import (
     normalize_upcoming_games,
@@ -26,18 +26,18 @@ def sample_game(game_id, tipoff, status=1):
 
 
 def test_season_for_date():
-    assert season_for_date(datetime(2026, 9, 21, tzinfo=timezone.utc)) == "2026-27"
-    assert season_for_date(datetime(2027, 2, 1, tzinfo=timezone.utc)) == "2026-27"
+    assert season_for_date(datetime(2026, 9, 21, tzinfo=UTC)) == "2026-27"
+    assert season_for_date(datetime(2027, 2, 1, tzinfo=UTC)) == "2026-27"
 
 
 def test_window_can_cross_season_boundary():
-    start = datetime(2027, 6, 25, tzinfo=timezone.utc)
-    end = datetime(2027, 7, 9, tzinfo=timezone.utc)
+    start = datetime(2027, 6, 25, tzinfo=UTC)
+    end = datetime(2027, 7, 9, tzinfo=UTC)
     assert seasons_for_window(start, end) == ["2026-27", "2027-28"]
 
 
 def test_only_future_scheduled_games_within_fourteen_days_are_returned():
-    now = datetime(2026, 9, 21, 18, 0, tzinfo=timezone.utc)
+    now = datetime(2026, 9, 21, 18, 0, tzinfo=UTC)
     rows = [
         sample_game("past", "2026-09-21T17:00:00Z"),
         sample_game("tomorrow", "2026-09-22T18:00:00Z"),

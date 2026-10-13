@@ -1,6 +1,6 @@
 import hashlib
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pandas as pd
@@ -183,7 +183,7 @@ def save_modeling_dataset(
         "dataset_version": DATASET_VERSION,
         "generation_identifier": hash_identifier,
         "generated_at": datetime.now(
-            timezone.utc
+            UTC
         ).isoformat(),
         "row_count": len(dataset),
         "columns": list(dataset.columns),

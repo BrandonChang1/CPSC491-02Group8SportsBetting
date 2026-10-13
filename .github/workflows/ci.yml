@@ -167,6 +167,7 @@ jobs:
       # against the migrated database, rather than just a syntax check.
       # A failing test here fails this job.
       - name: Run backend automated tests
+        continue-on-error: true
         run: npm test
 
       # -----------------------------------------
@@ -283,3 +284,50 @@ jobs:
           path: ${{ env.VERSION }}.tar.gz
           retention-days: 30
           if-no-files-found: error
+      # Preserve test results even when one or more suites fail.
+      - name: Summarize automated tests
+        if: always()
+        env:
+          BACKEND_OUTCOME: ${{ steps.backend_tests.outcome }}
+          FRONTEND_OUTCOME: ${{ steps.frontend_tests.outcome }}
+          PYTHON_OUTCOME: ${{ steps.python_tests.outcome }}
+        run: |
+          {
+            echo "## Automated test results"
+            echo "| Suite | Result |"
+            echo "| --- | --- |"
+            echo "| Backend (Node.js) | $BACKEND_OUTCOME |"
+            echo "| Frontend (Playwright) | $FRONTEND_OUTCOME |"
+            echo "| Python (pytest) | $PYTHON_OUTCOME |"
+            echo ""
+            echo "Download the test-results artifact for JUnit XML files."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload test reports and server log
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: test-results-${{ github.run_number }}
+          path: |
+            test-results/
+            server.log
+            playwright-report/
+          if-no-files-found: warn
+          retention-days: 30
+
+      # Run this last: reporting and build artifacts are generated first.
+      # Remove this step if you intentionally want a green CI run despite failing tests.
+      - name: Fail CI if automated tests failed
+        if: always()
+        env:
+          BACKEND_OUTCOME: ${{ steps.backend_tests.outcome }}
+          FRONTEND_OUTCOME: ${{ steps.frontend_tests.outcome }}
+          PYTHON_OUTCOME: ${{ steps.python_tests.outcome }}
+        run: |
+          for result in "$BACKEND_OUTCOME" "$FRONTEND_OUTCOME" "$PYTHON_OUTCOME"; do
+            if [ "$result" != "success" ]; then
+              echo "At least one automated test suite failed or was skipped."
+              exit 1
+            fi
+          done
+          echo "All automated test suites passed."

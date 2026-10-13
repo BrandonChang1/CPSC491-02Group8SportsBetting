@@ -38,7 +38,7 @@ def test_player_identifiers_are_present(db_connection):
         """
     ).fetchone()
 
-    assert result[0] == 999
+    assert result[0] == 0
 
 
 def test_game_identifiers_are_present(db_connection):

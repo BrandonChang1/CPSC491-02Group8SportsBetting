@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Frontend Test Panel | NBA Player Analytics</title>
+    <title>User Flow Test Panel | NBA Player Analytics</title>
     <link rel="stylesheet" href="/styles.css">
     <style>
         .panel-stack { display: grid; gap: 24px; margin-top: 24px; }
@@ -23,6 +23,8 @@
         .mock-tag { display: inline-block; margin-left: 8px; padding: 2px 7px; border-radius: 999px; background: #e2e8f0; font-size: .75rem; }
         .bet-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px 16px; margin-top: 8px; }
         .empty { color: #64748b; font-style: italic; }
+        .history-bets { display: grid; gap: 8px; margin-top: 10px; }
+        .history-bet { border-top: 1px solid #e1e5ec; padding-top: 8px; }
         @media (max-width: 600px) {
             .money-input, .bet-input { width: 100%; }
             .panel-button { width: 100%; }
@@ -32,13 +34,13 @@
 <body>
 <header>
     <div class="header-inner">
-        <div class="brand">NBA <span>/</span> Frontend Test Panel</div>
+        <div class="brand">NBA <span>/</span> User Flow Test Panel</div>
         <a href="/" class="back-link">Back to home</a>
     </div>
 </header>
 <main>
     <section class="hero">
-        <h1>Frontend Test Panel</h1>
+        <h1>User Flow Test Panel</h1>
     </section>
 
     <div class="panel-stack">
@@ -75,6 +77,14 @@
             <div id="gameMessage" class="message" aria-live="polite"></div>
             <div id="gamesList" class="list"><p class="empty">Loading games...</p></div>
         </section>
+
+        <section class="panel-card">
+            <div class="section-top">
+                <h2>Past NBA Games Bet On</h2>
+                <span class="muted">Only completed games with wagers are shown</span>
+            </div>
+            <div id="pastGamesList" class="list"><p class="empty">No completed bet games yet.</p></div>
+        </section>
     </div>
 </main>
 
@@ -83,12 +93,14 @@
     const balanceEl = document.getElementById("balance");
     const betsList = document.getElementById("betsList");
     const gamesList = document.getElementById("gamesList");
+    const pastGamesList = document.getElementById("pastGamesList");
     const fundAmount = document.getElementById("fundAmount");
     const fundMessage = document.getElementById("fundMessage");
     const gameMessage = document.getElementById("gameMessage");
     const depositButton = document.getElementById("depositButton");
     const withdrawButton = document.getElementById("withdrawButton");
     const createMockButton = document.getElementById("createMockButton");
+    let currentBalance = 1000;
 
     const money = new Intl.NumberFormat("en-US", {
         style: "currency",
@@ -97,6 +109,14 @@
 
     function formatTime(value) {
         return new Date(value).toLocaleString();
+    }
+
+    function parseMoneyInput(value) {
+        const amount = Number(value);
+        if (!Number.isFinite(amount) || amount <= 0) return null;
+        const cents = Math.round(amount * 100);
+        if (cents <= 0 || Math.abs(amount * 100 - cents) > 1e-7) return null;
+        return cents / 100;
     }
 
     async function request(url, options = {}) {
@@ -137,6 +157,60 @@
                         <span>Placed: ${formatTime(bet.placedAt)}</span>
                     </div>
                     ${score}
+                </article>`;
+        }).join("");
+    }
+
+    function renderPastBetGames(bets) {
+        const settled = bets.filter((bet) => bet.status === "won" || bet.status === "lost");
+        if (!settled.length) {
+            pastGamesList.innerHTML = '<p class="empty">No completed bet games yet.</p>';
+            return;
+        }
+
+        const grouped = new Map();
+        for (const bet of settled) {
+            const key = `${bet.gameType}:${bet.gameId}`;
+            if (!grouped.has(key)) {
+                grouped.set(key, {
+                    gameLabel: bet.gameLabel,
+                    gameType: bet.gameType,
+                    finalScore: bet.finalScore,
+                    winner: bet.winner,
+                    settledAt: bet.settledAt,
+                    bets: []
+                });
+            }
+            const game = grouped.get(key);
+            game.bets.push(bet);
+            if (bet.finalScore) game.finalScore = bet.finalScore;
+            if (bet.winner) game.winner = bet.winner;
+            if (bet.settledAt && (!game.settledAt || bet.settledAt > game.settledAt)) {
+                game.settledAt = bet.settledAt;
+            }
+        }
+
+        const games = [...grouped.values()].sort(
+            (a, b) => Date.parse(b.settledAt || 0) - Date.parse(a.settledAt || 0)
+        );
+
+        pastGamesList.innerHTML = games.map((game) => {
+            const betRows = game.bets.map((bet) => `
+                <div class="history-bet">
+                    Pick: <strong>${bet.selection}</strong> ·
+                    Wager: <strong>${money.format(bet.amount)}</strong> ·
+                    Result: <strong>${bet.status === "won" ? `Won (${money.format(bet.payout)} payout)` : "Lost"}</strong>
+                </div>`).join("");
+
+            return `
+                <article class="list-item">
+                    <div class="game-header">
+                        <strong>${game.gameLabel}${game.gameType === "mock" ? '<span class="mock-tag">Mock</span>' : ""}</strong>
+                        <span class="status">Final</span>
+                    </div>
+                    ${game.finalScore ? `<div class="muted-text">${game.finalScore}</div>` : ""}
+                    ${game.winner ? `<div class="muted-text">Winner: ${game.winner}</div>` : ""}
+                    <div class="history-bets">${betRows}</div>
                 </article>`;
         }).join("");
     }
@@ -197,9 +271,9 @@
                     <div class="muted-text">Status: <span class="status">${game.status.replace("_", " ")}</span>${game.endsAt ? ` · Ends ${formatTime(game.endsAt)}` : ""}</div>
                     ${finalText}
                     <div class="game-actions" style="margin-top:10px">
-                        <input class="bet-input" type="number" min="0.01" step="0.01" placeholder="Bet amount" aria-label="Bet amount for ${game.awayTeam} versus ${game.homeTeam}" ${canBet ? "" : "disabled"}>
-                        <button class="panel-button bet-button" type="button" data-game-type="${game.gameType}" data-game-id="${game.gameId}" data-selection="${game.awayTeam}" ${canBet ? "" : "disabled"}>Bet ${game.awayTeam}</button>
-                        <button class="panel-button secondary bet-button" type="button" data-game-type="${game.gameType}" data-game-id="${game.gameId}" data-selection="${game.homeTeam}" ${canBet ? "" : "disabled"}>Bet ${game.homeTeam}</button>
+                        <input class="bet-input" type="number" min="0.01" max="${currentBalance}" step="0.01" placeholder="Bet amount" aria-label="Bet amount for ${game.awayTeam} versus ${game.homeTeam}" ${canBet ? "" : "disabled"}>
+                        <button class="panel-button bet-button" type="button" data-game-type="${game.gameType}" data-game-id="${game.gameId}" data-selection="${game.awayTeam}" data-starts-at="${game.startsAt}" ${canBet ? "" : "disabled"}>Bet ${game.awayTeam}</button>
+                        <button class="panel-button secondary bet-button" type="button" data-game-type="${game.gameType}" data-game-id="${game.gameId}" data-selection="${game.homeTeam}" data-starts-at="${game.startsAt}" ${canBet ? "" : "disabled"}>Bet ${game.homeTeam}</button>
                     </div>
                 </article>`;
         }).join("");
@@ -208,9 +282,11 @@
     async function loadState() {
         try {
             const data = await request("/api/frontend-test-panel/state");
-            balanceEl.textContent = money.format(data.balance);
+            currentBalance = data.balance;
+            balanceEl.textContent = money.format(currentBalance);
             renderBets(data.bets || []);
             renderGames(data.realGames || [], data.mockGames || []);
+            renderPastBetGames(data.bets || []);
         } catch (error) {
             gameMessage.textContent = error.message;
         }
@@ -218,9 +294,13 @@
 
     async function changeFunds(action) {
         fundMessage.textContent = "";
-        const amount = Number(fundAmount.value);
-        if (!Number.isFinite(amount) || amount <= 0) {
-            fundMessage.textContent = "Enter an amount greater than zero.";
+        const amount = parseMoneyInput(fundAmount.value);
+        if (amount === null) {
+            fundMessage.textContent = "Enter a positive amount with no more than two decimal places.";
+            return;
+        }
+        if (action === "withdraw" && amount > currentBalance) {
+            fundMessage.textContent = "Withdrawal cannot exceed the current balance.";
             return;
         }
 
@@ -229,7 +309,8 @@
                 method: "POST",
                 body: JSON.stringify({ amount })
             });
-            balanceEl.textContent = money.format(data.balance);
+            currentBalance = data.balance;
+            balanceEl.textContent = money.format(currentBalance);
             fundAmount.value = "";
             fundMessage.textContent = action === "deposit" ? "Deposit complete." : "Withdrawal complete.";
         } catch (error) {
@@ -260,11 +341,20 @@
 
         const card = button.closest(".list-item");
         const input = card.querySelector(".bet-input");
-        const amount = Number(input.value);
+        const amount = parseMoneyInput(input.value);
         gameMessage.textContent = "";
 
-        if (!Number.isFinite(amount) || amount <= 0) {
-            gameMessage.textContent = "Enter a bet amount greater than zero.";
+        if (Date.now() >= Date.parse(button.dataset.startsAt)) {
+            gameMessage.textContent = "Betting is closed because this game has started.";
+            await loadState();
+            return;
+        }
+        if (amount === null) {
+            gameMessage.textContent = "Enter a positive bet amount with no more than two decimal places.";
+            return;
+        }
+        if (amount > currentBalance) {
+            gameMessage.textContent = "Bet amount cannot exceed the current account balance.";
             return;
         }
 

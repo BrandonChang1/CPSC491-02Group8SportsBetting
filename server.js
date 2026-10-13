@@ -340,16 +340,6 @@ app.get("/player-stats", (req, res) => {
     );
 });
 
-app.get("/api/upcoming-games", (req, res) => {
-    const scriptPath = upcomingGamesScriptPath();
-
-    return runPythonScript(
-        scriptPath,
-        [],
-        res
-    );
-});
-
 app.get("/api/frontend-test-panel/state", async (req, res) => {
     await refreshFrontendTestState();
 

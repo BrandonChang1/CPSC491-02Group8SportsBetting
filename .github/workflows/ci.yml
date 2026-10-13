@@ -61,7 +61,7 @@ jobs:
       # Python linting
       # -----------------------------------------
       - name: Run Python linting
-        run: ruff check --fix . --exclude ml,.venv,node_modules,.git,.github,venv,dist,build,__pycache__
+        run: ruff check . --exclude ml,.venv,node_modules,.git,.github,venv,dist,build,__pycache__
 
       # -----------------------------------------
       # NBA API Library Check
@@ -162,6 +162,14 @@ jobs:
       - name: Run database migrations
         run: npm run migrate
 
+      # -----------------------------------------
+      # Sprint 3 deterministic database test data
+      # -----------------------------------------
+      - name: Seed Sprint 3 CI test data
+        run: |
+          psql "$DATABASE_URL" \
+            -f tests/fixtures/seed_ci_database.sql
+
       # SCRUM-51: runs the actual backend/tests/*.test.js suite (health,
       # player search/details/game-history, pagination, error handling)
       # against the migrated database, rather than just a syntax check.
@@ -227,10 +235,25 @@ jobs:
         run: npm run test:e2e
 
       # -----------------------------------------
+      # Sprint 3 Data & Storage regression tests
+      # -----------------------------------------
+      - name: Run Sprint 3 data regression tests
+        run: |
+          python -m pytest \
+            tests/test_database_integrity.py \
+            tests/test_ingestion_idempotency.py \
+            tests/test_modeling_dataset_validation.py \
+            -v
+
+      # -----------------------------------------
       # Python project tests
       # -----------------------------------------
-      - name: Run Python tests
-        run: python -m pytest
+      - name: Run Python project tests
+        run: |
+          python -m pytest \
+            --ignore=tests/test_database_integrity.py \
+            --ignore=tests/test_ingestion_indempotency.py \
+            --ignore=tests/test_modeling_dataset_validation.py
 
       # -----------------------------------------
       # Versioning

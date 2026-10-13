@@ -7,159 +7,94 @@
     <title>NBA Player Search</title>
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-        }
-
-        .home-button {
-            display: inline-block;
-            margin-bottom: 20px;
-            padding: 10px 18px;
-            background-color: #222;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-
-        .home-button:hover {
-            background-color: #444;
-        }
-
-        .player-search-container {
-            position: relative;
-            max-width: 420px;
-        }
-
-        #playerSearch {
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-
-        #playerSuggestions {
-            position: absolute;
-            width: 100%;
-            background-color: white;
-            border: 1px solid #ccc;
-            border-top: none;
-            box-sizing: border-box;
-            z-index: 10;
-        }
-
-        .player-suggestion {
-            padding: 10px;
-            cursor: pointer;
-        }
-
-        .player-suggestion:hover {
-            background-color: #f2f2f2;
-        }
-
-        .review-controls {
-            margin-top: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 14px;
-            align-items: center;
-        }
-
-        .review-controls label {
-            cursor: pointer;
-        }
-
-        #status {
-            margin-top: 20px;
-            font-weight: bold;
-        }
-
-        #averageContainer {
-            margin-top: 25px;
-        }
-
-        .average-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .average-card {
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            padding: 12px 16px;
-            min-width: 100px;
-            text-align: center;
-        }
-
-        .average-card strong {
-            display: block;
-            font-size: 20px;
-            margin-top: 5px;
-        }
-
-        table {
-            margin-top: 20px;
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        th,
-        td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: center;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
+        :root { color-scheme: light; --ink:#162238; --muted:#66758c; --blue:#2563eb; --line:#e2e8f0; --surface:#fff; --bg:#f4f7fb; }
+        * { box-sizing:border-box; }
+        body { margin:0; font:15px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:var(--bg); color:var(--ink); }
+        .topbar { background:#101b30; color:#fff; padding:16px max(24px,calc((100vw - 1380px)/2)); display:flex; align-items:center; justify-content:space-between; gap:16px; }
+        .brand { font-size:17px; font-weight:750; letter-spacing:.2px; }
+        .home-button { color:#e2e8f0; border:1px solid #43516a; padding:8px 13px; text-decoration:none; border-radius:8px; font-size:13px; }
+        .home-button:hover { background:#29364d; }
+        main { max-width:1432px; margin:0 auto; padding:32px 24px 60px; }
+        .eyebrow { font-size:12px; color:var(--blue); letter-spacing:1.5px; font-weight:800; text-transform:uppercase; margin:0 0 5px; }
+        h1 { font-size:clamp(27px,3vw,36px); letter-spacing:-1.1px; margin:0; }
+        .subtitle { color:var(--muted); margin:6px 0 0; }
+        .control-panel { margin:24px 0; padding:22px; background:var(--surface); border:1px solid var(--line); border-radius:15px; box-shadow:0 4px 22px #15223b09; display:flex; justify-content:space-between; gap:20px; align-items:end; flex-wrap:wrap; }
+        .player-search-container { position:relative; flex:1 1 310px; max-width:490px; }
+        .input-label,.review-title { display:block; font-size:12px; font-weight:800; color:#475569; margin-bottom:9px; text-transform:uppercase; letter-spacing:.8px; }
+        #playerSearch { width:100%; border:1px solid #cbd5e1; border-radius:9px; padding:12px 14px; font:inherit; background:#fff; outline:none; }
+        #playerSearch:focus { border-color:var(--blue); box-shadow:0 0 0 3px #2563eb1a; }
+        #playerSuggestions { position:absolute; top:100%; margin-top:4px; left:0; right:0; background:#fff; border-radius:9px; overflow:hidden; box-shadow:0 14px 35px #14233c21; z-index:10; }
+        .player-suggestion { padding:12px 14px; cursor:pointer; border-bottom:1px solid #f1f5f9; }
+        .player-suggestion:hover { background:#eff6ff; }
+        .review-controls { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+        .review-title { flex-basis:100%; margin:0 0 2px; }
+        .review-option { display:flex; align-items:center; gap:6px; padding:9px 11px; border:1px solid var(--line); border-radius:8px; cursor:pointer; font-size:13px; white-space:nowrap; }
+        .review-option:has(input:checked) { border-color:#93b4fb; background:#eff6ff; color:#1d4ed8; font-weight:700; }
+        .review-option input { accent-color:var(--blue); }
+        #status { min-height:22px; color:var(--muted); margin:0 0 15px; font-size:13px; }
+        .dashboard { display:grid; grid-template-columns:minmax(0,1.65fr) minmax(320px,1fr); gap:20px; align-items:start; }
+        .panel { background:#fff; border:1px solid var(--line); border-radius:15px; box-shadow:0 4px 22px #15223b09; padding:23px; min-width:0; }
+        .panel-heading { display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:15px; }
+        .panel-heading h2 { font-size:18px; margin:0; letter-spacing:-.3px; }
+        .panel-heading .pill { font-size:11px; font-weight:750; border-radius:20px; background:#e8efff; color:#2554ae; padding:5px 9px; white-space:nowrap; }
+        h2 { font-size:17px; margin:22px 0 13px; }
+        .average-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:10px; }
+        .average-card { background:#f8fafc; border:1px solid #e7ecf3; border-radius:10px; padding:15px 12px; }
+        .average-card span { color:var(--muted); font-size:12px; }
+        .average-card strong { display:block; font-size:25px; line-height:1.3; letter-spacing:-.7px; margin-top:5px; }
+        #gameContainer { margin-top:24px; }
+        .table-scroll { width:100%; overflow-x:auto; border:1px solid var(--line); border-radius:10px; }
+        table { border-collapse:collapse; width:100%; white-space:nowrap; font-size:12px; }
+        th,td { text-align:left; border-bottom:1px solid #edf1f6; padding:12px 11px; }
+        th { background:#f8fafc; color:#607086; font-weight:750; font-size:11px; letter-spacing:.3px; }
+        tr:last-child td { border-bottom:0; }
+        tbody tr:hover { background:#f8fbff; }
+        .prediction-panel { position:sticky; top:22px; }
+        #predictionContainer { min-height:160px; color:var(--muted); }
+        #predictionContainer h2 { margin:2px 0 10px; color:var(--ink); }
+        #predictionContainer p { margin:8px 0 15px; font-size:13px; }
+        #predictionContainer .average-grid { grid-template-columns:1fr; gap:10px; }
+        #predictionContainer .average-card { display:flex; align-items:center; justify-content:space-between; background:#f7faff; padding:14px; }
+        #predictionContainer .average-card strong { margin:0; color:#1d4ed8; font-size:23px; }
+        .footnote { border-top:1px solid var(--line); padding-top:15px; margin-top:22px; color:var(--muted); font-size:12px; }
+        @media (max-width:900px) { .dashboard { grid-template-columns:1fr; } .prediction-panel { position:static; } }
+        @media (max-width:550px) { main { padding:22px 14px 40px; } .topbar { padding:14px; } .panel { padding:17px; } .control-panel { padding:17px; } }
     </style>
 </head>
 
 <body>
-
-    <a href="/" class="home-button">Return to Home Page</a>
-
-    <h1>NBA Player Search</h1>
-
-    <div class="player-search-container">
-        <label for="playerSearch">Search NBA Player:</label>
-
-        <input
-            type="text"
-            id="playerSearch"
-            placeholder="Start typing a player name..."
-            autocomplete="off"
-        >
-
-        <div id="playerSuggestions"></div>
-    </div>
-
-    <div class="review-controls">
-        <strong>Review:</strong>
-
-        <label>
-            <input type="radio" name="reviewType" value="5" checked>
-            Last 5 Games
-        </label>
-
-        <label>
-            <input type="radio" name="reviewType" value="10">
-            Last 10 Games
-        </label>
-
-        <label>
-            <input type="radio" name="reviewType" value="season">
-            Season
-        </label>
-    </div>
-
-    <p id="status"></p>
-
-    <div id="averageContainer"></div>
-    <div id="gameContainer"></div>
-
+    <header class="topbar"><div class="brand">NBA <span style="color:#91b5ff">/</span> Player Analytics</div><a data-testid="back-home" href="/" class="home-button">← Back to home</a></header>
+    <main data-testid="player-search-page">
+        <p class="eyebrow">Player intelligence</p>
+        <h1 data-testid="player-search-heading">Player performance dashboard</h1>
+        <p class="subtitle">Explore game history, compare recent performance, and review next-game points estimates.</p>
+        <div class="control-panel">
+            <div class="player-search-container">
+                <label for="playerSearch" class="input-label">Find a player</label>
+                <input type="text" id="playerSearch" data-testid="player-search-input" placeholder="Search by player name…" autocomplete="off">
+                <div id="playerSuggestions" data-testid="player-suggestions"></div>
+            </div>
+            <div class="review-controls" aria-label="Review game history">
+                <span class="review-title">Historical review range</span>
+                <label class="review-option"><input type="radio" name="reviewType" value="5" data-testid="review-last-5" checked> Last 5 games</label>
+                <label class="review-option"><input type="radio" name="reviewType" value="10" data-testid="review-last-10"> Last 10 games</label>
+                <label class="review-option"><input type="radio" name="reviewType" value="season" data-testid="review-season"> Season</label>
+            </div>
+        </div>
+        <p id="status" data-testid="player-status" role="status" aria-live="polite">Select a player to explore performance data.</p>
+        <div class="dashboard">
+            <section class="panel" aria-label="Historical statistics">
+                <div class="panel-heading"><h2>Historical performance</h2><span class="pill">GAME LOGS</span></div>
+                <div id="averageContainer" data-testid="player-averages"><p class="subtitle">Player averages appear here after selection.</p></div>
+                <div id="gameContainer" data-testid="player-game-history"></div>
+            </section>
+            <aside class="panel prediction-panel" aria-label="Player predictions">
+                <div class="panel-heading"><h2>Points projections</h2><span class="pill">NEXT GAME</span></div>
+                <section id="predictionContainer" data-testid="player-predictions" aria-live="polite">Select a player to view baseline estimates for their next game.</section>
+                <div class="footnote">Estimates use historical points data and are not guarantees of future performance.</div>
+            </aside>
+        </div>
+    </main>
     <script>
         const playerSearch =
             document.getElementById("playerSearch");
@@ -169,6 +104,8 @@
 
         const status =
             document.getElementById("status");
+
+        const predictionContainer = document.getElementById("predictionContainer");
 
         const averageContainer =
             document.getElementById("averageContainer");
@@ -187,6 +124,10 @@
 
             // A new typed value means the old selected player is no longer valid.
             delete playerSearch.dataset.playerId;
+            predictionContainer.textContent = "Select a player to view baseline estimates for their next game.";
+            averageContainer.replaceChildren();
+            gameContainer.replaceChildren();
+            status.textContent = "Select a player to explore performance data.";
 
             searchTimeout = setTimeout(() => {
                 searchPlayers();
@@ -260,6 +201,7 @@
                         playerSuggestions.innerHTML = "";
 
                         loadPlayerStats(player.id, player.name);
+                        loadPlayerPrediction(player.id);
                     });
 
                     playerSuggestions.appendChild(suggestion);
@@ -320,6 +262,44 @@
             }
         }
 
+
+        async function loadPlayerPrediction(playerId) {
+            predictionContainer.textContent = "Loading points prediction...";
+            try {
+                const response = await fetch(`/api/players/${encodeURIComponent(playerId)}/prediction`);
+                const result = await response.json();
+                // Ignore a response that arrives after another player was selected.
+                if (String(playerSearch.dataset.playerId) !== String(playerId)) return;
+                predictionContainer.replaceChildren();
+                if (!response.ok || !result.success) {
+                    predictionContainer.textContent = result.message || "Prediction unavailable.";
+                    return;
+                }
+                const heading = document.createElement("h2");
+                heading.textContent = "Next-game points estimate (baselines)";
+                const info = document.createElement("p");
+                info.textContent = `Based on ${result.source === "nba_api" ? "NBA API" : "database"} game history through ${result.lastGameDate}; season ${result.season}.`;
+                const grid = document.createElement("div");
+                grid.className = "average-grid";
+                for (const [label, key] of [["Season average", "season"], ["Last 5", "last5"], ["Last 10", "last10"]]) {
+                    const card = document.createElement("div");
+                    card.className = "average-card";
+                    const description = document.createElement("span");
+                    description.textContent = label;
+                    const number = document.createElement("strong");
+                    number.textContent = `${result.predictions[key]} PTS`;
+                    card.append(description, number);
+                    grid.appendChild(card);
+                }
+                const note = document.createElement("p");
+                note.textContent = result.note;
+                predictionContainer.append(heading, info, grid, note);
+            } catch {
+                if (String(playerSearch.dataset.playerId) === String(playerId)) {
+                    predictionContainer.textContent = "Unable to load prediction.";
+                }
+            }
+        }
 
         function displayAverages(averages, reviewLabel) {
             if (!averages || Object.keys(averages).length === 0) {
@@ -392,7 +372,10 @@
                 headerRow.appendChild(th);
             });
 
-            table.appendChild(headerRow);
+            const thead = document.createElement("thead");
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+            const tbody = document.createElement("tbody");
 
             games.forEach(game => {
                 const row = document.createElement("tr");
@@ -403,10 +386,14 @@
                     row.appendChild(td);
                 });
 
-                table.appendChild(row);
+                tbody.appendChild(row);
             });
 
-            gameContainer.appendChild(table);
+            table.appendChild(tbody);
+            const scroll = document.createElement("div");
+            scroll.className = "table-scroll";
+            scroll.appendChild(table);
+            gameContainer.appendChild(scroll);
         }
     </script>
 

@@ -61,21 +61,21 @@ test("upcoming games page renders mocked games and refreshes", async ({ page }) 
     await page.goto("/upcoming-games.html");
 
     await expect(
-        page.getByRole("heading", { name: "Upcoming NBA Games", level: 1 })
+        page.getByTestId("upcoming-games-heading")
     ).toBeVisible();
-    await expect(page.locator("#status")).toHaveText("2 scheduled games found.");
+    await expect(page.getByTestId("schedule-status")).toHaveText("2 scheduled games found.");
     await expect(
-        page.getByText("Los Angeles Lakers at Golden State Warriors")
+        page.getByTestId("schedule-matchup").filter({ hasText: "Los Angeles Lakers at Golden State Warriors" })
     ).toBeVisible();
     await expect(
-        page.getByText("Boston Celtics at New York Knicks")
+        page.getByTestId("schedule-matchup").filter({ hasText: "Boston Celtics at New York Knicks" })
     ).toBeVisible();
     await expect(page.getByText(/Chase Center/)).toBeVisible();
     await expect(page.getByText(/Madison Square Garden/)).toBeVisible();
     await expect.poll(() => apiRequestCount).toBe(1);
 
-    await page.getByRole("button", { name: "Refresh" }).click();
+    await page.getByTestId("schedule-refresh").click();
 
     await expect.poll(() => apiRequestCount).toBe(2);
-    await expect(page.locator("#status")).toHaveText("2 scheduled games found.");
+    await expect(page.getByTestId("schedule-status")).toHaveText("2 scheduled games found.");
 });

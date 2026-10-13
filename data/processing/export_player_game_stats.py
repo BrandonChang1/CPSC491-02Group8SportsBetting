@@ -5,7 +5,6 @@ import psycopg
 
 from data.ingestion.database_ingestion import get_database_url
 
-
 OUTPUT_PATH = Path(
     "data/sample/player_game_stats_sample.csv"
 )

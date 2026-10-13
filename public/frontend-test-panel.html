@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Frontend Test Panel | NBA Player Analytics</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .panel-stack { display: grid; gap: 24px; margin-top: 24px; }
+        .panel-card { border: 1px solid #d9dee8; border-radius: 14px; padding: 20px; background: #fff; }
+        .balance-row, .action-row, .game-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .balance-value { font-size: 2rem; font-weight: 700; margin: 8px 0 16px; }
+        .money-input, .bet-input { width: 150px; padding: 10px 12px; border: 1px solid #c7ccd6; border-radius: 8px; font: inherit; }
+        .panel-button { padding: 10px 14px; border: 0; border-radius: 8px; cursor: pointer; font: inherit; font-weight: 600; background: #1e3a8a; color: #fff; }
+        .panel-button.secondary { background: #475569; }
+        .panel-button:disabled { cursor: not-allowed; opacity: .55; }
+        .message { min-height: 24px; margin-top: 12px; color: #334155; }
+        .list { display: grid; gap: 12px; margin-top: 14px; }
+        .list-item { border: 1px solid #e1e5ec; border-radius: 10px; padding: 14px; background: #fafbfc; }
+        .game-header { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+        .game-time, .muted-text { color: #64748b; font-size: .92rem; }
+        .status { font-weight: 700; text-transform: capitalize; }
+        .mock-tag { display: inline-block; margin-left: 8px; padding: 2px 7px; border-radius: 999px; background: #e2e8f0; font-size: .75rem; }
+        .bet-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px 16px; margin-top: 8px; }
+        .empty { color: #64748b; font-style: italic; }
+        @media (max-width: 600px) {
+            .money-input, .bet-input { width: 100%; }
+            .panel-button { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="header-inner">
+        <div class="brand">NBA <span>/</span> Frontend Test Panel</div>
+        <a href="/" class="back-link">Back to home</a>
+    </div>
+</header>
+<main>
+    <section class="hero">
+        <h1>Frontend Test Panel</h1>
+    </section>
+
+    <div class="panel-stack">
+        <section class="panel-card">
+            <div class="section-top">
+                <h2>Account Balance</h2>
+                <span class="muted">Starts at $1,000.00</span>
+            </div>
+            <div id="balance" class="balance-value">$1,000.00</div>
+            <div class="balance-row">
+                <input id="fundAmount" class="money-input" type="number" min="0.01" step="0.01" placeholder="Amount" aria-label="Deposit or withdrawal amount">
+                <button id="depositButton" class="panel-button" type="button">Deposit</button>
+                <button id="withdrawButton" class="panel-button secondary" type="button">Withdraw</button>
+            </div>
+            <div id="fundMessage" class="message" aria-live="polite"></div>
+        </section>
+
+        <section class="panel-card">
+            <div class="section-top">
+                <h2>Bets Placed</h2>
+                <span class="muted">All odds are 1:1</span>
+            </div>
+            <div id="betsList" class="list"><p class="empty">No bets have been placed.</p></div>
+        </section>
+
+        <section class="panel-card">
+            <div class="section-top">
+                <h2>NBA Games Starting Within 7 Days</h2>
+            </div>
+            <div class="action-row">
+                <button id="createMockButton" class="panel-button" type="button">Create Mock NBA Game</button>
+                <span class="muted-text">Mock game starts in 2 minutes and ends in 3 minutes.</span>
+            </div>
+            <div id="gameMessage" class="message" aria-live="polite"></div>
+            <div id="gamesList" class="list"><p class="empty">Loading games...</p></div>
+        </section>
+    </div>
+</main>
+
+<script>
+(() => {
+    const balanceEl = document.getElementById("balance");
+    const betsList = document.getElementById("betsList");
+    const gamesList = document.getElementById("gamesList");
+    const fundAmount = document.getElementById("fundAmount");
+    const fundMessage = document.getElementById("fundMessage");
+    const gameMessage = document.getElementById("gameMessage");
+    const depositButton = document.getElementById("depositButton");
+    const withdrawButton = document.getElementById("withdrawButton");
+    const createMockButton = document.getElementById("createMockButton");
+
+    const money = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD"
+    });
+
+    function formatTime(value) {
+        return new Date(value).toLocaleString();
+    }
+
+    async function request(url, options = {}) {
+        const response = await fetch(url, {
+            headers: { "Content-Type": "application/json" },
+            ...options
+        });
+        const data = await response.json();
+        if (!response.ok || data.success === false) {
+            throw new Error(data.message || "Request failed.");
+        }
+        return data;
+    }
+
+    function renderBets(bets) {
+        if (!bets.length) {
+            betsList.innerHTML = '<p class="empty">No bets have been placed.</p>';
+            return;
+        }
+
+        betsList.innerHTML = bets.map((bet) => {
+            const result = bet.status === "won"
+                ? `Won - payout ${money.format(bet.payout)}`
+                : bet.status === "lost"
+                    ? "Lost"
+                    : "Pending";
+            const score = bet.finalScore ? `<div class="muted-text">${bet.finalScore}</div>` : "";
+            return `
+                <article class="list-item">
+                    <div class="game-header">
+                        <strong>${bet.gameLabel}</strong>
+                        <span class="status">${result}</span>
+                    </div>
+                    <div class="bet-grid">
+                        <span>Pick: <strong>${bet.selection}</strong></span>
+                        <span>Wager: <strong>${money.format(bet.amount)}</strong></span>
+                        <span>Odds: <strong>1:1</strong></span>
+                        <span>Placed: ${formatTime(bet.placedAt)}</span>
+                    </div>
+                    ${score}
+                </article>`;
+        }).join("");
+    }
+
+    function renderGames(realGames, mockGames) {
+        const now = Date.now();
+        const sevenDaysFromNow = now + 7 * 24 * 60 * 60 * 1000;
+
+        const real = realGames.map((game) => ({
+            gameType: "real",
+            gameId: game.gameId,
+            awayTeam: game.awayTeam.name,
+            homeTeam: game.homeTeam.name,
+            startsAt: game.tipoffUtc,
+            endsAt: null,
+            status: "scheduled",
+            isMock: false
+        }));
+
+        const mock = mockGames
+            .filter((game) => Date.parse(game.startsAt) <= sevenDaysFromNow)
+            .map((game) => ({
+                gameType: "mock",
+                gameId: game.id,
+                awayTeam: game.awayTeam,
+                homeTeam: game.homeTeam,
+                startsAt: game.startsAt,
+                endsAt: game.endsAt,
+                status: game.status,
+                winner: game.winner,
+                awayScore: game.sampleTeam1Score,
+                homeScore: game.sampleTeam2Score,
+                isMock: true
+            }));
+
+        const games = [...real, ...mock].sort(
+            (a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt)
+        );
+
+        if (!games.length) {
+            gamesList.innerHTML = '<p class="empty">No games are currently available.</p>';
+            return;
+        }
+
+        gamesList.innerHTML = games.map((game) => {
+            const canBet = game.status === "scheduled" && Date.parse(game.startsAt) > now;
+            const finalText = game.status === "final"
+                ? `<div class="muted-text">Final: ${game.awayTeam} ${game.awayScore} - ${game.homeTeam} ${game.homeScore}. Winner: ${game.winner}.</div>`
+                : game.status === "in_progress"
+                    ? '<div class="muted-text">Game in progress. Betting is closed.</div>'
+                    : "";
+            return `
+                <article class="list-item">
+                    <div class="game-header">
+                        <strong>${game.awayTeam} vs ${game.homeTeam}${game.isMock ? '<span class="mock-tag">Mock</span>' : ""}</strong>
+                        <span class="game-time">${formatTime(game.startsAt)}</span>
+                    </div>
+                    <div class="muted-text">Status: <span class="status">${game.status.replace("_", " ")}</span>${game.endsAt ? ` · Ends ${formatTime(game.endsAt)}` : ""}</div>
+                    ${finalText}
+                    <div class="game-actions" style="margin-top:10px">
+                        <input class="bet-input" type="number" min="0.01" step="0.01" placeholder="Bet amount" aria-label="Bet amount for ${game.awayTeam} versus ${game.homeTeam}" ${canBet ? "" : "disabled"}>
+                        <button class="panel-button bet-button" type="button" data-game-type="${game.gameType}" data-game-id="${game.gameId}" data-selection="${game.awayTeam}" ${canBet ? "" : "disabled"}>Bet ${game.awayTeam}</button>
+                        <button class="panel-button secondary bet-button" type="button" data-game-type="${game.gameType}" data-game-id="${game.gameId}" data-selection="${game.homeTeam}" ${canBet ? "" : "disabled"}>Bet ${game.homeTeam}</button>
+                    </div>
+                </article>`;
+        }).join("");
+    }
+
+    async function loadState() {
+        try {
+            const data = await request("/api/frontend-test-panel/state");
+            balanceEl.textContent = money.format(data.balance);
+            renderBets(data.bets || []);
+            renderGames(data.realGames || [], data.mockGames || []);
+        } catch (error) {
+            gameMessage.textContent = error.message;
+        }
+    }
+
+    async function changeFunds(action) {
+        fundMessage.textContent = "";
+        const amount = Number(fundAmount.value);
+        if (!Number.isFinite(amount) || amount <= 0) {
+            fundMessage.textContent = "Enter an amount greater than zero.";
+            return;
+        }
+
+        try {
+            const data = await request(`/api/frontend-test-panel/${action}`, {
+                method: "POST",
+                body: JSON.stringify({ amount })
+            });
+            balanceEl.textContent = money.format(data.balance);
+            fundAmount.value = "";
+            fundMessage.textContent = action === "deposit" ? "Deposit complete." : "Withdrawal complete.";
+        } catch (error) {
+            fundMessage.textContent = error.message;
+        }
+    }
+
+    depositButton.addEventListener("click", () => changeFunds("deposit"));
+    withdrawButton.addEventListener("click", () => changeFunds("withdraw"));
+
+    createMockButton.addEventListener("click", async () => {
+        gameMessage.textContent = "";
+        try {
+            await request("/api/frontend-test-panel/mock-games", {
+                method: "POST",
+                body: "{}"
+            });
+            gameMessage.textContent = "Mock game created.";
+            await loadState();
+        } catch (error) {
+            gameMessage.textContent = error.message;
+        }
+    });
+
+    gamesList.addEventListener("click", async (event) => {
+        const button = event.target.closest(".bet-button");
+        if (!button) return;
+
+        const card = button.closest(".list-item");
+        const input = card.querySelector(".bet-input");
+        const amount = Number(input.value);
+        gameMessage.textContent = "";
+
+        if (!Number.isFinite(amount) || amount <= 0) {
+            gameMessage.textContent = "Enter a bet amount greater than zero.";
+            return;
+        }
+
+        try {
+            await request("/api/frontend-test-panel/bets", {
+                method: "POST",
+                body: JSON.stringify({
+                    gameType: button.dataset.gameType,
+                    gameId: button.dataset.gameId,
+                    selection: button.dataset.selection,
+                    amount
+                })
+            });
+            gameMessage.textContent = `Bet placed on ${button.dataset.selection}.`;
+            await loadState();
+        } catch (error) {
+            gameMessage.textContent = error.message;
+        }
+    });
+
+    loadState();
+    setInterval(loadState, 60000);
+})();
+</script>
+</body>
+</html>

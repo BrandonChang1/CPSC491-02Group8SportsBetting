@@ -147,6 +147,76 @@ def normalize_upcoming_games(
     return games
 
 
+
+def _score(row: dict[str, Any], prefix: str) -> int | None:
+    value = row.get(f"{prefix}_score")
+    if value in (None, ""):
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        try:
+            return int(float(value))
+        except (TypeError, ValueError):
+            return None
+
+
+def lookup_games(game_ids: Iterable[str], now: datetime | None = None) -> dict[str, Any]:
+    """Return status, score, and winner information for specific game IDs."""
+    now = now or datetime.now(timezone.utc)
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=timezone.utc)
+    else:
+        now = now.astimezone(timezone.utc)
+
+    requested = {str(game_id) for game_id in game_ids if str(game_id)}
+    if not requested:
+        return {"success": True, "games": []}
+
+    start = now - timedelta(days=14)
+    end = now + timedelta(days=14)
+    rows: list[dict[str, Any]] = []
+    for season in seasons_for_window(start, end):
+        rows.extend(fetch_schedule_rows(season))
+
+    games: list[dict[str, Any]] = []
+    for row in rows:
+        game_id = str(row.get("gameId") or "")
+        if game_id not in requested:
+            continue
+
+        try:
+            status_code = int(row.get("gameStatus", 0))
+        except (TypeError, ValueError):
+            status_code = 0
+
+        away_score = _score(row, "awayTeam")
+        home_score = _score(row, "homeTeam")
+        away_name = _team_name(row, "awayTeam")
+        home_name = _team_name(row, "homeTeam")
+        winner = None
+        if status_code == 3 and away_score is not None and home_score is not None:
+            if away_score > home_score:
+                winner = away_name
+            elif home_score > away_score:
+                winner = home_name
+
+        games.append(
+            {
+                "gameId": game_id,
+                "statusCode": status_code,
+                "status": str(row.get("gameStatusText") or ""),
+                "awayTeam": {"name": away_name},
+                "homeTeam": {"name": home_name},
+                "awayScore": away_score,
+                "homeScore": home_score,
+                "winner": winner,
+            }
+        )
+
+    return {"success": True, "games": games}
+
+
 def get_upcoming_games(now: datetime | None = None) -> dict[str, Any]:
     now = now or datetime.now(timezone.utc)
     if now.tzinfo is None:
@@ -172,7 +242,10 @@ def get_upcoming_games(now: datetime | None = None) -> dict[str, Any]:
 
 def main() -> None:
     try:
-        print(json.dumps(get_upcoming_games()))
+        if len(sys.argv) > 1 and sys.argv[1] == "lookup":
+            print(json.dumps(lookup_games(sys.argv[2:])))
+        else:
+            print(json.dumps(get_upcoming_games()))
     except Exception as exc:  # noqa: BLE001 Return machine-readable failure for Express.
         print(
             json.dumps(

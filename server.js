@@ -398,8 +398,8 @@ app.post("/api/frontend-test-panel/withdraw", (req, res) => {
 
 app.post("/api/frontend-test-panel/mock-games", (req, res) => {
     const createdAt = new Date();
-    const startsAt = new Date(createdAt.getTime() + 2 * 60 * 1000);
-    const endsAt = new Date(createdAt.getTime() + 3 * 60 * 1000);
+    const startsAt = new Date(createdAt.getTime() + 30 * 1000);
+    const endsAt = new Date(createdAt.getTime() + 60 * 1000);
     const game = {
         id: `mock-${frontendTestState.nextMockGameId++}`,
         gameType: "mock",

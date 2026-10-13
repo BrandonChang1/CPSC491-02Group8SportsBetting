@@ -72,7 +72,7 @@
             </div>
             <div class="action-row">
                 <button id="createMockButton" class="panel-button" type="button">Create Mock NBA Game</button>
-                <span class="muted-text">Mock game starts in 2 minutes and ends in 3 minutes.</span>
+                <span class="muted-text">Mock game starts in 30 seconds and ends in 60 seconds.</span>
             </div>
             <div id="gameMessage" class="message" aria-live="polite"></div>
             <div id="gamesList" class="list"><p class="empty">Loading games...</p></div>
@@ -353,6 +353,11 @@
             currentMockGames.push(data.game);
             renderGames(currentRealGames, currentMockGames);
             gameMessage.textContent = "Mock game created.";
+            // Refresh at the mock game's start and end instead of waiting for the minute poll.
+            for (const transitionAt of [data.game.startsAt, data.game.endsAt]) {
+                const delay = Math.max(0, Date.parse(transitionAt) - Date.now()) + 100;
+                setTimeout(() => void loadState(), delay);
+            }
             // Refresh the rest of the state without delaying the new game appearing.
             void loadState();
         } catch (error) {

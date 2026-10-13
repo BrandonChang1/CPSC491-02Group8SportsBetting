@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 import sys
 from collections.abc import Iterable
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 LOOKAHEAD_DAYS = 14
@@ -60,8 +60,8 @@ def _parse_game_time(row: dict[str, Any]) -> datetime | None:
         try:
             parsed = datetime.fromisoformat(value)
             if parsed.tzinfo is None:
-                parsed = parsed.replace(tzinfo=timezone.utc)
-            return parsed.astimezone(timezone.utc)
+                parsed = parsed.replace(tzinfo=UTC)
+            return parsed.astimezone(UTC)
         except ValueError:
             pass
 
@@ -81,7 +81,7 @@ def _parse_game_time(row: dict[str, Any]) -> datetime | None:
     for candidate in candidates:
         try:
             parsed = datetime.fromisoformat(candidate)
-            return parsed.replace(tzinfo=timezone.utc)
+            return parsed.replace(tzinfo=UTC)
         except ValueError:
             continue
     return None
@@ -101,9 +101,9 @@ def normalize_upcoming_games(
 ) -> list[dict[str, Any]]:
     """Filter schedule rows to games after *now* and within the next *days* days."""
     if now.tzinfo is None:
-        now = now.replace(tzinfo=timezone.utc)
+        now = now.replace(tzinfo=UTC)
     else:
-        now = now.astimezone(timezone.utc)
+        now = now.astimezone(UTC)
 
     end = now + timedelta(days=days)
     games: list[dict[str, Any]] = []
@@ -163,11 +163,11 @@ def _score(row: dict[str, Any], prefix: str) -> int | None:
 
 def lookup_games(game_ids: Iterable[str], now: datetime | None = None) -> dict[str, Any]:
     """Return status, score, and winner information for specific game IDs."""
-    now = now or datetime.now(timezone.utc)
+    now = now or datetime.now(UTC)
     if now.tzinfo is None:
-        now = now.replace(tzinfo=timezone.utc)
+        now = now.replace(tzinfo=UTC)
     else:
-        now = now.astimezone(timezone.utc)
+        now = now.astimezone(UTC)
 
     requested = {str(game_id) for game_id in game_ids if str(game_id)}
     if not requested:
@@ -218,11 +218,11 @@ def lookup_games(game_ids: Iterable[str], now: datetime | None = None) -> dict[s
 
 
 def get_upcoming_games(now: datetime | None = None) -> dict[str, Any]:
-    now = now or datetime.now(timezone.utc)
+    now = now or datetime.now(UTC)
     if now.tzinfo is None:
-        now = now.replace(tzinfo=timezone.utc)
+        now = now.replace(tzinfo=UTC)
     else:
-        now = now.astimezone(timezone.utc)
+        now = now.astimezone(UTC)
 
     end = now + timedelta(days=LOOKAHEAD_DAYS)
     rows: list[dict[str, Any]] = []

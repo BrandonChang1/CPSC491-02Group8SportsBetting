@@ -15,112 +15,14 @@ const PYTHON_COMMAND =
     process.env.PYTHON_COMMAND ||
     (process.platform === "win32" ? "python" : "python3");
 
+const FRONTEND_TEST_STARTING_BALANCE = 1000;
 const frontendTestState = {
-    balance: 1000,
+    balance: FRONTEND_TEST_STARTING_BALANCE,
     bets: [],
     mockGames: [],
     nextBetId: 1,
-    nextMockGameId: 1,
+    nextMockGameId: 1
 };
-
-function money(value) {
-    return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
-}
-
-function settleBet(bet, winner) {
-    if (bet.status !== "pending") {
-        return;
-    }
-
-    bet.settledAt = new Date().toISOString();
-    if (bet.selection === winner) {
-        bet.status = "won";
-        bet.payout = money(bet.amount * 2);
-        frontendTestState.balance = money(frontendTestState.balance + bet.payout);
-    } else {
-        bet.status = "lost";
-        bet.payout = 0;
-    }
-}
-
-function settleMockGames() {
-    const now = Date.now();
-
-    for (const game of frontendTestState.mockGames) {
-        if (game.status === "final" || now < Date.parse(game.endsAt)) {
-            continue;
-        }
-
-        game.status = "final";
-        game.winner = game.hiddenWinner;
-
-        for (const bet of frontendTestState.bets) {
-            if (bet.gameType === "mock" && bet.gameId === game.id) {
-                settleBet(bet, game.winner);
-            }
-        }
-    }
-}
-
-function runPythonJson(scriptPath, args = []) {
-    return new Promise((resolve, reject) => {
-        execFile(PYTHON_COMMAND, [scriptPath, ...args], (error, stdout, stderr) => {
-            if (!stdout || !stdout.trim()) {
-                reject(new Error((stderr && stderr.trim()) || (error && error.message) || "Python returned no JSON."));
-                return;
-            }
-
-            try {
-                resolve(JSON.parse(stdout));
-            } catch (parseError) {
-                reject(parseError);
-            }
-        });
-    });
-}
-
-async function settleRealBets() {
-    const now = Date.now();
-    const pending = frontendTestState.bets.filter((bet) => {
-        if (bet.gameType !== "real" || bet.status !== "pending") {
-            return false;
-        }
-
-        if (Date.parse(bet.tipoffUtc) > now) {
-            return false;
-        }
-
-        return !bet.lastCheckedAt || now - Date.parse(bet.lastCheckedAt) >= 60000;
-    });
-
-    if (pending.length === 0) {
-        return;
-    }
-
-    const checkedAt = new Date().toISOString();
-    for (const bet of pending) {
-        bet.lastCheckedAt = checkedAt;
-    }
-
-    const gameIds = [...new Set(pending.map((bet) => bet.gameId))];
-    const scriptPath = path.join(__dirname, "scripts", "upcoming_games.py");
-    const result = await runPythonJson(scriptPath, ["status", ...gameIds]);
-
-    if (!result.success) {
-        throw new Error(result.message || "Unable to check NBA game results.");
-    }
-
-    const byId = new Map((result.games || []).map((game) => [String(game.gameId), game]));
-    for (const bet of pending) {
-        const game = byId.get(String(bet.gameId));
-        if (!game || game.statusCode !== 3 || !game.winner) {
-            continue;
-        }
-
-        bet.finalScore = `${game.awayScore}-${game.homeScore}`;
-        settleBet(bet, game.winner);
-    }
-}
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
@@ -169,6 +71,158 @@ function runPythonScript(scriptPath, args, res) {
             });
         }
     );
+}
+
+function runPythonJson(scriptPath, args = []) {
+    return new Promise((resolve, reject) => {
+        execFile(
+            PYTHON_COMMAND,
+            [scriptPath, ...args],
+            (error, stdout, stderr) => {
+                if (!stdout || !stdout.trim()) {
+                    return reject(
+                        new Error(
+                            (stderr && stderr.trim()) ||
+                            (error && error.message) ||
+                            "Python returned no output."
+                        )
+                    );
+                }
+
+                try {
+                    const result = JSON.parse(stdout);
+                    if (error && !result.success) {
+                        return reject(
+                            new Error(result.message || error.message)
+                        );
+                    }
+                    return resolve(result);
+                } catch (parseError) {
+                    return reject(parseError);
+                }
+            }
+        );
+    });
+}
+
+function upcomingGamesScriptPath() {
+    return path.join(__dirname, "scripts", "upcoming_games.py");
+}
+
+async function getRealUpcomingGames() {
+    const result = await runPythonJson(upcomingGamesScriptPath());
+    if (!result.success) {
+        throw new Error(result.message || "Unable to retrieve NBA schedule.");
+    }
+
+    const now = Date.now();
+    const sevenDaysFromNow = now + 7 * 24 * 60 * 60 * 1000;
+    return (result.games || []).filter((game) => {
+        const tipoff = Date.parse(game.tipoffUtc);
+        return tipoff > now && tipoff <= sevenDaysFromNow;
+    });
+}
+
+function settleMockGames() {
+    const now = Date.now();
+
+    for (const game of frontendTestState.mockGames) {
+        if (game.status !== "final" && now >= Date.parse(game.endsAt)) {
+            const sampleOneWins = Math.random() < 0.5;
+            const winningScore = 105 + Math.floor(Math.random() * 21);
+            const losingScore = 90 + Math.floor(Math.random() * 15);
+
+            game.status = "final";
+            game.winner = sampleOneWins ? "Sample Team 1" : "Sample Team 2";
+            game.sampleTeam1Score = sampleOneWins ? winningScore : losingScore;
+            game.sampleTeam2Score = sampleOneWins ? losingScore : winningScore;
+        } else if (
+            game.status === "scheduled" &&
+            now >= Date.parse(game.startsAt)
+        ) {
+            game.status = "in_progress";
+        }
+    }
+}
+
+function settleBet(bet, winner) {
+    if (bet.status !== "pending") {
+        return;
+    }
+
+    bet.status = bet.selection === winner ? "won" : "lost";
+    bet.settledAt = new Date().toISOString();
+    bet.payout = bet.status === "won" ? bet.amount * 2 : 0;
+
+    if (bet.status === "won") {
+        frontendTestState.balance += bet.payout;
+    }
+}
+
+function settleMockBets() {
+    const gamesById = new Map(
+        frontendTestState.mockGames.map((game) => [game.id, game])
+    );
+
+    for (const bet of frontendTestState.bets) {
+        if (bet.status !== "pending" || bet.gameType !== "mock") {
+            continue;
+        }
+
+        const game = gamesById.get(bet.gameId);
+        if (game && game.status === "final") {
+            settleBet(bet, game.winner);
+        }
+    }
+}
+
+async function settleRealBets() {
+    const pendingGameIds = [
+        ...new Set(
+            frontendTestState.bets
+                .filter(
+                    (bet) =>
+                        bet.status === "pending" && bet.gameType === "real"
+                )
+                .map((bet) => bet.gameId)
+        )
+    ];
+
+    if (pendingGameIds.length === 0) {
+        return;
+    }
+
+    const result = await runPythonJson(
+        upcomingGamesScriptPath(),
+        ["lookup", ...pendingGameIds]
+    );
+
+    const resultsById = new Map(
+        (result.games || []).map((game) => [game.gameId, game])
+    );
+
+    for (const bet of frontendTestState.bets) {
+        if (bet.status !== "pending" || bet.gameType !== "real") {
+            continue;
+        }
+
+        const game = resultsById.get(bet.gameId);
+        if (game && game.statusCode === 3 && game.winner) {
+            settleBet(bet, game.winner);
+            bet.finalScore = `${game.awayTeam.name} ${game.awayScore} - ${game.homeTeam.name} ${game.homeScore}`;
+        }
+    }
+}
+
+async function refreshFrontendTestState() {
+    settleMockGames();
+    settleMockBets();
+
+    try {
+        await settleRealBets();
+    } catch (error) {
+        console.error("Unable to settle real-game bets:", error.message);
+    }
 }
 
 app.get("/run-test", (req, res) => {
@@ -261,11 +315,7 @@ app.get("/player-stats", (req, res) => {
 });
 
 app.get("/api/upcoming-games", (req, res) => {
-    const scriptPath = path.join(
-        __dirname,
-        "scripts",
-        "upcoming_games.py"
-    );
+    const scriptPath = upcomingGamesScriptPath();
 
     return runPythonScript(
         scriptPath,
@@ -274,150 +324,176 @@ app.get("/api/upcoming-games", (req, res) => {
     );
 });
 
-app.get("/api/frontend-test/state", async (req, res) => {
-    settleMockGames();
+app.get("/api/frontend-test-panel/state", async (req, res) => {
+    await refreshFrontendTestState();
 
-    let settlementWarning = null;
     try {
-        await settleRealBets();
+        const realGames = await getRealUpcomingGames();
+        return res.json({
+            success: true,
+            balance: frontendTestState.balance,
+            bets: frontendTestState.bets,
+            mockGames: frontendTestState.mockGames,
+            realGames
+        });
     } catch (error) {
-        settlementWarning = error.message;
+        return res.status(502).json({
+            success: false,
+            message: error.message,
+            balance: frontendTestState.balance,
+            bets: frontendTestState.bets,
+            mockGames: frontendTestState.mockGames,
+            realGames: []
+        });
     }
-
-    const mockGames = frontendTestState.mockGames.map(({ hiddenWinner, ...game }) => game);
-    const bets = frontendTestState.bets.map(({ lastCheckedAt, ...bet }) => bet);
-
-    return res.json({
-        success: true,
-        balance: frontendTestState.balance,
-        bets,
-        mockGames,
-        settlementWarning,
-    });
 });
 
-app.post("/api/frontend-test/deposit", (req, res) => {
-    const amount = money(req.body.amount);
+app.post("/api/frontend-test-panel/deposit", (req, res) => {
+    const amount = Number(req.body.amount);
     if (!Number.isFinite(amount) || amount <= 0) {
-        return res.status(400).json({ success: false, message: "Deposit amount must be greater than zero." });
+        return res.status(400).json({
+            success: false,
+            message: "Deposit amount must be greater than zero."
+        });
     }
 
-    frontendTestState.balance = money(frontendTestState.balance + amount);
+    frontendTestState.balance += amount;
     return res.json({ success: true, balance: frontendTestState.balance });
 });
 
-app.post("/api/frontend-test/withdraw", (req, res) => {
-    const amount = money(req.body.amount);
+app.post("/api/frontend-test-panel/withdraw", (req, res) => {
+    const amount = Number(req.body.amount);
     if (!Number.isFinite(amount) || amount <= 0) {
-        return res.status(400).json({ success: false, message: "Withdrawal amount must be greater than zero." });
+        return res.status(400).json({
+            success: false,
+            message: "Withdrawal amount must be greater than zero."
+        });
     }
-
     if (amount > frontendTestState.balance) {
-        return res.status(400).json({ success: false, message: "Withdrawal exceeds the current balance." });
+        return res.status(400).json({
+            success: false,
+            message: "Insufficient balance."
+        });
     }
 
-    frontendTestState.balance = money(frontendTestState.balance - amount);
+    frontendTestState.balance -= amount;
     return res.json({ success: true, balance: frontendTestState.balance });
 });
 
-app.post("/api/frontend-test/mock-games", (req, res) => {
-    settleMockGames();
-
+app.post("/api/frontend-test-panel/mock-games", (req, res) => {
     const createdAt = new Date();
     const startsAt = new Date(createdAt.getTime() + 2 * 60 * 1000);
     const endsAt = new Date(createdAt.getTime() + 3 * 60 * 1000);
-    const winner = Math.random() < 0.5 ? "sample-team-1" : "sample-team-2";
-
     const game = {
         id: `mock-${frontendTestState.nextMockGameId++}`,
-        homeTeam: "Sample Team 1",
-        awayTeam: "Sample Team 2",
+        gameType: "mock",
+        awayTeam: "Sample Team 1",
+        homeTeam: "Sample Team 2",
         createdAt: createdAt.toISOString(),
         startsAt: startsAt.toISOString(),
         endsAt: endsAt.toISOString(),
         status: "scheduled",
         winner: null,
-        hiddenWinner: winner,
+        sampleTeam1Score: null,
+        sampleTeam2Score: null
     };
 
-    frontendTestState.mockGames.unshift(game);
-    const { hiddenWinner, ...publicGame } = game;
-    return res.status(201).json({ success: true, game: publicGame });
+    frontendTestState.mockGames.push(game);
+    return res.status(201).json({ success: true, game });
 });
 
-app.post("/api/frontend-test/bets", (req, res) => {
-    settleMockGames();
+app.post("/api/frontend-test-panel/bets", async (req, res) => {
+    await refreshFrontendTestState();
 
-    const amount = money(req.body.amount);
-    const gameType = req.body.gameType === "mock" ? "mock" : "real";
+    const amount = Number(req.body.amount);
+    const gameType = req.body.gameType;
+    const gameId = String(req.body.gameId || "");
     const selection = String(req.body.selection || "");
 
     if (!Number.isFinite(amount) || amount <= 0) {
-        return res.status(400).json({ success: false, message: "Bet amount must be greater than zero." });
+        return res.status(400).json({
+            success: false,
+            message: "Bet amount must be greater than zero."
+        });
     }
-
     if (amount > frontendTestState.balance) {
-        return res.status(400).json({ success: false, message: "Bet amount exceeds the current balance." });
+        return res.status(400).json({
+            success: false,
+            message: "Insufficient balance."
+        });
     }
 
-    let bet;
+    let gameLabel;
+    let validSelections;
+
     if (gameType === "mock") {
-        const game = frontendTestState.mockGames.find((item) => item.id === req.body.gameId);
+        const game = frontendTestState.mockGames.find(
+            (item) => item.id === gameId
+        );
+        if (!game || game.status !== "scheduled") {
+            return res.status(400).json({
+                success: false,
+                message: "That mock game is no longer available for betting."
+            });
+        }
+        gameLabel = `${game.awayTeam} vs ${game.homeTeam}`;
+        validSelections = [game.awayTeam, game.homeTeam];
+    } else if (gameType === "real") {
+        let realGames;
+        try {
+            realGames = await getRealUpcomingGames();
+        } catch (error) {
+            return res.status(502).json({
+                success: false,
+                message: error.message
+            });
+        }
+
+        const game = realGames.find((item) => item.gameId === gameId);
         if (!game) {
-            return res.status(404).json({ success: false, message: "Mock game not found." });
+            return res.status(400).json({
+                success: false,
+                message: "That NBA game is no longer available for betting."
+            });
         }
-        if (Date.now() >= Date.parse(game.startsAt)) {
-            return res.status(400).json({ success: false, message: "Betting is closed because the mock game has started." });
-        }
-        if (!new Set(["sample-team-1", "sample-team-2"]).has(selection)) {
-            return res.status(400).json({ success: false, message: "Choose one of the mock teams." });
-        }
-
-        bet = {
-            id: frontendTestState.nextBetId++,
-            gameType: "mock",
-            gameId: game.id,
-            gameLabel: `${game.awayTeam} @ ${game.homeTeam}`,
-            tipoffUtc: game.startsAt,
-            selection,
-            selectionLabel: selection === "sample-team-1" ? game.homeTeam : game.awayTeam,
-            amount,
-            odds: "1:1",
-            status: "pending",
-            payout: null,
-            placedAt: new Date().toISOString(),
-        };
+        gameLabel = `${game.awayTeam.name} vs ${game.homeTeam.name}`;
+        validSelections = [game.awayTeam.name, game.homeTeam.name];
     } else {
-        const tipoff = Date.parse(req.body.tipoffUtc);
-        const sevenDaysFromNow = Date.now() + 7 * 24 * 60 * 60 * 1000;
-        if (!Number.isFinite(tipoff) || tipoff <= Date.now() || tipoff > sevenDaysFromNow) {
-            return res.status(400).json({ success: false, message: "This NBA game is not open for betting in the next seven days." });
-        }
-        if (!new Set(["home", "away"]).has(selection)) {
-            return res.status(400).json({ success: false, message: "Choose the home or away team." });
-        }
-
-        const homeTeam = String(req.body.homeTeam || "Home Team");
-        const awayTeam = String(req.body.awayTeam || "Away Team");
-        bet = {
-            id: frontendTestState.nextBetId++,
-            gameType: "real",
-            gameId: String(req.body.gameId || ""),
-            gameLabel: `${awayTeam} @ ${homeTeam}`,
-            tipoffUtc: new Date(tipoff).toISOString(),
-            selection,
-            selectionLabel: selection === "home" ? homeTeam : awayTeam,
-            amount,
-            odds: "1:1",
-            status: "pending",
-            payout: null,
-            placedAt: new Date().toISOString(),
-        };
+        return res.status(400).json({
+            success: false,
+            message: "Invalid game type."
+        });
     }
 
-    frontendTestState.balance = money(frontendTestState.balance - amount);
+    if (!validSelections.includes(selection)) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid team selection."
+        });
+    }
+
+    frontendTestState.balance -= amount;
+    const bet = {
+        id: frontendTestState.nextBetId++,
+        gameType,
+        gameId,
+        gameLabel,
+        selection,
+        amount,
+        odds: "1:1",
+        status: "pending",
+        payout: 0,
+        placedAt: new Date().toISOString(),
+        settledAt: null,
+        finalScore: null
+    };
     frontendTestState.bets.unshift(bet);
-    return res.status(201).json({ success: true, balance: frontendTestState.balance, bet });
+
+    return res.status(201).json({
+        success: true,
+        balance: frontendTestState.balance,
+        bet
+    });
 });
 
 app.use(notFoundHandler);

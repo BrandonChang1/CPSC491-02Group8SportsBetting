@@ -1,436 +1,293 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Frontend Test Panel</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: #f4f4f4;
-      color: #1f2937;
-    }
-    header {
-      background: #111827;
-      color: white;
-      padding: 18px 24px;
-    }
-    .header-inner {
-      width: min(1100px, calc(100% - 32px));
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-    }
-    .header-inner a { color: white; text-decoration: none; }
-    main {
-      width: min(1100px, calc(100% - 32px));
-      margin: 28px auto 48px;
-      display: grid;
-      gap: 20px;
-    }
-    .card {
-      background: white;
-      padding: 22px;
-      border-radius: 10px;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-    }
-    .summary-row {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 18px;
-    }
-    .balance {
-      font-size: 32px;
-      font-weight: bold;
-      margin: 4px 0;
-    }
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-    }
-    input[type="number"] {
-      width: 140px;
-      padding: 10px;
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      font-size: 15px;
-    }
-    button, .button-link {
-      border: 0;
-      border-radius: 6px;
-      background: #222;
-      color: white;
-      padding: 10px 14px;
-      cursor: pointer;
-      font-size: 14px;
-      text-decoration: none;
-      display: inline-block;
-    }
-    button:hover, .button-link:hover { background: #444; }
-    button:disabled { background: #9ca3af; cursor: not-allowed; }
-    .message {
-      min-height: 22px;
-      margin: 0;
-      color: #374151;
-    }
-    .message.error { color: #b91c1c; }
-    .section-heading {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-    .section-heading h2 { margin: 0; }
-    .games {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 14px;
-    }
-    .game-card {
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      padding: 16px;
-      background: #fafafa;
-    }
-    .game-card h3 { margin: 0 0 8px; font-size: 18px; }
-    .game-meta { color: #6b7280; font-size: 14px; margin-bottom: 12px; }
-    .bet-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      margin-top: 12px;
-    }
-    .bet-row input { width: 110px; }
-    .status {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: #e5e7eb;
-      font-size: 12px;
-      font-weight: bold;
-      text-transform: uppercase;
-    }
-    .bets-table { width: 100%; border-collapse: collapse; }
-    .bets-table th, .bets-table td {
-      text-align: left;
-      padding: 10px 8px;
-      border-bottom: 1px solid #e5e7eb;
-      vertical-align: top;
-    }
-    .bets-table th { font-size: 13px; color: #4b5563; }
-    .empty { color: #6b7280; margin: 6px 0; }
-    .note { color: #6b7280; font-size: 13px; margin-bottom: 0; }
-    @media (max-width: 700px) {
-      .bets-table, .bets-table thead, .bets-table tbody, .bets-table th, .bets-table td, .bets-table tr {
-        display: block;
-      }
-      .bets-table thead { display: none; }
-      .bets-table tr { border-bottom: 1px solid #d1d5db; padding: 8px 0; }
-      .bets-table td { border: 0; padding: 4px 0; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Frontend Test Panel | NBA Player Analytics</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .panel-stack { display: grid; gap: 24px; margin-top: 24px; }
+        .panel-card { border: 1px solid #d9dee8; border-radius: 14px; padding: 20px; background: #fff; }
+        .balance-row, .action-row, .game-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .balance-value { font-size: 2rem; font-weight: 700; margin: 8px 0 16px; }
+        .money-input, .bet-input { width: 150px; padding: 10px 12px; border: 1px solid #c7ccd6; border-radius: 8px; font: inherit; }
+        .panel-button { padding: 10px 14px; border: 0; border-radius: 8px; cursor: pointer; font: inherit; font-weight: 600; background: #1e3a8a; color: #fff; }
+        .panel-button.secondary { background: #475569; }
+        .panel-button:disabled { cursor: not-allowed; opacity: .55; }
+        .message { min-height: 24px; margin-top: 12px; color: #334155; }
+        .list { display: grid; gap: 12px; margin-top: 14px; }
+        .list-item { border: 1px solid #e1e5ec; border-radius: 10px; padding: 14px; background: #fafbfc; }
+        .game-header { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+        .game-time, .muted-text { color: #64748b; font-size: .92rem; }
+        .status { font-weight: 700; text-transform: capitalize; }
+        .mock-tag { display: inline-block; margin-left: 8px; padding: 2px 7px; border-radius: 999px; background: #e2e8f0; font-size: .75rem; }
+        .bet-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px 16px; margin-top: 8px; }
+        .empty { color: #64748b; font-style: italic; }
+        @media (max-width: 600px) {
+            .money-input, .bet-input { width: 100%; }
+            .panel-button { width: 100%; }
+        }
+    </style>
 </head>
 <body>
-  <header>
+<header>
     <div class="header-inner">
-      <strong>Frontend Test Panel</strong>
-      <a href="/">Back to Front Page</a>
+        <div class="brand">NBA <span>/</span> Frontend Test Panel</div>
+        <a href="/" class="back-link">Back to home</a>
     </div>
-  </header>
-
-  <main>
-    <section class="card">
-      <div class="summary-row">
-        <div>
-          <div>Current Account Balance</div>
-          <div class="balance" id="balance">$1,000.00</div>
-        </div>
-        <div class="controls">
-          <input id="fundAmount" type="number" min="0.01" step="0.01" placeholder="Amount">
-          <button id="depositButton" type="button">Deposit</button>
-          <button id="withdrawButton" type="button">Withdraw</button>
-        </div>
-      </div>
+</header>
+<main>
+    <section class="hero">
+        <h1>Frontend Test Panel</h1>
     </section>
 
-    <p id="message" class="message" aria-live="polite"></p>
+    <div class="panel-stack">
+        <section class="panel-card">
+            <div class="section-top">
+                <h2>Account Balance</h2>
+                <span class="muted">Starts at $1,000.00</span>
+            </div>
+            <div id="balance" class="balance-value">$1,000.00</div>
+            <div class="balance-row">
+                <input id="fundAmount" class="money-input" type="number" min="0.01" step="0.01" placeholder="Amount" aria-label="Deposit or withdrawal amount">
+                <button id="depositButton" class="panel-button" type="button">Deposit</button>
+                <button id="withdrawButton" class="panel-button secondary" type="button">Withdraw</button>
+            </div>
+            <div id="fundMessage" class="message" aria-live="polite"></div>
+        </section>
 
-    <section class="card">
-      <div class="section-heading">
-        <h2>Bets Placed</h2>
-        <span class="note">The panel refreshes automatically every minute.</span>
-      </div>
-      <div id="bets"><p class="empty">No bets placed yet.</p></div>
-    </section>
+        <section class="panel-card">
+            <div class="section-top">
+                <h2>Bets Placed</h2>
+                <span class="muted">All odds are 1:1</span>
+            </div>
+            <div id="betsList" class="list"><p class="empty">No bets have been placed.</p></div>
+        </section>
 
-    <section class="card">
-      <div class="section-heading">
-        <div>
-          <h2>NBA Games Starting Within 7 Days</h2>
-          <div class="note">Real and mock games appear together. Mock games start in 2 minutes and end in 3 minutes. All bets use 1:1 odds.</div>
-        </div>
-        <div class="controls">
-          <button id="createMockGameButton" type="button">Create Mock NBA Game</button>
-          <button id="refreshButton" type="button">Refresh</button>
-        </div>
-      </div>
-      <div id="games" class="games"><p class="empty">Loading upcoming NBA games...</p></div>
-    </section>
-  </main>
+        <section class="panel-card">
+            <div class="section-top">
+                <h2>NBA Games Starting Within 7 Days</h2>
+            </div>
+            <div class="action-row">
+                <button id="createMockButton" class="panel-button" type="button">Create Mock NBA Game</button>
+                <span class="muted-text">Mock game starts in 2 minutes and ends in 3 minutes.</span>
+            </div>
+            <div id="gameMessage" class="message" aria-live="polite"></div>
+            <div id="gamesList" class="list"><p class="empty">Loading games...</p></div>
+        </section>
+    </div>
+</main>
 
-  <script>
-    let currentRealGames = [];
-    let currentMockGames = [];
+<script>
+(() => {
+    const balanceEl = document.getElementById("balance");
+    const betsList = document.getElementById("betsList");
+    const gamesList = document.getElementById("gamesList");
+    const fundAmount = document.getElementById("fundAmount");
+    const fundMessage = document.getElementById("fundMessage");
+    const gameMessage = document.getElementById("gameMessage");
+    const depositButton = document.getElementById("depositButton");
+    const withdrawButton = document.getElementById("withdrawButton");
+    const createMockButton = document.getElementById("createMockButton");
 
-    function formatMoney(value) {
-      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
-    }
+    const money = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD"
+    });
 
     function formatTime(value) {
-      const date = new Date(value);
-      return Number.isNaN(date.getTime()) ? 'Unknown time' : date.toLocaleString();
+        return new Date(value).toLocaleString();
     }
 
-    function escapeHtml(value) {
-      return String(value)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
-    }
-
-    function setMessage(text, isError = false) {
-      const message = document.getElementById('message');
-      message.textContent = text || '';
-      message.classList.toggle('error', isError);
-    }
-
-    async function requestJson(url, options = {}) {
-      const response = await fetch(url, options);
-      const result = await response.json();
-      if (!response.ok || result.success === false) {
-        throw new Error(result.message || 'Request failed.');
-      }
-      return result;
-    }
-
-    function mockStatus(game) {
-      const now = Date.now();
-      if (game.status === 'final' || now >= Date.parse(game.endsAt)) return 'final';
-      if (now >= Date.parse(game.startsAt)) return 'in progress';
-      return 'scheduled';
-    }
-
-    function renderGames() {
-      const container = document.getElementById('games');
-      const combinedGames = [
-        ...currentRealGames.map((game) => ({
-          type: 'real',
-          sortTime: Date.parse(game.tipoffUtc),
-          game,
-        })),
-        ...currentMockGames.map((game) => ({
-          type: 'mock',
-          sortTime: Date.parse(game.startsAt),
-          game,
-        })),
-      ].sort((a, b) => a.sortTime - b.sortTime);
-
-      if (!combinedGames.length) {
-        container.innerHTML = '<p class="empty">No NBA or mock games were found in the next 7 days.</p>';
-        return;
-      }
-
-      container.innerHTML = combinedGames.map((entry) => {
-        if (entry.type === 'mock') {
-          const game = entry.game;
-          const status = mockStatus(game);
-          const bettingOpen = status === 'scheduled';
-          const winnerText = status === 'final' && game.winner
-            ? `<div><strong>Winner:</strong> ${escapeHtml(game.winner === 'sample-team-1' ? game.homeTeam : game.awayTeam)}</div>`
-            : '';
-
-          return `
-            <article class="game-card" data-game-type="mock" data-game-id="${escapeHtml(game.id)}">
-              <h3>${escapeHtml(game.awayTeam)} @ ${escapeHtml(game.homeTeam)}</h3>
-              <div class="game-meta">
-                Mock game · Starts: ${escapeHtml(formatTime(game.startsAt))}<br>
-                Ends: ${escapeHtml(formatTime(game.endsAt))}<br>
-                <span class="status">${escapeHtml(status)}</span>
-              </div>
-              ${winnerText}
-              <div class="bet-row">
-                <input class="bet-amount" type="number" min="0.01" step="0.01" value="10" aria-label="Bet amount">
-                <button type="button" data-action="bet" data-selection="sample-team-1" ${bettingOpen ? '' : 'disabled'}>
-                  Bet ${escapeHtml(game.homeTeam)}
-                </button>
-                <button type="button" data-action="bet" data-selection="sample-team-2" ${bettingOpen ? '' : 'disabled'}>
-                  Bet ${escapeHtml(game.awayTeam)}
-                </button>
-              </div>
-            </article>`;
+    async function request(url, options = {}) {
+        const response = await fetch(url, {
+            headers: { "Content-Type": "application/json" },
+            ...options
+        });
+        const data = await response.json();
+        if (!response.ok || data.success === false) {
+            throw new Error(data.message || "Request failed.");
         }
-
-        const game = entry.game;
-        return `
-          <article class="game-card"
-            data-game-type="real"
-            data-game-id="${escapeHtml(game.gameId)}"
-            data-tipoff="${escapeHtml(game.tipoffUtc)}"
-            data-home-team="${escapeHtml(game.homeTeam.name)}"
-            data-away-team="${escapeHtml(game.awayTeam.name)}">
-            <h3>${escapeHtml(game.awayTeam.name)} @ ${escapeHtml(game.homeTeam.name)}</h3>
-            <div class="game-meta">Tipoff: ${escapeHtml(formatTime(game.tipoffUtc))}</div>
-            <div class="bet-row">
-              <input class="bet-amount" type="number" min="0.01" step="0.01" value="10" aria-label="Bet amount">
-              <button type="button" data-action="bet" data-selection="home">Bet ${escapeHtml(game.homeTeam.name)}</button>
-              <button type="button" data-action="bet" data-selection="away">Bet ${escapeHtml(game.awayTeam.name)}</button>
-            </div>
-          </article>`;
-      }).join('');
+        return data;
     }
 
     function renderBets(bets) {
-      const container = document.getElementById('bets');
-      if (!bets.length) {
-        container.innerHTML = '<p class="empty">No bets placed yet.</p>';
-        return;
-      }
+        if (!bets.length) {
+            betsList.innerHTML = '<p class="empty">No bets have been placed.</p>';
+            return;
+        }
 
-      container.innerHTML = `
-        <table class="bets-table">
-          <thead>
-            <tr><th>Game</th><th>Selection</th><th>Wager</th><th>Status</th><th>Payout</th></tr>
-          </thead>
-          <tbody>
-            ${bets.map((bet) => `
-              <tr>
-                <td>${escapeHtml(bet.gameLabel)}${bet.finalScore ? `<br><small>Final: ${escapeHtml(bet.finalScore)}</small>` : ''}</td>
-                <td>${escapeHtml(bet.selectionLabel)}</td>
-                <td>${escapeHtml(formatMoney(bet.amount))} at ${escapeHtml(bet.odds)}</td>
-                <td><span class="status">${escapeHtml(bet.status)}</span></td>
-                <td>${bet.payout === null ? '-' : escapeHtml(formatMoney(bet.payout))}</td>
-              </tr>`).join('')}
-          </tbody>
-        </table>`;
+        betsList.innerHTML = bets.map((bet) => {
+            const result = bet.status === "won"
+                ? `Won - payout ${money.format(bet.payout)}`
+                : bet.status === "lost"
+                    ? "Lost"
+                    : "Pending";
+            const score = bet.finalScore ? `<div class="muted-text">${bet.finalScore}</div>` : "";
+            return `
+                <article class="list-item">
+                    <div class="game-header">
+                        <strong>${bet.gameLabel}</strong>
+                        <span class="status">${result}</span>
+                    </div>
+                    <div class="bet-grid">
+                        <span>Pick: <strong>${bet.selection}</strong></span>
+                        <span>Wager: <strong>${money.format(bet.amount)}</strong></span>
+                        <span>Odds: <strong>1:1</strong></span>
+                        <span>Placed: ${formatTime(bet.placedAt)}</span>
+                    </div>
+                    ${score}
+                </article>`;
+        }).join("");
+    }
+
+    function renderGames(realGames, mockGames) {
+        const now = Date.now();
+        const sevenDaysFromNow = now + 7 * 24 * 60 * 60 * 1000;
+
+        const real = realGames.map((game) => ({
+            gameType: "real",
+            gameId: game.gameId,
+            awayTeam: game.awayTeam.name,
+            homeTeam: game.homeTeam.name,
+            startsAt: game.tipoffUtc,
+            endsAt: null,
+            status: "scheduled",
+            isMock: false
+        }));
+
+        const mock = mockGames
+            .filter((game) => Date.parse(game.startsAt) <= sevenDaysFromNow)
+            .map((game) => ({
+                gameType: "mock",
+                gameId: game.id,
+                awayTeam: game.awayTeam,
+                homeTeam: game.homeTeam,
+                startsAt: game.startsAt,
+                endsAt: game.endsAt,
+                status: game.status,
+                winner: game.winner,
+                awayScore: game.sampleTeam1Score,
+                homeScore: game.sampleTeam2Score,
+                isMock: true
+            }));
+
+        const games = [...real, ...mock].sort(
+            (a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt)
+        );
+
+        if (!games.length) {
+            gamesList.innerHTML = '<p class="empty">No games are currently available.</p>';
+            return;
+        }
+
+        gamesList.innerHTML = games.map((game) => {
+            const canBet = game.status === "scheduled" && Date.parse(game.startsAt) > now;
+            const finalText = game.status === "final"
+                ? `<div class="muted-text">Final: ${game.awayTeam} ${game.awayScore} - ${game.homeTeam} ${game.homeScore}. Winner: ${game.winner}.</div>`
+                : game.status === "in_progress"
+                    ? '<div class="muted-text">Game in progress. Betting is closed.</div>'
+                    : "";
+            return `
+                <article class="list-item">
+                    <div class="game-header">
+                        <strong>${game.awayTeam} vs ${game.homeTeam}${game.isMock ? '<span class="mock-tag">Mock</span>' : ""}</strong>
+                        <span class="game-time">${formatTime(game.startsAt)}</span>
+                    </div>
+                    <div class="muted-text">Status: <span class="status">${game.status.replace("_", " ")}</span>${game.endsAt ? ` · Ends ${formatTime(game.endsAt)}` : ""}</div>
+                    ${finalText}
+                    <div class="game-actions" style="margin-top:10px">
+                        <input class="bet-input" type="number" min="0.01" step="0.01" placeholder="Bet amount" aria-label="Bet amount for ${game.awayTeam} versus ${game.homeTeam}" ${canBet ? "" : "disabled"}>
+                        <button class="panel-button bet-button" type="button" data-game-type="${game.gameType}" data-game-id="${game.gameId}" data-selection="${game.awayTeam}" ${canBet ? "" : "disabled"}>Bet ${game.awayTeam}</button>
+                        <button class="panel-button secondary bet-button" type="button" data-game-type="${game.gameType}" data-game-id="${game.gameId}" data-selection="${game.homeTeam}" ${canBet ? "" : "disabled"}>Bet ${game.homeTeam}</button>
+                    </div>
+                </article>`;
+        }).join("");
     }
 
     async function loadState() {
-      const result = await requestJson('/api/frontend-test/state');
-      document.getElementById('balance').textContent = formatMoney(result.balance);
-      currentMockGames = result.mockGames || [];
-      renderBets(result.bets || []);
-      if (result.settlementWarning) {
-        setMessage(`NBA result check warning: ${result.settlementWarning}`, true);
-      }
-    }
-
-    async function loadUpcomingGames() {
-      try {
-        const result = await requestJson('/api/upcoming-games');
-        const now = Date.now();
-        const end = now + 7 * 24 * 60 * 60 * 1000;
-        currentRealGames = (result.games || []).filter((game) => {
-          const tipoff = Date.parse(game.tipoffUtc);
-          return tipoff > now && tipoff <= end;
-        });
-        renderGames();
-      } catch (error) {
-        currentRealGames = [];
-        document.getElementById('games').innerHTML = `<p class="empty">Unable to load upcoming NBA games: ${escapeHtml(error.message)}</p>`;
-      }
-    }
-
-    async function refreshAll(showMessage = false) {
-      try {
-        await Promise.all([loadState(), loadUpcomingGames()]);
-        renderGames();
-        if (showMessage) setMessage('Panel refreshed.');
-      } catch (error) {
-        setMessage(error.message, true);
-      }
+        try {
+            const data = await request("/api/frontend-test-panel/state");
+            balanceEl.textContent = money.format(data.balance);
+            renderBets(data.bets || []);
+            renderGames(data.realGames || [], data.mockGames || []);
+        } catch (error) {
+            gameMessage.textContent = error.message;
+        }
     }
 
     async function changeFunds(action) {
-      const amount = Number(document.getElementById('fundAmount').value);
-      try {
-        const result = await requestJson(`/api/frontend-test/${action}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount }),
-        });
-        document.getElementById('balance').textContent = formatMoney(result.balance);
-        setMessage(action === 'deposit' ? 'Deposit completed.' : 'Withdrawal completed.');
-      } catch (error) {
-        setMessage(error.message, true);
-      }
+        fundMessage.textContent = "";
+        const amount = Number(fundAmount.value);
+        if (!Number.isFinite(amount) || amount <= 0) {
+            fundMessage.textContent = "Enter an amount greater than zero.";
+            return;
+        }
+
+        try {
+            const data = await request(`/api/frontend-test-panel/${action}`, {
+                method: "POST",
+                body: JSON.stringify({ amount })
+            });
+            balanceEl.textContent = money.format(data.balance);
+            fundAmount.value = "";
+            fundMessage.textContent = action === "deposit" ? "Deposit complete." : "Withdrawal complete.";
+        } catch (error) {
+            fundMessage.textContent = error.message;
+        }
     }
 
-    document.getElementById('depositButton').addEventListener('click', () => changeFunds('deposit'));
-    document.getElementById('withdrawButton').addEventListener('click', () => changeFunds('withdraw'));
+    depositButton.addEventListener("click", () => changeFunds("deposit"));
+    withdrawButton.addEventListener("click", () => changeFunds("withdraw"));
 
-    document.getElementById('createMockGameButton').addEventListener('click', async () => {
-      try {
-        await requestJson('/api/frontend-test/mock-games', { method: 'POST' });
-        setMessage('Mock game created. It starts in 2 minutes and ends in 3 minutes.');
-        await loadState();
-        renderGames();
-      } catch (error) {
-        setMessage(error.message, true);
-      }
+    createMockButton.addEventListener("click", async () => {
+        gameMessage.textContent = "";
+        try {
+            await request("/api/frontend-test-panel/mock-games", {
+                method: "POST",
+                body: "{}"
+            });
+            gameMessage.textContent = "Mock game created.";
+            await loadState();
+        } catch (error) {
+            gameMessage.textContent = error.message;
+        }
     });
 
-    document.getElementById('refreshButton').addEventListener('click', () => refreshAll(true));
+    gamesList.addEventListener("click", async (event) => {
+        const button = event.target.closest(".bet-button");
+        if (!button) return;
 
-    document.addEventListener('click', async (event) => {
-      const button = event.target.closest('[data-action="bet"]');
-      if (!button) return;
+        const card = button.closest(".list-item");
+        const input = card.querySelector(".bet-input");
+        const amount = Number(input.value);
+        gameMessage.textContent = "";
 
-      const card = button.closest('.game-card');
-      const amount = Number(card.querySelector('.bet-amount').value);
-      const gameType = card.dataset.gameType;
-      const payload = {
-        gameType,
-        gameId: card.dataset.gameId,
-        selection: button.dataset.selection,
-        amount,
-      };
+        if (!Number.isFinite(amount) || amount <= 0) {
+            gameMessage.textContent = "Enter a bet amount greater than zero.";
+            return;
+        }
 
-      if (gameType === 'real') {
-        payload.tipoffUtc = card.dataset.tipoff;
-        payload.homeTeam = card.dataset.homeTeam;
-        payload.awayTeam = card.dataset.awayTeam;
-      }
-
-      try {
-        const result = await requestJson('/api/frontend-test/bets', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        document.getElementById('balance').textContent = formatMoney(result.balance);
-        setMessage(`Bet placed on ${result.bet.selectionLabel} for ${formatMoney(result.bet.amount)}.`);
-        await loadState();
-        renderGames();
-      } catch (error) {
-        setMessage(error.message, true);
-      }
+        try {
+            await request("/api/frontend-test-panel/bets", {
+                method: "POST",
+                body: JSON.stringify({
+                    gameType: button.dataset.gameType,
+                    gameId: button.dataset.gameId,
+                    selection: button.dataset.selection,
+                    amount
+                })
+            });
+            gameMessage.textContent = `Bet placed on ${button.dataset.selection}.`;
+            await loadState();
+        } catch (error) {
+            gameMessage.textContent = error.message;
+        }
     });
 
-    refreshAll();
-    setInterval(() => refreshAll(false), 60000);
-  </script>
+    loadState();
+    setInterval(loadState, 60000);
+})();
+</script>
 </body>
 </html>

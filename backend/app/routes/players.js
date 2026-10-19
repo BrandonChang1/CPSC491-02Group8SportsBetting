@@ -3,6 +3,7 @@ const pool = require("../db");
 const asyncHandler = require("../asyncHandler");
 const { parsePagination, parseIntParam } = require("../validators");
 const { NotFoundError } = require("../errors");
+const { getPlayerPrediction } = require("../services/prediction");
 
 const router = express.Router();
 
@@ -103,6 +104,22 @@ router.get(
     );
 
     res.json(rows);
+  })
+);
+
+/**
+ * GET /players/:id/prediction
+ *
+ * Next-game points prediction (Sprint 3): predicted points, the player's
+ * recent (last-5) and overall averages, and the model version used.
+ * 404 for an unknown player, 422 if they have no games to predict from,
+ * 503/502 if the model is unavailable or returns an unusable result.
+ */
+router.get(
+  "/players/:id/prediction",
+  asyncHandler(async (req, res) => {
+    const id = parseIntParam(req.params.id, "player id");
+    res.json(await getPlayerPrediction(id));
   })
 );
 

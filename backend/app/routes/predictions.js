@@ -42,7 +42,7 @@ router.get("/api/players/:id/prediction", asyncHandler(async (req, res) => {
 
   try {
     const result = await pool.query(
-      `SELECT g.game_date::text AS game_date, pgs.points
+      `SELECT g.game_date::text AS game_date, pgs.points, pgs.minutes
        FROM player_game_stats pgs
        JOIN games g ON g.id = pgs.game_id
        WHERE pgs.player_id = $1 AND pgs.points IS NOT NULL
@@ -74,7 +74,7 @@ router.get("/api/players/:id/prediction", asyncHandler(async (req, res) => {
   }
 
   const result = await executePython("predict_player.py", [], { games });
-  return res.status(result.success ? 200 : 422).json({
+  return res.status(result.success ? 200 : 503).json({
     ...result,
     source,
     ...(databaseError ? { fallbackReason: "Database unavailable" } : {}),

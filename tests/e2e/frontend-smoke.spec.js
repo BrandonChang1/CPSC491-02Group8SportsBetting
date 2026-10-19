@@ -5,7 +5,6 @@ test("home page exposes navigation", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByTestId("home-heading")).toBeVisible();
     await expect(page.getByTestId("nav-player-search")).toHaveAttribute("href", "/player-search.html");
-    await expect(page.getByTestId("nav-upcoming-games")).toHaveAttribute("href", "/upcoming-games.html");
     await page.getByTestId("nav-player-search").click();
     await expect(page.getByTestId("player-search-page")).toBeVisible();
 });

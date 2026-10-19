@@ -15,16 +15,19 @@ dist/
 # Data files
 *.csv
 data/**
+data/modeling/**
 !data/__init__.py
 !data/collection/
 !data/collection/__init__.py
 !data/collection/*.py
 !data/sample/
+!data/sample/*.csv
 !data/sample/sample_player_game_logs.csv
 !data/ingestion/
 !data/ingestion/__init__.py
 !data/ingestion/*.py
 !data/processing/
 !data/processing/** 
+
 
 python-dotenv

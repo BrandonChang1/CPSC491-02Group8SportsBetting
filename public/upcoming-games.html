@@ -1,4 +1,15 @@
+<<<<<<< Updated upstream
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Upcoming Games | NBA Player Analytics</title><link rel="stylesheet" href="/styles.css"></head><body><header><div class="header-inner"><div class="brand">NBA <span>/</span> Player Analytics</div><a data-testid="back-home" href="/" class="back-link">← Back to home</a></div></header><main data-testid="upcoming-games-page"><p class="eyebrow">NBA schedule</p><h1 data-testid="upcoming-games-heading">Upcoming games</h1><p class="subtitle">Browse scheduled NBA games over the next two weeks, sourced through the project's nba_api integration.</p><section class="intro"><div class="toolbar"><p id="status" data-testid="schedule-status" role="status" aria-live="polite">Loading upcoming games...</p><button id="refresh" data-testid="schedule-refresh" type="button">↻ Refresh schedule</button></div></section><div id="games" data-testid="schedule-results" aria-live="polite"></div></main><script>
+=======
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Upcoming Games | NBA Player Analytics</title><link rel="stylesheet" href="/styles.css"><style>
+    .win-estimate { margin-top: 12px; width: 100%; }
+    .win-estimate .prob-labels { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: .9rem; font-weight: 600; }
+    .win-estimate .prob-bar { display: flex; height: 12px; border-radius: 8px; overflow: hidden; background: #cbd5e1; margin-top: 7px; }
+    .win-estimate .prob-away { background: #2563eb; }
+    .win-estimate .prob-home { background: #0d9488; }
+    .win-estimate .prediction-note { margin-top: 7px; font-size: .8rem; opacity: .8; }
+</style></head><body><header><div class="header-inner"><div class="brand">NBA <span>/</span> Player Analytics</div><a data-testid="back-home" href="/" class="back-link">← Back to home</a></div></header><main data-testid="upcoming-games-page"><p class="eyebrow">NBA schedule</p><h1 data-testid="upcoming-games-heading">Upcoming games</h1><p class="subtitle">Browse scheduled NBA games over the next two weeks, sourced through the project's nba_api integration.</p><section class="intro"><div class="toolbar"><p id="status" data-testid="schedule-status" role="status" aria-live="polite">Loading upcoming games...</p><button id="refresh" data-testid="schedule-refresh" type="button">↻ Refresh schedule</button></div></section><div id="games" data-testid="schedule-results" aria-live="polite"></div></main><script>
+>>>>>>> Stashed changes
     const gamesElement = document.getElementById("games");
     const statusElement = document.getElementById("status");
     const refreshButton = document.getElementById("refresh");
@@ -73,6 +84,14 @@
                 time.textContent = formatTime(game.tipoff);
 
                 left.append(matchup, details);
+<<<<<<< Updated upstream
+=======
+                const estimate = document.createElement("div");
+                estimate.className = "win-estimate";
+                estimate.dataset.gameId = String(game.gameId || "");
+                estimate.textContent = "Loading win estimate...";
+                left.appendChild(estimate);
+>>>>>>> Stashed changes
                 card.append(left, time);
                 section.appendChild(card);
             }
@@ -81,6 +100,59 @@
         }
     }
 
+<<<<<<< Updated upstream
+=======
+    async function loadWinEstimates() {
+        try {
+            const response = await fetch("/api/upcoming-games/predictions", { cache: "no-store" });
+            if (!response.ok) throw new Error("Prediction service unavailable");
+            const payload = await response.json();
+            if (!payload.success) throw new Error(payload.message || "Prediction service unavailable");
+            // Match by game ID, not schedule order, so refreshed schedules stay correct.
+            const predictions = new Map((payload.games || []).map(game => [String(game.gameId), game.winPrediction]));
+            for (const element of gamesElement.querySelectorAll(".win-estimate")) {
+                const prediction = predictions.get(element.dataset.gameId);
+                element.replaceChildren();
+                if (!prediction || !Number.isFinite(Number(prediction.awayWinPercent)) || !Number.isFinite(Number(prediction.homeWinPercent))) {
+                    element.textContent = "Win estimate unavailable: insufficient recent team results.";
+                    continue;
+                }
+                const away = Math.max(0, Math.min(100, Number(prediction.awayWinPercent)));
+                const home = Math.max(0, Math.min(100, Number(prediction.homeWinPercent)));
+                const labels = document.createElement("div");
+                labels.className = "prob-labels";
+                const game = (payload.games || []).find(g => String(g.gameId) === element.dataset.gameId);
+                const awayName = game?.awayTeam?.tricode || "Away";
+                const homeName = game?.homeTeam?.tricode || "Home";
+                const awayText = document.createElement("span");
+                awayText.textContent = `${awayName}: ${away}%`;
+                const homeText = document.createElement("span");
+                homeText.textContent = `${homeName}: ${home}%`;
+                labels.append(awayText, homeText);
+                const bar = document.createElement("div");
+                bar.className = "prob-bar";
+                bar.setAttribute("role", "img");
+                bar.setAttribute("aria-label", `${awayName} ${away}% estimated win chance, ${homeName} ${home}%`);
+                const awayBar = document.createElement("div");
+                awayBar.className = "prob-away";
+                awayBar.style.width = `${away}%`;
+                const homeBar = document.createElement("div");
+                homeBar.className = "prob-home";
+                homeBar.style.width = `${home}%`;
+                bar.append(awayBar, homeBar);
+                const note = document.createElement("div");
+                note.className = "prediction-note";
+                note.textContent = `Historical results: ${prediction.awaySource || "unknown"} (${prediction.awayGamesUsed || 0}), ${prediction.homeSource || "unknown"} (${prediction.homeGamesUsed || 0}). Experimental estimates, not sportsbook odds.`;
+                element.append(labels, bar, note);
+            }
+        } catch (_error) {
+            for (const element of gamesElement.querySelectorAll(".win-estimate")) {
+                element.textContent = "Win estimate temporarily unavailable.";
+            }
+        }
+    }
+
+>>>>>>> Stashed changes
     async function loadGames() {
         refreshButton.disabled = true;
         statusElement.textContent = "Loading upcoming games...";
@@ -96,6 +168,10 @@
 
             statusElement.textContent = `${payload.count} scheduled game${payload.count === 1 ? "" : "s"} found.`;
             renderGames(payload.games || []);
+<<<<<<< Updated upstream
+=======
+            void loadWinEstimates();
+>>>>>>> Stashed changes
         } catch (error) {
             statusElement.textContent = "Unable to load the schedule.";
             gamesElement.innerHTML = `<div class="message error"></div>`;

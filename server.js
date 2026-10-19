@@ -9,6 +9,8 @@ const predictionsRouter = require("./backend/app/routes/predictions");
 const { router: authRouter, requireAuth } = require("./backend/app/routes/auth");
 const { notFoundHandler, errorHandler } = require("./backend/app/middleware/errorHandler");
 
+const { fetchRecentTeamRecords, addPredictions } = require("./backend/app/services/teamWinPrediction");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const PYTHON_COMMAND =
@@ -338,6 +340,18 @@ app.get("/player-stats", (req, res) => {
         ],
         res
     );
+});
+
+// Game-specific baseline probabilities, independent of simulated betting odds.
+app.get("/api/upcoming-games/predictions", async (req, res) => {
+    try {
+        const games = await getRealUpcomingGames();
+        const records = await fetchRecentTeamRecords();
+        return res.json({ success: true, games: addPredictions(games, records) });
+    } catch (error) {
+        console.error("Unable to estimate upcoming games:", error);
+        return res.status(503).json({ success: false, message: "Upcoming-game estimates are temporarily unavailable.", games: [] });
+    }
 });
 
 app.get("/api/frontend-test-panel/state", async (req, res) => {

@@ -68,6 +68,7 @@
 
         <section class="panel-card">
             <div class="section-top">
+                <h2>NBA Games Starting Within 7 Days</h2><a href="/upcoming_games.html">View win probabilities →</a>
                 <h2>NBA Games Starting Within 7 Days</h2>
             </div>
             <div class="action-row">
@@ -240,7 +241,8 @@
             startsAt: game.tipoffUtc,
             endsAt: null,
             status: "scheduled",
-            isMock: false
+            isMock: false,
+            winPrediction: game.winPrediction || null
         }));
 
         const mock = mockGames
@@ -283,6 +285,9 @@
                     </div>
                     <div class="muted-text">Status: <span class="status">${game.status.replace("_", " ")}</span>${game.endsAt ? ` · Ends ${formatTime(game.endsAt)}` : ""}</div>
                     ${finalText}
+                    ${game.isMock ? '' : game.winPrediction
+                      ? `<div class="muted-text" style="margin-top:8px"><strong>Estimated win chance:</strong> ${game.awayTeam} ${game.winPrediction.awayWinPercent}% · ${game.homeTeam} ${game.winPrediction.homeWinPercent}% <small>(recent results baseline; not sportsbook odds)</small></div>`
+                      : '<div class="muted-text" style="margin-top:8px">Win estimate unavailable: not enough team history.</div>'}
                     <div class="game-actions" style="margin-top:10px">
                         <input class="bet-input" type="number" min="0.01" max="${currentBalance}" step="0.01" placeholder="Bet amount" aria-label="Bet amount for ${game.awayTeam} versus ${game.homeTeam}" ${canBet ? "" : "disabled"}>
                         <button class="panel-button bet-button" type="button" data-game-type="${game.gameType}" data-game-id="${game.gameId}" data-selection="${game.awayTeam}" data-starts-at="${game.startsAt}" ${canBet ? "" : "disabled"}>Bet ${game.awayTeam}</button>
@@ -301,6 +306,13 @@
             if (requestId !== latestStateRequest || version !== stateVersion) return;
             currentBets = data.bets || [];
             currentRealGames = data.realGames || [];
+            // Prediction service is optional: schedule and betting still work if its database is unavailable.
+            try {
+                const predictionData = await request("/api/upcoming-games/predictions");
+                const byId = new Map(predictionData.games.map(g => [g.gameId, g.winPrediction]));
+                currentRealGames.forEach(g => { g.winPrediction = byId.get(g.gameId) || null; });
+            } catch (_) { /* show unavailable rather than inventing odds */ }
+            if (requestId !== latestStateRequest || version !== stateVersion) return;
             currentMockGames = data.mockGames || [];
             updateBalance(data.balance);
             renderBets(currentBets);

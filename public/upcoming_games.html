@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Upcoming NBA Games | NBA Player Analytics</title>
+<link rel="stylesheet" href="/styles.css">
+<style>
+.matchups {display:grid;gap:16px;margin-top:20px}.matchup {border:1px solid #d9dee8;border-radius:12px;padding:20px;background:#fff;color:#1e293b}
+.matchup-head {display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.prob-row {display:flex;justify-content:space-between;margin-top:15px;font-weight:700}
+.prob-bar {display:flex;height:18px;overflow:hidden;border-radius:9px;background:#e2e8f0;margin-top:6px}.away-prob{background:#2563eb}.home-prob{background:#0d9488}
+.note{font-size:.86rem;color:#64748b;margin-top:10px}.time{color:#64748b}
+</style>
+</head>
+<body><header><div class="header-inner"><div class="brand">NBA <span>/</span> Player Analytics</div><a class="back-link" href="/">Back to home</a></div></header>
+<main><p class="eyebrow">NBA schedule</p><h1>Upcoming games &amp; win estimates</h1>
+<p class="subtitle">Next seven days. Estimates use each team's last ten recorded games and a small home-court adjustment; they are not sportsbook odds or calibrated ML probabilities.</p>
+<section class="panel"><h2>Scheduled matchups</h2><p id="status" role="status">Loading upcoming NBA games…</p><div id="matchups" class="matchups"></div></section>
+</main>
+<script>
+(async () => {
+  const status = document.getElementById('status');
+  const list = document.getElementById('matchups');
+  const escapeText = text => String(text ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  try {
+    const response = await fetch('/api/upcoming-games/predictions');
+    const data = await response.json();
+    if (!response.ok || !data.success) throw new Error(data.message || 'Unable to retrieve games.');
+    status.textContent = data.games.length ? `${data.games.length} upcoming game(s)` : 'No NBA games scheduled within the next seven days.';
+    for (const game of data.games) {
+      const article = document.createElement('article'); article.className = 'matchup';
+      const away = escapeText(game.awayTeam?.name || game.awayTeam?.tricode || 'Away');
+      const home = escapeText(game.homeTeam?.name || game.homeTeam?.tricode || 'Home');
+      const p = game.winPrediction;
+      article.innerHTML = `<div class="matchup-head"><strong>${away} @ ${home}</strong><span class="time">${escapeText(new Date(game.tipoffUtc).toLocaleString())}</span></div>` + (p
+        ? `<div class="prob-row"><span>${away}: ${p.awayWinPercent}%</span><span>${home}: ${p.homeWinPercent}%</span></div><div class="prob-bar" aria-label="Away win estimate ${p.awayWinPercent} percent; home win estimate ${p.homeWinPercent} percent"><div class="away-prob" style="width:${p.awayWinPercent}%"></div><div class="home-prob" style="width:${p.homeWinPercent}%"></div></div><p class="note">Based on ${p.awayGamesUsed} away-team and ${p.homeGamesUsed} home-team historical results. Experimental estimate; not betting odds.</p>`
+        : `<p class="note">Win estimates unavailable: insufficient recent team results (minimum 3 games per team).</p>`);
+      list.append(article);
+    }
+  } catch (error) { status.textContent = error.message; }
+})();
+</script>
+</body></html>

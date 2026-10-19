@@ -90,7 +90,7 @@
             </section>
             <aside class="panel prediction-panel" aria-label="Player predictions">
                 <div class="panel-heading"><h2>Points projections</h2><span class="pill">NEXT GAME</span></div>
-                <section id="predictionContainer" data-testid="player-predictions" aria-live="polite">Select a player to view baseline estimates for their next game.</section>
+                <section id="predictionContainer" data-testid="player-predictions" aria-live="polite">Select a player to view a trained ML prediction for their next game.</section>
                 <div class="footnote">Estimates use historical points data and are not guarantees of future performance.</div>
             </aside>
         </div>
@@ -124,7 +124,7 @@
 
             // A new typed value means the old selected player is no longer valid.
             delete playerSearch.dataset.playerId;
-            predictionContainer.textContent = "Select a player to view baseline estimates for their next game.";
+            predictionContainer.textContent = "Select a player to view a trained ML prediction for their next game.";
             averageContainer.replaceChildren();
             gameContainer.replaceChildren();
             status.textContent = "Select a player to explore performance data.";
@@ -276,9 +276,18 @@
                     return;
                 }
                 const heading = document.createElement("h2");
-                heading.textContent = "Next-game points estimate (baselines)";
+                heading.textContent = "Next-game points prediction (ML)";
                 const info = document.createElement("p");
                 info.textContent = `Based on ${result.source === "nba_api" ? "NBA API" : "database"} game history through ${result.lastGameDate}; season ${result.season}.`;
+                const estimate = document.createElement("div");
+                estimate.className = "average-card";
+                const estimateLabel = document.createElement("span");
+                estimateLabel.textContent = "Predicted points";
+                const estimateNumber = document.createElement("strong");
+                estimateNumber.textContent = `${result.predictedPoints} PTS`;
+                estimate.append(estimateLabel, estimateNumber);
+                const version = document.createElement("p");
+                version.textContent = `Model: ${result.modelVersion}. Historical averages for comparison:`;
                 const grid = document.createElement("div");
                 grid.className = "average-grid";
                 for (const [label, key] of [["Season average", "season"], ["Last 5", "last5"], ["Last 10", "last10"]]) {
@@ -293,7 +302,11 @@
                 }
                 const note = document.createElement("p");
                 note.textContent = result.note;
-                predictionContainer.append(heading, info, grid, note);
+                const context = document.createElement("p");
+                if (result.missingContext?.length) {
+                    context.textContent = `Unavailable next-game inputs: ${result.missingContext.join(", ")} (filled by the trained model).`;
+                }
+                predictionContainer.append(heading, info, estimate, version, grid, context, note);
             } catch {
                 if (String(playerSearch.dataset.playerId) === String(playerId)) {
                     predictionContainer.textContent = "Unable to load prediction.";

@@ -1,4 +1,4 @@
-"""Unit tests for the JSON-backed next-game points baseline."""
+"""Unit tests for the JSON-backed trained next-game points predictor."""
 import io
 import json
 
@@ -21,7 +21,10 @@ def test_predict_calculates_season_and_recent_averages():
     assert result["lastGameDate"] == "2025-10-24"
     assert result["gamesAvailable"] == 4
     assert result["predictions"] == {"season": 30.0, "last5": 25.0, "last10": 25.0}
-    assert "not a trained ML model" in result["model"]
+    assert result["modelVersion"] == "linear-regression-points-v1"
+    assert isinstance(result["predictedPoints"], float)
+    assert result["predictedPoints"] >= 0
+    assert "is_home" in result["missingContext"]
 
 
 @pytest.mark.parametrize("games", [[], [{"game_date": "2025-10-22"}], [{"points": 10}]])
@@ -73,3 +76,30 @@ def test_main_outputs_machine_readable_error_for_bad_json(monkeypatch, capsys):
         predict_player.main()
     assert exc.value.code == 1
     assert json.loads(capsys.readouterr().out)["success"] is False
+
+
+def test_missing_model_returns_error_not_fake_ml_prediction(monkeypatch, tmp_path):
+    monkeypatch.setattr(predict_player, "MODEL_PATH", tmp_path / "missing.joblib")
+    result = predict_player.predict([{"game_date": "2026-01-02", "points": 21}])
+    assert result["success"] is False
+    assert "unavailable" in result["message"]
+    assert "predictedPoints" not in result
+
+
+def test_recent_minutes_passed_to_trained_model(monkeypatch):
+    class FakePipeline:
+        def predict(self, frame):
+            assert frame.iloc[0]["recent_minutes_avg"] == 30.0
+            assert frame.iloc[0]["pts_last5_avg"] == 20.0
+            return [22.35]
+
+    monkeypatch.setattr(predict_player.joblib, "load", lambda path: {
+        "features": ["pts_season_avg", "pts_last5_avg", "pts_last10_avg", "is_home", "recent_minutes_avg"],
+        "pipeline": FakePipeline(),
+    })
+    result = predict_player.predict([
+        {"game_date": "2026-01-01", "points": 10, "minutes": 20},
+        {"game_date": "2026-01-03", "points": 30, "minutes": 40},
+    ])
+    assert result["success"] is True
+    assert result["predictedPoints"] == 22.35

@@ -4,11 +4,7 @@ const { estimateWinProbabilities, addPredictions } = require('../app/services/te
 
 test('equal records give small home-court advantage', () => {
   assert.deepEqual(estimateWinProbabilities({ games: 10, wins: 5 }, { games: 10, wins: 5 }), {
-<<<<<<< Updated upstream
-    homeWinPercent: 53, awayWinPercent: 47, method: 'recent_results_baseline', homeGamesUsed: 10, awayGamesUsed: 10
-=======
     homeWinPercent: 53, awayWinPercent: 47, method: 'recent_results_baseline', homeGamesUsed: 10, awayGamesUsed: 10, homeSource: 'postgres', awaySource: 'postgres'
->>>>>>> Stashed changes
   });
 });
 test('better road team receives higher probability', () => {

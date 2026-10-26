@@ -1,8 +1,4 @@
 /** Transparent, non-ML team win estimates from recently completed games. */
-<<<<<<< Updated upstream
-const pool = require('../db');
-=======
->>>>>>> Stashed changes
 
 function estimateWinProbabilities(away, home) {
   if (!away || !home || away.games < 3 || home.games < 3) return null;
@@ -17,21 +13,14 @@ function estimateWinProbabilities(away, home) {
     awayWinPercent: 100 - homePct,
     method: 'recent_results_baseline',
     homeGamesUsed: home.games,
-<<<<<<< Updated upstream
-    awayGamesUsed: away.games
-=======
     awayGamesUsed: away.games,
     homeSource: home.source || 'postgres',
     awaySource: away.source || 'postgres'
->>>>>>> Stashed changes
   };
 }
 
 async function fetchRecentTeamRecords() {
-<<<<<<< Updated upstream
-=======
   const pool = require('../db');
->>>>>>> Stashed changes
   // Group by game/team to avoid counting every player's W/L as an individual game.
   // Current team membership is used for attribution; historical trades can affect results.
   const { rows } = await pool.query(`

@@ -1,0 +1,2474 @@
+{
+  "retrieved_at_utc": "2026-10-27T01:31:43.687073+00:00",
+  "note": "Projected response excerpts; arrays and metadata are reduced. event_count and regular_season_event_count are inspection summaries, not API fields. Full-response SHA256 hashes identify captured payloads.",
+  "samples": [
+    {
+      "name": "gamelog",
+      "url": "https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/athletes/3975/gamelog?season=2025",
+      "http_status": 200,
+      "raw_response_sha256": "4b2aaa755cceef2f660c56ba8204e435f75926277f741bbd80349ba796a6e1e9",
+      "raw_response_bytes": 810459,
+      "excerpt": {
+        "names": [
+          "minutes",
+          "fieldGoalsMade-fieldGoalsAttempted",
+          "fieldGoalPct",
+          "threePointFieldGoalsMade-threePointFieldGoalsAttempted",
+          "threePointPct",
+          "freeThrowsMade-freeThrowsAttempted",
+          "freeThrowPct",
+          "totalRebounds",
+          "assists",
+          "blocks",
+          "steals",
+          "fouls",
+          "turnovers",
+          "points"
+        ],
+        "events": {
+          "401705764": {
+            "gameDate": "2025-04-13T19:30:00.000+00:00",
+            "homeTeamId": "9",
+            "awayTeamId": "12",
+            "atVs": "vs"
+          }
+        },
+        "seasonTypes": [
+          {
+            "displayName": "2024-25 Regular Season",
+            "categories": [
+              {
+                "type": "event",
+                "events": [
+                  {
+                    "eventId": "401705764",
+                    "stats": [
+                      "38",
+                      "10-20",
+                      "50.0",
+                      "7-12",
+                      "58.3",
+                      "9-9",
+                      "100.0",
+                      "3",
+                      "6",
+                      "0",
+                      "2",
+                      "2",
+                      "8",
+                      "36"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "summary",
+      "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=401705764",
+      "http_status": 200,
+      "raw_response_sha256": "5c6a38857c2ed13194fa598420bf7ca28d184c36be99e84e5fe2a25f37bb5e0e",
+      "raw_response_bytes": 371566,
+      "excerpt": {
+        "header": {
+          "id": "401705764",
+          "uid": "s:40~l:46~e:401705764",
+          "season": {
+            "year": 2025,
+            "current": false,
+            "type": 2
+          },
+          "timeValid": true,
+          "competitions": [
+            {
+              "id": "401705764",
+              "uid": "s:40~l:46~e:401705764~c:401705764",
+              "date": "2025-04-13T19:30Z",
+              "neutralSite": false,
+              "conferenceCompetition": false,
+              "boxscoreAvailable": true,
+              "commentaryAvailable": false,
+              "liveAvailable": false,
+              "shotChartAvailable": true,
+              "timeoutsAvailable": true,
+              "possessionArrowAvailable": false,
+              "onWatchESPN": true,
+              "recent": false,
+              "wallclockAvailable": true,
+              "boxscoreSource": "full",
+              "playByPlaySource": "full",
+              "competitors": [
+                {
+                  "id": "9",
+                  "uid": "s:40~l:46~t:9",
+                  "order": 0,
+                  "homeAway": "home",
+                  "winner": false,
+                  "team": {
+                    "id": "9",
+                    "guid": "77a8546f-24bf-a333-8161-bf9f75396c49",
+                    "uid": "s:40~l:46~t:9",
+                    "location": "Golden State",
+                    "name": "Warriors",
+                    "abbreviation": "GS",
+                    "displayName": "Golden State Warriors",
+                    "color": "fdb927",
+                    "alternateColor": "1d428a",
+                    "logos": [
+                      {
+                        "href": "https://a.espncdn.com/i/teamlogos/nba/500/gs.png",
+                        "width": 500,
+                        "height": 500,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "default"
+                        ],
+                        "lastUpdated": "2024-06-25T21:17Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/i/teamlogos/nba/500-dark/gs.png",
+                        "width": 500,
+                        "height": 500,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "dark"
+                        ],
+                        "lastUpdated": "2024-06-25T21:13Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/gs.png",
+                        "width": 500,
+                        "height": 500,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "scoreboard"
+                        ],
+                        "lastUpdated": "2024-06-25T21:18Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/i/teamlogos/nba/500-dark/scoreboard/gs.png",
+                        "width": 500,
+                        "height": 500,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "scoreboard",
+                          "dark"
+                        ],
+                        "lastUpdated": "2024-06-25T21:14Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/primary_logo_on_white_color.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "primary_logo_on_white_color"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/primary_logo_on_black_color.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "primary_logo_on_black_color"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/primary_logo_on_primary_color.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "primary_logo_on_primary_color"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/primary_logo_on_secondary_color.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "primary_logo_on_secondary_color"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/primary_logo_black.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "primary_logo_black"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/primary_logo_white.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "primary_logo_white"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/secondary_logo_on_white_color.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "secondary_logo_on_white_color"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/secondary_logo_on_black_color.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "secondary_logo_on_black_color"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/secondary_logo_on_primary_color.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "secondary_logo_on_primary_color"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/secondary_logo_on_secondary_color.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "secondary_logo_on_secondary_color"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/secondary_logo_black.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "secondary_logo_black"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/secondary_logo_white.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "secondary_logo_white"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      }
+                    ],
+                    "links": [
+                      {
+                        "rel": [
+                          "clubhouse",
+                          "desktop",
+                          "team"
+                        ],
+                        "href": "https://www.espn.com/nba/team/_/name/gs/golden-state-warriors",
+                        "text": "Clubhouse"
+                      }
+                    ]
+                  },
+                  "score": "119",
+                  "linescores": [
+                    {
+                      "displayValue": "33"
+                    },
+                    {
+                      "displayValue": "25"
+                    },
+                    {
+                      "displayValue": "24"
+                    },
+                    {
+                      "displayValue": "29"
+                    },
+                    {
+                      "displayValue": "8"
+                    }
+                  ],
+                  "record": [
+                    {
+                      "type": "total",
+                      "summary": "48-34",
+                      "displayValue": "48-34"
+                    },
+                    {
+                      "type": "home",
+                      "summary": "24-17",
+                      "displayValue": "24-17"
+                    },
+                    {
+                      "type": "vsconf",
+                      "summary": "0-0",
+                      "displayValue": "0-0"
+                    }
+                  ],
+                  "possession": false
+                },
+                {
+                  "id": "12",
+                  "uid": "s:40~l:46~t:12",
+                  "order": 1,
+                  "homeAway": "away",
+                  "winner": true,
+                  "team": {
+                    "id": "12",
+                    "guid": "083a58a6-b849-3501-e67b-059290d12295",
+                    "uid": "s:40~l:46~t:12",
+                    "location": "LA",
+                    "name": "Clippers",
+                    "abbreviation": "LAC",
+                    "displayName": "LA Clippers",
+                    "color": "12173f",
+                    "alternateColor": "c8102e",
+                    "logos": [
+                      {
+                        "href": "https://a.espncdn.com/i/teamlogos/nba/500/lac.png",
+                        "width": 500,
+                        "height": 500,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "default"
+                        ],
+                        "lastUpdated": "2024-06-25T21:17Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/i/teamlogos/nba/500-dark/lac.png",
+                        "width": 500,
+                        "height": 500,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "dark"
+                        ],
+                        "lastUpdated": "2024-06-25T21:13Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/lac.png",
+                        "width": 500,
+                        "height": 500,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "scoreboard"
+                        ],
+                        "lastUpdated": "2024-06-25T21:18Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/i/teamlogos/nba/500-dark/scoreboard/lac.png",
+                        "width": 500,
+                        "height": 500,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "scoreboard",
+                          "dark"
+                        ],
+                        "lastUpdated": "2024-06-25T21:14Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/083a58a6-b849-3501-e67b-059290d12295/logos/primary_logo_on_white_color.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "primary_logo_on_white_color"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/083a58a6-b849-3501-e67b-059290d12295/logos/primary_logo_on_black_color.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "primary_logo_on_black_color"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/083a58a6-b849-3501-e67b-059290d12295/logos/primary_logo_on_primary_color.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "primary_logo_on_primary_color"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/083a58a6-b849-3501-e67b-059290d12295/logos/primary_logo_on_secondary_color.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "primary_logo_on_secondary_color"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/083a58a6-b849-3501-e67b-059290d12295/logos/primary_logo_black.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "primary_logo_black"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/083a58a6-b849-3501-e67b-059290d12295/logos/primary_logo_white.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "primary_logo_white"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/083a58a6-b849-3501-e67b-059290d12295/logos/secondary_logo_on_white_color.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "secondary_logo_on_white_color"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/083a58a6-b849-3501-e67b-059290d12295/logos/secondary_logo_on_black_color.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "secondary_logo_on_black_color"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/083a58a6-b849-3501-e67b-059290d12295/logos/secondary_logo_on_primary_color.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "secondary_logo_on_primary_color"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/083a58a6-b849-3501-e67b-059290d12295/logos/secondary_logo_on_secondary_color.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "secondary_logo_on_secondary_color"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/083a58a6-b849-3501-e67b-059290d12295/logos/secondary_logo_black.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "secondary_logo_black"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      },
+                      {
+                        "href": "https://a.espncdn.com/guid/083a58a6-b849-3501-e67b-059290d12295/logos/secondary_logo_white.png",
+                        "width": 4096,
+                        "height": 4096,
+                        "alt": "",
+                        "rel": [
+                          "full",
+                          "secondary_logo_white"
+                        ],
+                        "lastUpdated": "2026-07-22T20:23Z"
+                      }
+                    ],
+                    "links": [
+                      {
+                        "rel": [
+                          "clubhouse",
+                          "desktop",
+                          "team"
+                        ],
+                        "href": "https://www.espn.com/nba/team/_/name/lac/la-clippers",
+                        "text": "Clubhouse"
+                      }
+                    ]
+                  },
+                  "score": "124",
+                  "linescores": [
+                    {
+                      "displayValue": "25"
+                    },
+                    {
+                      "displayValue": "35"
+                    },
+                    {
+                      "displayValue": "23"
+                    },
+                    {
+                      "displayValue": "28"
+                    },
+                    {
+                      "displayValue": "13"
+                    }
+                  ],
+                  "record": [
+                    {
+                      "type": "total",
+                      "summary": "50-32",
+                      "displayValue": "50-32"
+                    },
+                    {
+                      "type": "road",
+                      "summary": "20-21",
+                      "displayValue": "20-21"
+                    },
+                    {
+                      "type": "vsconf",
+                      "summary": "0-0",
+                      "displayValue": "0-0"
+                    }
+                  ],
+                  "possession": false
+                }
+              ],
+              "status": {
+                "type": {
+                  "id": "3",
+                  "name": "STATUS_FINAL",
+                  "state": "post",
+                  "completed": true,
+                  "description": "Final",
+                  "detail": "Final/OT",
+                  "shortDetail": "Final/OT",
+                  "altDetail": "OT"
+                }
+              },
+              "broadcasts": [
+                {
+                  "type": {
+                    "id": "1",
+                    "shortName": "TV"
+                  },
+                  "market": {
+                    "id": "1",
+                    "type": "National"
+                  },
+                  "media": {
+                    "shortName": "ESPN"
+                  },
+                  "lang": "en",
+                  "region": "us",
+                  "isNational": true
+                },
+                {
+                  "type": {
+                    "id": "1",
+                    "shortName": "TV"
+                  },
+                  "market": {
+                    "id": "2",
+                    "type": "Home"
+                  },
+                  "media": {
+                    "shortName": "NBC Sports BA"
+                  },
+                  "lang": "en",
+                  "region": "us",
+                  "isNational": false
+                },
+                {
+                  "type": {
+                    "id": "1",
+                    "shortName": "TV"
+                  },
+                  "market": {
+                    "id": "2",
+                    "type": "Home"
+                  },
+                  "media": {
+                    "shortName": "FanDuel SN SoCal"
+                  },
+                  "lang": "en",
+                  "region": "us",
+                  "isNational": false
+                },
+                {
+                  "type": {
+                    "id": "4",
+                    "shortName": "Streaming"
+                  },
+                  "market": {
+                    "id": "2",
+                    "type": "Home"
+                  },
+                  "media": {
+                    "shortName": "ClipperVision"
+                  },
+                  "lang": "en",
+                  "region": "us",
+                  "isNational": false
+                }
+              ],
+              "series": [
+                {
+                  "type": "season",
+                  "title": "Regular Season Series",
+                  "description": "Regular Season Series",
+                  "summary": "LAC win series 4-0",
+                  "completed": true,
+                  "totalCompetitions": 4,
+                  "competitors": [
+                    {
+                      "id": "9",
+                      "uid": "s:40~l:46~t:9",
+                      "wins": 0,
+                      "ties": 0,
+                      "team": {
+                        "$ref": "http://sports.core.api.espn.pvt/v2/sports/basketball/leagues/nba/seasons/2025/teams/9?lang=en&region=us"
+                      }
+                    },
+                    {
+                      "id": "12",
+                      "uid": "s:40~l:46~t:12",
+                      "wins": 4,
+                      "ties": 0,
+                      "team": {
+                        "$ref": "http://sports.core.api.espn.pvt/v2/sports/basketball/leagues/nba/seasons/2025/teams/12?lang=en&region=us"
+                      }
+                    }
+                  ],
+                  "events": [
+                    {
+                      "$ref": "http://sports.core.api.espn.pvt/v2/sports/basketball/leagues/nba/events/401704667?lang=en&region=us",
+                      "id": "401704667"
+                    },
+                    {
+                      "$ref": "http://sports.core.api.espn.pvt/v2/sports/basketball/leagues/nba/events/401704817?lang=en&region=us",
+                      "id": "401704817"
+                    },
+                    {
+                      "$ref": "http://sports.core.api.espn.pvt/v2/sports/basketball/leagues/nba/events/401704992?lang=en&region=us",
+                      "id": "401704992"
+                    },
+                    {
+                      "$ref": "http://sports.core.api.espn.pvt/v2/sports/basketball/leagues/nba/events/401705764?lang=en&region=us",
+                      "id": "401705764"
+                    }
+                  ],
+                  "startDate": "2024-10-28T00:30Z"
+                }
+              ],
+              "boxscoreMinutes": true
+            }
+          ],
+          "links": [
+            {
+              "rel": [
+                "summary",
+                "desktop",
+                "event"
+              ],
+              "href": "https://www.espn.com/nba/game/_/gameId/401705764/clippers-warriors",
+              "text": "Gamecast",
+              "shortText": "Summary",
+              "isExternal": false,
+              "isPremium": false
+            },
+            {
+              "rel": [
+                "recap",
+                "desktop",
+                "event"
+              ],
+              "href": "https://www.espn.com/nba/recap?gameId=401705764",
+              "text": "Recap",
+              "shortText": "Recap",
+              "isExternal": false,
+              "isPremium": false
+            },
+            {
+              "rel": [
+                "boxscore",
+                "desktop",
+                "event"
+              ],
+              "href": "https://www.espn.com/nba/boxscore/_/gameId/401705764",
+              "text": "Box Score",
+              "shortText": "Box Score",
+              "isExternal": false,
+              "isPremium": false
+            },
+            {
+              "rel": [
+                "pbp",
+                "desktop",
+                "event"
+              ],
+              "href": "https://www.espn.com/nba/playbyplay/_/gameId/401705764",
+              "text": "Play-by-Play",
+              "shortText": "Play-by-Play",
+              "isExternal": false,
+              "isPremium": false
+            },
+            {
+              "rel": [
+                "teamstats",
+                "desktop",
+                "event"
+              ],
+              "href": "https://www.espn.com/nba/matchup?gameId=401705764",
+              "text": "Team Stats",
+              "shortText": "Team Stats",
+              "isExternal": false,
+              "isPremium": false
+            }
+          ],
+          "league": {
+            "id": "46",
+            "uid": "s:40~l:46",
+            "name": "National Basketball Association",
+            "abbreviation": "NBA",
+            "shortName": "NBA",
+            "slug": "nba",
+            "isTournament": false,
+            "links": [
+              {
+                "rel": [
+                  "index",
+                  "desktop",
+                  "league"
+                ],
+                "href": "https://www.espn.com/nba/",
+                "text": "Index"
+              },
+              {
+                "rel": [
+                  "index",
+                  "sportscenter",
+                  "app",
+                  "league"
+                ],
+                "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46",
+                "text": "Index"
+              },
+              {
+                "rel": [
+                  "schedule",
+                  "desktop",
+                  "league"
+                ],
+                "href": "https://www.espn.com/nba/schedule",
+                "text": "Schedule"
+              },
+              {
+                "rel": [
+                  "schedule",
+                  "sportscenter",
+                  "app",
+                  "league"
+                ],
+                "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46&section=scores",
+                "text": "Schedule"
+              },
+              {
+                "rel": [
+                  "standings",
+                  "desktop",
+                  "league"
+                ],
+                "href": "https://www.espn.com/nba/standings",
+                "text": "Standings"
+              },
+              {
+                "rel": [
+                  "standings",
+                  "sportscenter",
+                  "app",
+                  "league"
+                ],
+                "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46&section=standings",
+                "text": "Standings"
+              },
+              {
+                "rel": [
+                  "rankings",
+                  "desktop",
+                  "league"
+                ],
+                "href": "https://www.espn.com/nba/rankings",
+                "text": "Rankings"
+              },
+              {
+                "rel": [
+                  "rankings",
+                  "sportscenter",
+                  "app",
+                  "league"
+                ],
+                "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46&section=rankings",
+                "text": "Rankings"
+              },
+              {
+                "rel": [
+                  "scores",
+                  "desktop",
+                  "league"
+                ],
+                "href": "https://www.espn.com/nba/scoreboard",
+                "text": "Scores"
+              },
+              {
+                "rel": [
+                  "scores",
+                  "sportscenter",
+                  "app",
+                  "league"
+                ],
+                "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46&section=scores",
+                "text": "Scores"
+              },
+              {
+                "rel": [
+                  "stats",
+                  "desktop",
+                  "league"
+                ],
+                "href": "https://www.espn.com/nba/stats",
+                "text": "Stats"
+              },
+              {
+                "rel": [
+                  "stats",
+                  "sportscenter",
+                  "app",
+                  "league"
+                ],
+                "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46&section=stats",
+                "text": "Stats"
+              },
+              {
+                "rel": [
+                  "teams",
+                  "desktop",
+                  "league"
+                ],
+                "href": "https://www.espn.com/nba/teams",
+                "text": "Teams"
+              },
+              {
+                "rel": [
+                  "athletes",
+                  "desktop",
+                  "league"
+                ],
+                "href": "https://www.espn.com/nba/players",
+                "text": "Players"
+              },
+              {
+                "rel": [
+                  "injuries",
+                  "desktop",
+                  "league"
+                ],
+                "href": "https://www.espn.com/nba/injuries",
+                "text": "Injuries"
+              },
+              {
+                "rel": [
+                  "odds",
+                  "desktop",
+                  "league"
+                ],
+                "href": "https://www.espn.com/nba/odds",
+                "text": "Odds"
+              },
+              {
+                "rel": [
+                  "odds",
+                  "sportscenter",
+                  "app",
+                  "league"
+                ],
+                "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46&section=odds",
+                "text": "Odds"
+              },
+              {
+                "rel": [
+                  "playoff-bracket",
+                  "desktop",
+                  "league"
+                ],
+                "href": "https://www.espn.com/nba/playoff-bracket",
+                "text": "Bracket"
+              },
+              {
+                "rel": [
+                  "playoff-bracket",
+                  "sportscenter",
+                  "app",
+                  "league"
+                ],
+                "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46&section=bracket",
+                "text": "Bracket"
+              }
+            ],
+            "logos": [
+              {
+                "href": "https://a.espncdn.com/i/teamlogos/leagues/500/nba.png",
+                "rel": [
+                  "full",
+                  "default"
+                ]
+              },
+              {
+                "href": "https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500-dark/nba.png&w=500&h=500&transparent=true",
+                "rel": [
+                  "full",
+                  "dark"
+                ]
+              }
+            ]
+          }
+        },
+        "boxscore": {
+          "teams": [
+            {
+              "team": {
+                "id": "12",
+                "uid": "s:40~l:46~t:12",
+                "slug": "la-clippers",
+                "location": "LA",
+                "name": "Clippers",
+                "abbreviation": "LAC",
+                "displayName": "LA Clippers",
+                "shortDisplayName": "Clippers",
+                "color": "12173f",
+                "alternateColor": "c8102e",
+                "logo": "https://a.espncdn.com/i/teamlogos/nba/500/lac.png"
+              },
+              "statistics": [
+                {
+                  "name": "fieldGoalsMade-fieldGoalsAttempted",
+                  "displayValue": "48-86",
+                  "label": "FG"
+                },
+                {
+                  "name": "fieldGoalPct",
+                  "displayValue": "56",
+                  "abbreviation": "FG%",
+                  "label": "Field Goal %"
+                },
+                {
+                  "name": "threePointFieldGoalsMade-threePointFieldGoalsAttempted",
+                  "displayValue": "14-30",
+                  "label": "3PT"
+                },
+                {
+                  "name": "threePointFieldGoalPct",
+                  "displayValue": "47",
+                  "abbreviation": "3P%",
+                  "label": "Three Point %"
+                },
+                {
+                  "name": "freeThrowsMade-freeThrowsAttempted",
+                  "displayValue": "14-18",
+                  "label": "FT"
+                },
+                {
+                  "name": "freeThrowPct",
+                  "displayValue": "78",
+                  "abbreviation": "FT%",
+                  "label": "Free Throw %"
+                },
+                {
+                  "name": "totalRebounds",
+                  "displayValue": "42",
+                  "abbreviation": "REB",
+                  "label": "Rebounds"
+                },
+                {
+                  "name": "offensiveRebounds",
+                  "displayValue": "9",
+                  "abbreviation": "OR",
+                  "label": "Offensive Rebounds"
+                },
+                {
+                  "name": "defensiveRebounds",
+                  "displayValue": "33",
+                  "abbreviation": "DR",
+                  "label": "Defensive Rebounds"
+                },
+                {
+                  "name": "assists",
+                  "displayValue": "28",
+                  "abbreviation": "AST",
+                  "label": "Assists"
+                },
+                {
+                  "name": "steals",
+                  "displayValue": "11",
+                  "abbreviation": "STL",
+                  "label": "Steals"
+                },
+                {
+                  "name": "blocks",
+                  "displayValue": "3",
+                  "abbreviation": "BLK",
+                  "label": "Blocks"
+                },
+                {
+                  "name": "turnovers",
+                  "displayValue": "16",
+                  "abbreviation": "TO",
+                  "label": "Turnovers"
+                },
+                {
+                  "name": "teamTurnovers",
+                  "displayValue": "0",
+                  "abbreviation": "TTO",
+                  "label": "Team Turnovers"
+                },
+                {
+                  "name": "totalTurnovers",
+                  "displayValue": "16",
+                  "abbreviation": "ToTO",
+                  "label": "Total Turnovers"
+                },
+                {
+                  "name": "technicalFouls",
+                  "displayValue": "0",
+                  "abbreviation": "TECH",
+                  "label": "Technical Fouls"
+                },
+                {
+                  "name": "totalTechnicalFouls",
+                  "displayValue": "0",
+                  "abbreviation": "TECH",
+                  "label": "Total Technical Fouls"
+                },
+                {
+                  "name": "flagrantFouls",
+                  "displayValue": "0",
+                  "abbreviation": "FLAG",
+                  "label": "Flagrant Fouls"
+                },
+                {
+                  "name": "turnoverPoints",
+                  "displayValue": "23",
+                  "abbreviation": "Points Conceded Off Turnovers",
+                  "label": "Points Conceded Off Turnovers"
+                },
+                {
+                  "name": "fastBreakPoints",
+                  "displayValue": "6",
+                  "abbreviation": "FBPs",
+                  "label": "Fast Break Points"
+                },
+                {
+                  "name": "pointsInPaint",
+                  "displayValue": "54",
+                  "abbreviation": "PIP",
+                  "label": "Points in Paint"
+                },
+                {
+                  "name": "fouls",
+                  "displayValue": "21",
+                  "abbreviation": "PF",
+                  "label": "Fouls"
+                },
+                {
+                  "name": "largestLead",
+                  "displayValue": "7",
+                  "abbreviation": "LL",
+                  "label": "Largest Lead"
+                }
+              ],
+              "displayOrder": 1,
+              "homeAway": "away"
+            },
+            {
+              "team": {
+                "id": "9",
+                "uid": "s:40~l:46~t:9",
+                "slug": "golden-state-warriors",
+                "location": "Golden State",
+                "name": "Warriors",
+                "abbreviation": "GS",
+                "displayName": "Golden State Warriors",
+                "shortDisplayName": "Warriors",
+                "color": "fdb927",
+                "alternateColor": "1d428a",
+                "logo": "https://a.espncdn.com/i/teamlogos/nba/500/gs.png"
+              },
+              "statistics": [
+                {
+                  "name": "fieldGoalsMade-fieldGoalsAttempted",
+                  "displayValue": "43-79",
+                  "label": "FG"
+                },
+                {
+                  "name": "fieldGoalPct",
+                  "displayValue": "54",
+                  "abbreviation": "FG%",
+                  "label": "Field Goal %"
+                },
+                {
+                  "name": "threePointFieldGoalsMade-threePointFieldGoalsAttempted",
+                  "displayValue": "15-33",
+                  "label": "3PT"
+                },
+                {
+                  "name": "threePointFieldGoalPct",
+                  "displayValue": "45",
+                  "abbreviation": "3P%",
+                  "label": "Three Point %"
+                },
+                {
+                  "name": "freeThrowsMade-freeThrowsAttempted",
+                  "displayValue": "18-23",
+                  "label": "FT"
+                },
+                {
+                  "name": "freeThrowPct",
+                  "displayValue": "78",
+                  "abbreviation": "FT%",
+                  "label": "Free Throw %"
+                },
+                {
+                  "name": "totalRebounds",
+                  "displayValue": "25",
+                  "abbreviation": "REB",
+                  "label": "Rebounds"
+                },
+                {
+                  "name": "offensiveRebounds",
+                  "displayValue": "3",
+                  "abbreviation": "OR",
+                  "label": "Offensive Rebounds"
+                },
+                {
+                  "name": "defensiveRebounds",
+                  "displayValue": "22",
+                  "abbreviation": "DR",
+                  "label": "Defensive Rebounds"
+                },
+                {
+                  "name": "assists",
+                  "displayValue": "31",
+                  "abbreviation": "AST",
+                  "label": "Assists"
+                },
+                {
+                  "name": "steals",
+                  "displayValue": "11",
+                  "abbreviation": "STL",
+                  "label": "Steals"
+                },
+                {
+                  "name": "blocks",
+                  "displayValue": "6",
+                  "abbreviation": "BLK",
+                  "label": "Blocks"
+                },
+                {
+                  "name": "turnovers",
+                  "displayValue": "15",
+                  "abbreviation": "TO",
+                  "label": "Turnovers"
+                },
+                {
+                  "name": "teamTurnovers",
+                  "displayValue": "1",
+                  "abbreviation": "TTO",
+                  "label": "Team Turnovers"
+                },
+                {
+                  "name": "totalTurnovers",
+                  "displayValue": "16",
+                  "abbreviation": "ToTO",
+                  "label": "Total Turnovers"
+                },
+                {
+                  "name": "technicalFouls",
+                  "displayValue": "0",
+                  "abbreviation": "TECH",
+                  "label": "Technical Fouls"
+                },
+                {
+                  "name": "totalTechnicalFouls",
+                  "displayValue": "0",
+                  "abbreviation": "TECH",
+                  "label": "Total Technical Fouls"
+                },
+                {
+                  "name": "flagrantFouls",
+                  "displayValue": "0",
+                  "abbreviation": "FLAG",
+                  "label": "Flagrant Fouls"
+                },
+                {
+                  "name": "turnoverPoints",
+                  "displayValue": "20",
+                  "abbreviation": "Points Conceded Off Turnovers",
+                  "label": "Points Conceded Off Turnovers"
+                },
+                {
+                  "name": "fastBreakPoints",
+                  "displayValue": "14",
+                  "abbreviation": "FBPs",
+                  "label": "Fast Break Points"
+                },
+                {
+                  "name": "pointsInPaint",
+                  "displayValue": "50",
+                  "abbreviation": "PIP",
+                  "label": "Points in Paint"
+                },
+                {
+                  "name": "fouls",
+                  "displayValue": "20",
+                  "abbreviation": "PF",
+                  "label": "Fouls"
+                },
+                {
+                  "name": "largestLead",
+                  "displayValue": "12",
+                  "abbreviation": "LL",
+                  "label": "Largest Lead"
+                }
+              ],
+              "displayOrder": 2,
+              "homeAway": "home"
+            }
+          ],
+          "players": [
+            {
+              "team": {
+                "id": "9",
+                "uid": "s:40~l:46~t:9",
+                "slug": "golden-state-warriors",
+                "location": "Golden State",
+                "name": "Warriors",
+                "abbreviation": "GS",
+                "displayName": "Golden State Warriors",
+                "shortDisplayName": "Warriors",
+                "color": "fdb927",
+                "alternateColor": "1d428a",
+                "logo": "https://a.espncdn.com/i/teamlogos/nba/500/gs.png"
+              },
+              "statistics": [
+                {
+                  "labels": [
+                    "MIN",
+                    "PTS",
+                    "FG",
+                    "3PT",
+                    "FT",
+                    "REB",
+                    "AST",
+                    "TO",
+                    "STL",
+                    "BLK",
+                    "OREB",
+                    "DREB",
+                    "PF",
+                    "+/-"
+                  ],
+                  "athletes": [
+                    {
+                      "active": true,
+                      "athlete": {
+                        "id": "3975",
+                        "uid": "s:40~l:46~a:3975",
+                        "guid": "5dda51f1-50c9-66e1-2026-400b73f34fad",
+                        "displayName": "Stephen Curry",
+                        "shortName": "S. Curry",
+                        "links": [
+                          {
+                            "rel": [
+                              "playercard",
+                              "desktop",
+                              "athlete"
+                            ],
+                            "href": "https://www.espn.com/nba/player/_/id/3975/stephen-curry",
+                            "text": "Player Card"
+                          }
+                        ],
+                        "headshot": {
+                          "href": "https://a.espncdn.com/i/headshots/nba/players/full/3975.png",
+                          "alt": "Stephen Curry"
+                        },
+                        "jersey": "30",
+                        "position": {
+                          "name": "Guard",
+                          "displayName": "Guard",
+                          "abbreviation": "G"
+                        }
+                      },
+                      "starter": true,
+                      "didNotPlay": false,
+                      "reason": "COACH'S DECISION",
+                      "ejected": false,
+                      "stats": [
+                        "38",
+                        "36",
+                        "10-20",
+                        "7-12",
+                        "9-9",
+                        "3",
+                        "6",
+                        "8",
+                        "2",
+                        "0",
+                        "1",
+                        "2",
+                        "2",
+                        "-16"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "schedule",
+      "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/9/schedule?season=2025&seasontype=2",
+      "http_status": 200,
+      "raw_response_sha256": "709cef1614df92232048f38f8c4ad18735d3b45e1b333b99e4a4f2400688d583",
+      "raw_response_bytes": 1462818,
+      "excerpt": {
+        "season": {
+          "year": 2027,
+          "type": 2,
+          "name": "Regular Season",
+          "displayName": "2026-27",
+          "half": 1
+        },
+        "requestedSeason": {
+          "year": 2025,
+          "type": 2,
+          "name": "Regular Season",
+          "displayName": "2024-25"
+        },
+        "event_count": 82,
+        "events": [
+          {
+            "id": "401705764",
+            "date": "2025-04-13T19:30Z",
+            "season": {
+              "year": 2025,
+              "displayName": "2024-25"
+            },
+            "competitions": [
+              {
+                "id": "401705764",
+                "date": "2025-04-13T19:30Z",
+                "status": {
+                  "clock": 0.0,
+                  "displayClock": "0.0",
+                  "period": 5,
+                  "type": {
+                    "id": "3",
+                    "name": "STATUS_FINAL",
+                    "state": "post",
+                    "completed": true,
+                    "description": "Final",
+                    "detail": "Final/OT",
+                    "shortDetail": "Final/OT",
+                    "altDetail": "OT"
+                  }
+                },
+                "neutralSite": false,
+                "competitors": [
+                  {
+                    "id": "9",
+                    "homeAway": "home",
+                    "score": {
+                      "value": 119.0,
+                      "displayValue": "119"
+                    },
+                    "winner": false
+                  },
+                  {
+                    "id": "12",
+                    "homeAway": "away",
+                    "score": {
+                      "value": 124.0,
+                      "displayValue": "124"
+                    },
+                    "winner": true
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "scoreboard",
+      "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=20250413",
+      "http_status": 200,
+      "raw_response_sha256": "ea3f42f0f1f83dd855feeda6895e0fabbdde8f5f9267a171e4c21341eb34c66f",
+      "raw_response_bytes": 217120,
+      "excerpt": {
+        "event_count": 15,
+        "events": [
+          {
+            "id": "401705764",
+            "date": "2025-04-13T19:30Z",
+            "season": {
+              "year": 2025,
+              "type": 2,
+              "slug": "regular-season"
+            },
+            "status": {
+              "clock": 0.0,
+              "displayClock": "0.0",
+              "period": 5,
+              "type": {
+                "id": "3",
+                "name": "STATUS_FINAL",
+                "state": "post",
+                "completed": true,
+                "description": "Final",
+                "detail": "Final/OT",
+                "shortDetail": "Final/OT",
+                "altDetail": "OT"
+              }
+            },
+            "competitions": [
+              {
+                "id": "401705764",
+                "date": "2025-04-13T19:30Z",
+                "status": {
+                  "clock": 0.0,
+                  "displayClock": "0.0",
+                  "period": 5,
+                  "type": {
+                    "id": "3",
+                    "name": "STATUS_FINAL",
+                    "state": "post",
+                    "completed": true,
+                    "description": "Final",
+                    "detail": "Final/OT",
+                    "shortDetail": "Final/OT",
+                    "altDetail": "OT"
+                  }
+                },
+                "neutralSite": false,
+                "competitors": [
+                  {
+                    "id": "9",
+                    "homeAway": "home",
+                    "score": "119",
+                    "winner": false
+                  },
+                  {
+                    "id": "12",
+                    "homeAway": "away",
+                    "score": "124",
+                    "winner": true
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "upcoming",
+      "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=20261027",
+      "http_status": 200,
+      "raw_response_sha256": "3185d7e8b1bc070f83eb5ba462d155c49280659761a3314d4ac9e79d5318dfe8",
+      "raw_response_bytes": 56791,
+      "excerpt": {
+        "event_count": 4,
+        "events": [
+          {
+            "id": "401909877",
+            "date": "2026-10-27T23:30Z",
+            "season": {
+              "year": 2027,
+              "type": 2,
+              "slug": "regular-season"
+            },
+            "status": {
+              "clock": 0.0,
+              "displayClock": "0.0",
+              "period": 0,
+              "type": {
+                "id": "1",
+                "name": "STATUS_SCHEDULED",
+                "state": "pre",
+                "completed": false,
+                "description": "Scheduled",
+                "detail": "Tue, October 27th at 7:30 PM EDT",
+                "shortDetail": "10/27 - 7:30 PM EDT"
+              }
+            },
+            "competitions": [
+              {
+                "id": "401909877",
+                "date": "2026-10-27T23:30Z",
+                "status": {
+                  "clock": 0.0,
+                  "displayClock": "0.0",
+                  "period": 0,
+                  "type": {
+                    "id": "1",
+                    "name": "STATUS_SCHEDULED",
+                    "state": "pre",
+                    "completed": false,
+                    "description": "Scheduled",
+                    "detail": "Tue, October 27th at 7:30 PM EDT",
+                    "shortDetail": "10/27 - 7:30 PM EDT"
+                  }
+                },
+                "neutralSite": false,
+                "competitors": [
+                  {
+                    "id": "2",
+                    "homeAway": "home",
+                    "score": "0"
+                  },
+                  {
+                    "id": "17",
+                    "homeAway": "away",
+                    "score": "0"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "teamstats",
+      "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/9/statistics?season=2025&seasontype=2",
+      "http_status": 200,
+      "raw_response_sha256": "515a5a733a728df399869cbcff75f1c8ade8896f02a54aeb0c20c74fd6347987",
+      "raw_response_bytes": 12542,
+      "excerpt": {
+        "season": {
+          "year": 2027,
+          "type": 2,
+          "name": "Regular Season",
+          "displayName": "2026-27"
+        },
+        "requestedSeason": {
+          "year": 2025,
+          "type": 2,
+          "name": "Regular Season",
+          "displayName": "2024-25",
+          "qualifiedPostSeason": true
+        },
+        "status": "success",
+        "results": {
+          "stats": {
+            "categories": [
+              {
+                "name": "general",
+                "stats": [
+                  {
+                    "name": "avgRebounds",
+                    "value": 45.378048,
+                    "displayValue": "45.4"
+                  },
+                  {
+                    "name": "assistTurnoverRatio",
+                    "value": 2.2051756,
+                    "displayValue": "2.2"
+                  },
+                  {
+                    "name": "avgFouls",
+                    "value": 19.158537,
+                    "displayValue": "19.2"
+                  },
+                  {
+                    "name": "gamesPlayed",
+                    "value": 82.0,
+                    "displayValue": "82"
+                  },
+                  {
+                    "name": "gamesStarted",
+                    "value": 0.0,
+                    "displayValue": "0"
+                  },
+                  {
+                    "name": "minutes",
+                    "value": 0.0,
+                    "displayValue": "0"
+                  },
+                  {
+                    "name": "avgMinutes",
+                    "value": 0.0,
+                    "displayValue": "0.0"
+                  },
+                  {
+                    "name": "totalRebounds",
+                    "value": 3721.0,
+                    "displayValue": "3721"
+                  },
+                  {
+                    "name": "rebounds",
+                    "value": 3721.0,
+                    "displayValue": "3721"
+                  }
+                ]
+              },
+              {
+                "name": "offensive",
+                "stats": [
+                  {
+                    "name": "freeThrowPct",
+                    "value": 76.36699676513672,
+                    "displayValue": "76.4"
+                  },
+                  {
+                    "name": "threePointPct",
+                    "value": 36.374000549316406,
+                    "displayValue": "36.4"
+                  },
+                  {
+                    "name": "avgFieldGoalsMade",
+                    "value": 40.756096,
+                    "displayValue": "40.8"
+                  },
+                  {
+                    "name": "avgFieldGoalsAttempted",
+                    "value": 90.39024,
+                    "displayValue": "90.4"
+                  },
+                  {
+                    "name": "avgThreePointFieldGoalsMade",
+                    "value": 15.414634,
+                    "displayValue": "15.4"
+                  },
+                  {
+                    "name": "avgThreePointFieldGoalsAttempted",
+                    "value": 42.378048,
+                    "displayValue": "42.4"
+                  },
+                  {
+                    "name": "avgFreeThrowsMade",
+                    "value": 16.865854,
+                    "displayValue": "16.9"
+                  },
+                  {
+                    "name": "avgFreeThrowsAttempted",
+                    "value": 22.085365,
+                    "displayValue": "22.1"
+                  },
+                  {
+                    "name": "avgPoints",
+                    "value": 113.79269,
+                    "displayValue": "113.8"
+                  },
+                  {
+                    "name": "avgOffensiveRebounds",
+                    "value": 12.54878,
+                    "displayValue": "12.5"
+                  },
+                  {
+                    "name": "avgAssists",
+                    "value": 29.09756,
+                    "displayValue": "29.1"
+                  },
+                  {
+                    "name": "avgTurnovers",
+                    "value": 13.195122,
+                    "displayValue": "13.2"
+                  },
+                  {
+                    "name": "twoPointFieldGoalPct",
+                    "value": 52.78130769729614,
+                    "displayValue": "52.8"
+                  },
+                  {
+                    "name": "scoringEfficiency",
+                    "value": 1.2589045,
+                    "displayValue": "1.259"
+                  },
+                  {
+                    "name": "shootingEfficiency",
+                    "value": 0.5361576,
+                    "displayValue": "0.54"
+                  },
+                  {
+                    "name": "fieldGoalPct",
+                    "value": 45.0890007019043,
+                    "displayValue": "45.1"
+                  },
+                  {
+                    "name": "twoPointFieldGoalsMade",
+                    "value": 2078.0,
+                    "displayValue": "2078.0"
+                  },
+                  {
+                    "name": "twoPointFieldGoalsAttempted",
+                    "value": 3937.0,
+                    "displayValue": "3937.0"
+                  },
+                  {
+                    "name": "points",
+                    "value": 9331.0,
+                    "displayValue": "9331"
+                  },
+                  {
+                    "name": "offensiveRebounds",
+                    "value": 1029.0,
+                    "displayValue": "1029"
+                  },
+                  {
+                    "name": "assists",
+                    "value": 2386.0,
+                    "displayValue": "2386"
+                  },
+                  {
+                    "name": "turnovers",
+                    "value": 1082.0,
+                    "displayValue": "1082"
+                  },
+                  {
+                    "name": "fieldGoalsMade",
+                    "value": 3342.0,
+                    "displayValue": "3342"
+                  },
+                  {
+                    "name": "fieldGoalsAttempted",
+                    "value": 7412.0,
+                    "displayValue": "7412"
+                  },
+                  {
+                    "name": "freeThrowsMade",
+                    "value": 1383.0,
+                    "displayValue": "1383"
+                  },
+                  {
+                    "name": "freeThrowsAttempted",
+                    "value": 1811.0,
+                    "displayValue": "1811"
+                  },
+                  {
+                    "name": "threePointFieldGoalsMade",
+                    "value": 1264.0,
+                    "displayValue": "1264"
+                  },
+                  {
+                    "name": "threePointFieldGoalsAttempted",
+                    "value": 3475.0,
+                    "displayValue": "3475"
+                  },
+                  {
+                    "name": "threePointFieldGoalPct",
+                    "value": 36.3741010427475,
+                    "displayValue": "36.4"
+                  },
+                  {
+                    "name": "avgTwoPointFieldGoalsMade",
+                    "value": 25.341463,
+                    "displayValue": "25.3"
+                  },
+                  {
+                    "name": "avgTwoPointFieldGoalsAttempted",
+                    "value": 48.012196,
+                    "displayValue": "48.0"
+                  }
+                ]
+              },
+              {
+                "name": "defensive",
+                "stats": [
+                  {
+                    "name": "avgDefensiveRebounds",
+                    "value": 32.82927,
+                    "displayValue": "32.8"
+                  },
+                  {
+                    "name": "avgBlocks",
+                    "value": 4.768293,
+                    "displayValue": "4.8"
+                  },
+                  {
+                    "name": "avgSteals",
+                    "value": 9.402439,
+                    "displayValue": "9.4"
+                  },
+                  {
+                    "name": "defensiveRebounds",
+                    "value": 2692.0,
+                    "displayValue": "2692"
+                  },
+                  {
+                    "name": "steals",
+                    "value": 771.0,
+                    "displayValue": "771"
+                  },
+                  {
+                    "name": "blocks",
+                    "value": 391.0,
+                    "displayValue": "391"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "corestats",
+      "url": "https://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2025/types/2/teams/9/statistics",
+      "http_status": 200,
+      "raw_response_sha256": "ad4a29afb003468be2e609e0eb3db2b71cf796b385c0bd072ee3c5cc7b6643b5",
+      "raw_response_bytes": 29767,
+      "excerpt": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2025/types/2/teams/9/statistics/0?lang=en&region=us",
+        "splits": {
+          "categories": [
+            {
+              "name": "defensive",
+              "stats": [
+                {
+                  "name": "blocks",
+                  "value": 391.0,
+                  "displayValue": "391"
+                },
+                {
+                  "name": "defensiveRebounds",
+                  "value": 2692.0,
+                  "displayValue": "2692"
+                },
+                {
+                  "name": "steals",
+                  "value": 771.0,
+                  "displayValue": "771"
+                },
+                {
+                  "name": "turnoverPoints",
+                  "value": 0.0,
+                  "displayValue": "0"
+                },
+                {
+                  "name": "defReboundRate",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "avgDefensiveRebounds",
+                  "value": 32.82927,
+                  "displayValue": "32.8"
+                },
+                {
+                  "name": "avgBlocks",
+                  "value": 4.768293,
+                  "displayValue": "4.8"
+                },
+                {
+                  "name": "avgSteals",
+                  "value": 9.402439,
+                  "displayValue": "9.4"
+                },
+                {
+                  "name": "avg48DefensiveRebounds",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "avg48Blocks",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "avg48Steals",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                }
+              ]
+            },
+            {
+              "name": "general",
+              "stats": [
+                {
+                  "name": "disqualifications",
+                  "value": 0.0,
+                  "displayValue": "0"
+                },
+                {
+                  "name": "flagrantFouls",
+                  "value": 4.0,
+                  "displayValue": "4"
+                },
+                {
+                  "name": "fouls",
+                  "value": 1571.0,
+                  "displayValue": "1571"
+                },
+                {
+                  "name": "reboundRate",
+                  "value": 50.736,
+                  "displayValue": "50.7"
+                },
+                {
+                  "name": "ejections",
+                  "value": 2.0,
+                  "displayValue": "2"
+                },
+                {
+                  "name": "technicalFouls",
+                  "value": 90.0,
+                  "displayValue": "90"
+                },
+                {
+                  "name": "rebounds",
+                  "value": 3721.0,
+                  "displayValue": "3721"
+                },
+                {
+                  "name": "minutes",
+                  "value": 0.0,
+                  "displayValue": "0"
+                },
+                {
+                  "name": "avgMinutes",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "fantasyRating",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "NBARating",
+                  "value": 215.54573,
+                  "displayValue": "215.5"
+                },
+                {
+                  "name": "plusMinus",
+                  "value": -1.0,
+                  "displayValue": "-1"
+                },
+                {
+                  "name": "gameDayOfYear",
+                  "value": 0.0,
+                  "displayValue": "0"
+                },
+                {
+                  "name": "avgRebounds",
+                  "value": 45.378048,
+                  "displayValue": "45.4"
+                },
+                {
+                  "name": "avgFouls",
+                  "value": 19.158537,
+                  "displayValue": "19.2"
+                },
+                {
+                  "name": "avgFlagrantFouls",
+                  "value": 0.048780486,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "avgTechnicalFouls",
+                  "value": 1.097561,
+                  "displayValue": "1.1"
+                },
+                {
+                  "name": "avgEjections",
+                  "value": 0.024390243,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "avgDisqualifications",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "assistTurnoverRatio",
+                  "value": 2.2051756,
+                  "displayValue": "2.2"
+                },
+                {
+                  "name": "stealFoulRatio",
+                  "value": 0.49077022,
+                  "displayValue": "0.5"
+                },
+                {
+                  "name": "blockFoulRatio",
+                  "value": 0.24888606,
+                  "displayValue": "0.2"
+                },
+                {
+                  "name": "avgTeamRebounds",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "totalRebounds",
+                  "value": 3721.0,
+                  "displayValue": "3721"
+                },
+                {
+                  "name": "totalTechnicalFouls",
+                  "value": 90.0,
+                  "displayValue": "90"
+                },
+                {
+                  "name": "teamAssistTurnoverRatio",
+                  "value": 34.085712,
+                  "displayValue": "34.1"
+                },
+                {
+                  "name": "teamRebounds",
+                  "value": 0.0,
+                  "displayValue": "0"
+                },
+                {
+                  "name": "stealTurnoverRatio",
+                  "value": 0.7125693,
+                  "displayValue": "0.7"
+                },
+                {
+                  "name": "avg48Rebounds",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "avg48Fouls",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "avg48FlagrantFouls",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "avg48TechnicalFouls",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "avg48Ejections",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "avg48Disqualifications",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "gamesPlayed",
+                  "value": 82.0,
+                  "displayValue": "82"
+                },
+                {
+                  "name": "gamesStarted",
+                  "value": 0.0,
+                  "displayValue": "0"
+                },
+                {
+                  "name": "doubleDouble",
+                  "value": 0.0,
+                  "displayValue": "0"
+                },
+                {
+                  "name": "tripleDouble",
+                  "value": 0.0,
+                  "displayValue": "0"
+                }
+              ]
+            },
+            {
+              "name": "offensive",
+              "stats": [
+                {
+                  "name": "assists",
+                  "value": 2386.0,
+                  "displayValue": "2386"
+                },
+                {
+                  "name": "effectiveFGPct",
+                  "value": 53.616,
+                  "displayValue": "53.6"
+                },
+                {
+                  "name": "fieldGoals",
+                  "value": 0.45089,
+                  "displayValue": "3342/7412"
+                },
+                {
+                  "name": "fieldGoalsAttempted",
+                  "value": 7412.0,
+                  "displayValue": "7412"
+                },
+                {
+                  "name": "fieldGoalsMade",
+                  "value": 3342.0,
+                  "displayValue": "3342"
+                },
+                {
+                  "name": "fieldGoalPct",
+                  "value": 45.0890007019043,
+                  "displayValue": "45.1"
+                },
+                {
+                  "name": "freeThrows",
+                  "value": 0.763666,
+                  "displayValue": "1383/1811"
+                },
+                {
+                  "name": "freeThrowPct",
+                  "value": 76.36699676513672,
+                  "displayValue": "76.4"
+                },
+                {
+                  "name": "freeThrowsAttempted",
+                  "value": 1811.0,
+                  "displayValue": "1811"
+                },
+                {
+                  "name": "freeThrowsMade",
+                  "value": 1383.0,
+                  "displayValue": "1383"
+                },
+                {
+                  "name": "offensiveRebounds",
+                  "value": 1029.0,
+                  "displayValue": "1029"
+                },
+                {
+                  "name": "points",
+                  "value": 9331.0,
+                  "displayValue": "9331"
+                },
+                {
+                  "name": "turnovers",
+                  "value": 1082.0,
+                  "displayValue": "1082"
+                },
+                {
+                  "name": "threePointPct",
+                  "value": 36.374000549316406,
+                  "displayValue": "36.4"
+                },
+                {
+                  "name": "threePointFieldGoalsAttempted",
+                  "value": 3475.0,
+                  "displayValue": "3475"
+                },
+                {
+                  "name": "threePointFieldGoalsMade",
+                  "value": 1264.0,
+                  "displayValue": "1264"
+                },
+                {
+                  "name": "trueShootingPct",
+                  "value": 56.835,
+                  "displayValue": "56.8"
+                },
+                {
+                  "name": "teamTurnovers",
+                  "value": 70.0,
+                  "displayValue": "70"
+                },
+                {
+                  "name": "totalTurnovers",
+                  "value": 1152.0,
+                  "displayValue": "1152"
+                },
+                {
+                  "name": "assistRatio",
+                  "value": 20.312,
+                  "displayValue": "20.3"
+                },
+                {
+                  "name": "pointsInPaint",
+                  "value": 3682.0,
+                  "displayValue": "3682"
+                },
+                {
+                  "name": "offReboundRate",
+                  "value": 27.273,
+                  "displayValue": "27.3"
+                },
+                {
+                  "name": "turnoverRatio",
+                  "value": 12.307,
+                  "displayValue": "12.3"
+                },
+                {
+                  "name": "fastBreakPoints",
+                  "value": 1191.0,
+                  "displayValue": "1191"
+                },
+                {
+                  "name": "possessions",
+                  "value": 8331.84,
+                  "displayValue": "8332"
+                },
+                {
+                  "name": "paceFactor",
+                  "value": 101.271,
+                  "displayValue": "101.3"
+                },
+                {
+                  "name": "avgFieldGoalsMade",
+                  "value": 40.756096,
+                  "displayValue": "40.8"
+                },
+                {
+                  "name": "avgFieldGoalsAttempted",
+                  "value": 90.39024,
+                  "displayValue": "90.4"
+                },
+                {
+                  "name": "avgThreePointFieldGoalsMade",
+                  "value": 15.414634,
+                  "displayValue": "15.4"
+                },
+                {
+                  "name": "avgThreePointFieldGoalsAttempted",
+                  "value": 42.378048,
+                  "displayValue": "42.4"
+                },
+                {
+                  "name": "avgFreeThrowsMade",
+                  "value": 16.865854,
+                  "displayValue": "16.9"
+                },
+                {
+                  "name": "avgFreeThrowsAttempted",
+                  "value": 22.085365,
+                  "displayValue": "22.1"
+                },
+                {
+                  "name": "avgPoints",
+                  "value": 113.79269,
+                  "displayValue": "113.8"
+                },
+                {
+                  "name": "avgOffensiveRebounds",
+                  "value": 12.54878,
+                  "displayValue": "12.5"
+                },
+                {
+                  "name": "avgAssists",
+                  "value": 29.09756,
+                  "displayValue": "29.1"
+                },
+                {
+                  "name": "avgTurnovers",
+                  "value": 13.195122,
+                  "displayValue": "13.2"
+                },
+                {
+                  "name": "offensiveReboundPct",
+                  "value": 0.25282556,
+                  "displayValue": "0.3"
+                },
+                {
+                  "name": "estimatedPossessions",
+                  "value": 8259.4,
+                  "displayValue": "8259.4"
+                },
+                {
+                  "name": "avgEstimatedPossessions",
+                  "value": 100.724396,
+                  "displayValue": "100.7"
+                },
+                {
+                  "name": "pointsPerEstimatedPossessions",
+                  "value": 1.129743,
+                  "displayValue": "1.1"
+                },
+                {
+                  "name": "avgTeamTurnovers",
+                  "value": 0.85365856,
+                  "displayValue": "0.9"
+                },
+                {
+                  "name": "avgTotalTurnovers",
+                  "value": 14.04878032207489,
+                  "displayValue": "14.0"
+                },
+                {
+                  "name": "threePointFieldGoalPct",
+                  "value": 36.3741010427475,
+                  "displayValue": "36.4"
+                },
+                {
+                  "name": "twoPointFieldGoalsMade",
+                  "value": 2078.0,
+                  "displayValue": "2078.0"
+                },
+                {
+                  "name": "twoPointFieldGoalsAttempted",
+                  "value": 3937.0,
+                  "displayValue": "3937.0"
+                },
+                {
+                  "name": "avgTwoPointFieldGoalsMade",
+                  "value": 25.341463,
+                  "displayValue": "25.3"
+                },
+                {
+                  "name": "avgTwoPointFieldGoalsAttempted",
+                  "value": 48.012196,
+                  "displayValue": "48.0"
+                },
+                {
+                  "name": "twoPointFieldGoalPct",
+                  "value": 52.78130769729614,
+                  "displayValue": "52.8"
+                },
+                {
+                  "name": "shootingEfficiency",
+                  "value": 0.5361576,
+                  "displayValue": "0.54"
+                },
+                {
+                  "name": "scoringEfficiency",
+                  "value": 1.2589045,
+                  "displayValue": "1.259"
+                },
+                {
+                  "name": "avg48FieldGoalsMade",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "avg48FieldGoalsAttempted",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "avg48ThreePointFieldGoalsMade",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "avg48ThreePointFieldGoalsAttempted",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "avg48FreeThrowsMade",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "avg48FreeThrowsAttempted",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "avg48Points",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "avg48OffensiveRebounds",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "avg48Assists",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                },
+                {
+                  "name": "avg48Turnovers",
+                  "value": 0.0,
+                  "displayValue": "0.0"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "oldlog",
+      "url": "https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/athletes/3975/gamelog?season=2020",
+      "http_status": 200,
+      "raw_response_sha256": "256417e370cf24f5fe1a4bc66047029e8eeff6620d02f4559b4bd65858f740c8",
+      "raw_response_bytes": 88079,
+      "excerpt": {
+        "regular_season_event_count": 5,
+        "seasonTypeNames": [
+          "2019-20 Regular Season",
+          "2019-20 Preseason"
+        ]
+      }
+    }
+  ]
+}

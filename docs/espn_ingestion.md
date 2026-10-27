@@ -1,5 +1,8 @@
 # ESPN NBA ingestion
 
+For model feature availability, inspected response samples, and the ML handoff
+CSV, see [ESPN feature availability](espn_feature_availability.md).
+
 ESPN supplies player rosters, teams, regular-season game logs, box scores, team
 history, and schedules. No runtime code imports `nba_api`. Existing PostgreSQL
 primary keys, backend history queries, cleaned DataFrame columns, and modeling

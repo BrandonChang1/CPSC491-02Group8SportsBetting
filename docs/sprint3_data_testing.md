@@ -61,3 +61,33 @@ The CI workflow:
 5. Runs the remaining project tests.
 
 No NBA API request is required for the Sprint 3 regression tests.
+
+## Data Pipeline Anomaly Tests
+
+After migrations and seeding, run from the project root:
+
+`python -m pytest tests/test_pipeline_anomalies.py -v`
+
+The suite audits the database configured by `DATABASE_URL` for:
+
+- Duplicate player/game keys and duplicate date/home/away game identities.
+- Missing required stats, negative counts, non-finite numeric values, and percentages outside 0–1.
+- Made shots exceeding attempts, inconsistent three-point totals, and points or rebounds that disagree with their components.
+- Missing games, invalid game teams, and opponent/home-away assignments that disagree with the game.
+
+Audit failures name the check and offending record identities. An empty database
+fails rather than giving a misleading pass. Optional shooting fields are checked
+when present; first-game NULL rolling averages, negative plus/minus, and overtime
+minutes remain valid. These are consistency checks, not statistical outlier or
+ingestion-volume monitoring.
+
+The suite also injects known anomalies into temporary, unconstrained copies of the
+tables to prove detection, and checks that valid records pass. These copies shadow
+the real tables only within each test connection and are always rolled back.
+Stored-data audits run in read-only transactions. The test role needs TEMP
+privileges on the database and SELECT on `public.games` and `public.player_game_stats`.
+
+Pytest returns exit code 0 on success and a nonzero code on failures or setup
+errors, including a missing `DATABASE_URL`. The command can be run repeatedly
+without modifying stored records or calling ESPN. CI runs it immediately after
+seeding and uploads `test-results/pipeline-anomalies.xml` with the test artifacts.

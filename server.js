@@ -134,21 +134,6 @@ function upcomingGamesScriptPath() {
     return path.join(__dirname, "scripts", "upcoming_games.py");
 }
 
-// Cache fallback results to avoid repeating NBA stats calls for every page load.
-let nbaRecordsCache = { expires: 0, records: null };
-async function getNbaBackupRecords() {
-    if (Date.now() < nbaRecordsCache.expires && nbaRecordsCache.records) {
-        return nbaRecordsCache.records;
-    }
-    const result = await runPythonJson(path.join(__dirname, "scripts", "team_recent_results.py"));
-    if (!result.success) throw new Error(result.message || "NBA history unavailable");
-    const records = new Map(Object.entries(result.records || {}).map(
-        ([team, value]) => [team.toUpperCase(), value]
-    ));
-    nbaRecordsCache = { expires: Date.now() + 30 * 60 * 1000, records };
-    return records;
-}
-
 async function getRealUpcomingGames() {
     const result = await runPythonJson(upcomingGamesScriptPath());
     if (!result.success) {

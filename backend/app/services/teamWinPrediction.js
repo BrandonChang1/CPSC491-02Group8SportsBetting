@@ -1,9 +1,5 @@
-<<<<<<< Updated upstream
-/** Transparent, non-ML team win estimates from recently completed games. */
-=======
 /** Historical team win-rate fallback; distinct games, not per-player wins. */
 const pool = require('../db');
->>>>>>> Stashed changes
 
 function estimateWinProbabilities(away, home) {
   if (!away || !home || away.games < 3 || home.games < 3) return null;
@@ -23,15 +19,9 @@ function estimateWinProbabilities(away, home) {
 }
 
 async function fetchRecentTeamRecords() {
-<<<<<<< Updated upstream
-  const pool = require('../db');
-  // Group by game/team to avoid counting every player's W/L as an individual game.
-  // Current team membership is used for attribution; historical trades can affect results.
-=======
   // A player's team_id may be NULL or reflect a later trade. Credit wins to
   // the team the player actually represented IN THAT GAME, via matchup.
   // is_home and the stored game's home/away IDs are the legacy-data fallback.
->>>>>>> Stashed changes
   const { rows } = await pool.query(`
     WITH attributed AS (
       SELECT g.id AS game_id, g.game_date,

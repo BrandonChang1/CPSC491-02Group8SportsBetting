@@ -133,6 +133,40 @@ def ingest_teams() -> dict:
     }
 
 
+# Latest recorded matchup is a historical roster estimate, not a live roster.
+# Using the player's own abbreviation from MATCHUP also supports team changes.
+TEAM_ID_BACKFILL_SQL = """
+    WITH latest_team AS (
+        SELECT DISTINCT ON (s.player_id)
+            s.player_id,
+            t.id AS team_id
+        FROM player_game_stats s
+        JOIN games g ON g.id = s.game_id
+        JOIN teams t ON t.abbreviation =
+            split_part(trim(s.matchup), ' ', 1)
+        WHERE s.matchup IS NOT NULL
+          AND (s.matchup LIKE '% vs. %' OR s.matchup LIKE '% @ %')
+        ORDER BY s.player_id, g.game_date DESC, s.game_id DESC
+    )
+    UPDATE players p
+    SET team_id = lt.team_id
+    FROM latest_team lt
+    WHERE p.id = lt.player_id
+      AND p.team_id IS DISTINCT FROM lt.team_id
+"""
+
+
+def refresh_player_team_ids() -> int:
+    """Assign historical teams from each player's latest stored matchup.
+
+    This can update a player after a trade if newer game logs are ingested.
+    It does not create teams or query live NBA rosters.
+    """
+    with psycopg.connect(get_database_url(), autocommit=True) as connection:
+        result = connection.execute(TEAM_ID_BACKFILL_SQL)
+        return result.rowcount
+
+
 def ingest_players() -> dict:
     """
     Retrieve NBA players and insert them into PostgreSQL.
@@ -163,15 +197,28 @@ def ingest_players() -> dict:
                         full_name,
                         first_name,
                         last_name,
-                        is_active
+                        is_active,
+                        team_id
                     )
-                    VALUES (%s, %s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s, (
+                        SELECT t.id
+                        FROM player_game_stats s
+                        JOIN games g ON g.id = s.game_id
+                        JOIN teams t ON t.abbreviation =
+                            split_part(trim(s.matchup), ' ', 1)
+                        WHERE s.player_id = %s
+                          AND (s.matchup LIKE '%% vs. %%'
+                               OR s.matchup LIKE '%% @ %%')
+                        ORDER BY g.game_date DESC, s.game_id DESC
+                        LIMIT 1
+                    ))
                     ON CONFLICT (id)
                     DO UPDATE SET
                         full_name = EXCLUDED.full_name,
                         first_name = EXCLUDED.first_name,
                         last_name = EXCLUDED.last_name,
-                        is_active = EXCLUDED.is_active
+                        is_active = EXCLUDED.is_active,
+                        team_id = COALESCE(EXCLUDED.team_id, players.team_id)
                     """,
                     (
                         player["id"],
@@ -179,6 +226,7 @@ def ingest_players() -> dict:
                         player["first_name"],
                         player["last_name"],
                         player["is_active"],
+                        player["id"],
                     ),
                 )
 
@@ -539,6 +587,11 @@ def ingest_player_game_stats(game_logs) -> dict:
                     f"{row.get('game_id', 'unknown')}: "
                     f"{error}"
                 )
+
+    # Refresh recorded team associations after stats have been inserted.
+    # Do not silently swallow a database error: ingestion should report it.
+    if successful:
+        refresh_player_team_ids()
 
     return {
         "processed": processed,

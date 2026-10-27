@@ -73,6 +73,11 @@
                 time.textContent = formatTime(game.tipoff);
 
                 left.append(matchup, details);
+                const estimate = document.createElement("div");
+                estimate.className = "win-estimate";
+                estimate.dataset.gameId = String(game.gameId || "");
+                estimate.textContent = "Loading win estimate...";
+                left.appendChild(estimate);
                 card.append(left, time);
                 section.appendChild(card);
             }

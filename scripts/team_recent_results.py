@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import json
 import sys
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 
 TEAM_ABBREVIATIONS = {
     "ATL", "BOS", "BKN", "CHA", "CHI", "CLE", "DAL", "DEN", "DET", "GSW",
@@ -60,13 +60,13 @@ def fetch_season_rows(season):
 
 
 def main():
-    now = datetime.now(UTC)
+    now = datetime.now(timezone.utc)
     all_rows = []
     errors = []
     for season in seasons_for_today(now):
         try:
             all_rows.extend(fetch_season_rows(season))
-        except Exception as error:  # noqa: BLE001 - External API failures must not discard other seasons.
+        except Exception as error:  # Preserve partial responses when one NBA season fails.
             errors.append(f"{season}: {error}")
     if not all_rows:
         print(json.dumps({"success": False, "message": "NBA history API unavailable", "records": {}, "errors": errors}))

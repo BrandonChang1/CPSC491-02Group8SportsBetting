@@ -1,12 +1,11 @@
 import unittest
-from datetime import UTC, date, datetime
-
+from datetime import date, datetime, timezone
 from team_recent_results import collect_recent_records, seasons_for_today
 
 
 class RecentResultsTests(unittest.TestCase):
     def test_season_transition(self):
-        self.assertEqual(seasons_for_today(datetime(2026, 10, 19, tzinfo=UTC)),
+        self.assertEqual(seasons_for_today(datetime(2026, 10, 19, tzinfo=timezone.utc)),
                          ['2026-27', '2025-26'])
 
     def test_deduplicates_ignores_future_and_counts_wins(self):

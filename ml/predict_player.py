@@ -17,14 +17,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from data.processing.points_features import assign_season  # noqa: E402
 
 MODEL_PATH = Path(__file__).resolve().parent / "models" / "artifacts" / "random_forest_points.joblib"
-<<<<<<< Updated upstream
-=======
 
 
 @lru_cache(maxsize=1)
 def load_model():
     return joblib.load(MODEL_PATH)
->>>>>>> Stashed changes
 
 
 def predict(games):
@@ -73,11 +70,7 @@ def predict(games):
         "predictedPoints": round(max(0.0, estimate), 2),
         "modelVersion": "random-forest-points-v1",
         "missingContext": [key for key in ("is_home", "recent_minutes_avg") if math.isnan(features[key])],
-<<<<<<< Updated upstream
-        "model": "Trained random forest (tree-based points regression)",
-=======
         "model": "Random forest (tree-based ML points)",
->>>>>>> Stashed changes
         "season": f"{latest_season}-{str(latest_season + 1)[-2:]}",
         "lastGameDate": df.iloc[-1]["game_date"].strftime("%Y-%m-%d"),
         "gamesAvailable": len(df),

@@ -36,3 +36,9 @@ test("login and registration forms render", async ({ page }) => {
     await expect(page.getByTestId("register-email")).toBeVisible();
     await expect(page.getByTestId("register-submit")).toBeVisible();
 });
+
+test("test panel opens from home page", async ({ page }) => {
+    await page.goto("/");
+    await page.getByTestId("nav-frontend-test-panel").click();
+    await expect(page.getByRole("heading", { name: "User Flow Test Panel" })).toBeVisible();
+});

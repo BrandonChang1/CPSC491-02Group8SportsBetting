@@ -100,6 +100,9 @@ jobs:
           psql "$DATABASE_URL" \
             -f tests/fixtures/seed_ci_database.sql
 
+      - name: Check data pipeline anomalies
+        run: python -m pytest tests/test_pipeline_anomalies.py -v --junitxml=test-results/pipeline-anomalies.xml
+
       # SCRUM-51: runs the actual backend/tests/*.test.js suite (health,
       # player search/details/game-history, pagination, error handling)
       # against the migrated database, rather than just a syntax check.
@@ -184,7 +187,8 @@ jobs:
           python -m pytest \
             --ignore=tests/test_database_integrity.py \
             --ignore=tests/test_ingestion_idempotency.py \
-            --ignore=tests/test_modeling_dataset_validation.py
+            --ignore=tests/test_modeling_dataset_validation.py \
+            --ignore=tests/test_pipeline_anomalies.py
 
       # -----------------------------------------
       # Versioning

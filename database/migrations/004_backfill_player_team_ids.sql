@@ -17,4 +17,4 @@ UPDATE players p
 SET team_id = lt.team_id
 FROM latest_team lt
 WHERE p.id = lt.player_id
-  AND p.team_id IS DISTINCT FROM lt.team_id;
+  AND p.team_id IS NULL;

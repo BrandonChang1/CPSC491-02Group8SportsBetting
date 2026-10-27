@@ -133,8 +133,7 @@ def ingest_teams() -> dict:
     }
 
 
-# Latest recorded matchup is a historical roster estimate, not a live roster.
-# Using the player's own abbreviation from MATCHUP also supports team changes.
+# Historical estimates only fill missing assignments; ESPN rosters take priority.
 TEAM_ID_BACKFILL_SQL = """
     WITH latest_team AS (
         SELECT DISTINCT ON (s.player_id)
@@ -152,14 +151,13 @@ TEAM_ID_BACKFILL_SQL = """
     SET team_id = lt.team_id
     FROM latest_team lt
     WHERE p.id = lt.player_id
-      AND p.team_id IS DISTINCT FROM lt.team_id
+      AND p.team_id IS NULL
 """
 
 
 def refresh_player_team_ids() -> int:
-    """Assign historical teams from each player's latest stored matchup.
+    """Fill missing teams from each player's latest stored matchup.
 
-    This can update a player after a trade if newer game logs are ingested.
     It does not create teams or query live NBA rosters.
     """
     with psycopg.connect(get_database_url(), autocommit=True) as connection:
@@ -200,18 +198,7 @@ def ingest_players() -> dict:
                         is_active,
                         team_id
                     )
-                    VALUES (%s, %s, %s, %s, %s, (
-                        SELECT t.id
-                        FROM player_game_stats s
-                        JOIN games g ON g.id = s.game_id
-                        JOIN teams t ON t.abbreviation =
-                            split_part(trim(s.matchup), ' ', 1)
-                        WHERE s.player_id = %s
-                          AND (s.matchup LIKE '%% vs. %%'
-                               OR s.matchup LIKE '%% @ %%')
-                        ORDER BY g.game_date DESC, s.game_id DESC
-                        LIMIT 1
-                    ))
+                    VALUES (%s, %s, %s, %s, %s, %s)
                     ON CONFLICT (id)
                     DO UPDATE SET
                         full_name = EXCLUDED.full_name,
@@ -226,7 +213,7 @@ def ingest_players() -> dict:
                         player["first_name"],
                         player["last_name"],
                         player["is_active"],
-                        player["id"],
+                        player["team_id"],
                     ),
                 )
 

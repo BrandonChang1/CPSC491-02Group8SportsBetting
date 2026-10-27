@@ -23,8 +23,12 @@ def test_team_ids_and_abbreviations_preserved(espn_responses):
     assert next(t for t in teams if t["espn_id"] == "26")["abbreviation"] == "UTA"
 
 
-def test_roster_uses_existing_curry_identity(espn_responses):
-    assert espn.get_players() == [
+def test_roster_uses_existing_curry_identity(espn_responses, monkeypatch):
+    warriors = next(t for t in espn.get_teams() if t["abbreviation"] == "GSW")
+    with monkeypatch.context() as patch:
+        patch.setattr(espn, "get_teams", lambda: [warriors])
+        roster = espn.get_players()
+    assert roster == [
         {
             "id": 201939,
             "espn_id": "3975",
@@ -32,6 +36,7 @@ def test_roster_uses_existing_curry_identity(espn_responses):
             "first_name": "Stephen",
             "last_name": "Curry",
             "is_active": True,
+            "team_id": 1610612744,
         }
     ]
 
@@ -42,6 +47,22 @@ def test_unknown_team_refuses_mapping(espn_responses):
     ] = "UNKNOWN"
     with pytest.raises(ValueError, match="Unknown ESPN team mapping"):
         espn.get_teams()
+
+
+def test_each_roster_keeps_its_own_team(espn_responses, monkeypatch):
+    teams = espn.get_teams()[:2]
+    with monkeypatch.context() as patch:
+        patch.setattr(espn, "get_teams", lambda: teams)
+        patch.setattr(espn, "_roster", lambda team: [{
+            "id": str(90000000 + team["id"]),
+            "displayName": team["full_name"],
+            "firstName": "Synthetic", "lastName": "Player",
+        }])
+        roster = espn.get_players()
+    assert len(roster) == 2
+    assert [(p["full_name"], p["team_id"]) for p in roster] == [
+        (team["full_name"], team["id"]) for team in teams
+    ]
 
 
 def test_duplicate_legacy_names_are_rejected(monkeypatch):

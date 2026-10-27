@@ -96,8 +96,9 @@ def _roster(team):
 @lru_cache(maxsize=1)
 def get_players():
     result = {}
+    nba_teams = get_teams()
     with ThreadPoolExecutor(max_workers=6) as executor:
-        for roster in executor.map(_roster, get_teams()):
+        for team, roster in zip(nba_teams, executor.map(_roster, nba_teams)):
             for athlete in roster:
                 player_id = legacy_player_id(athlete)
                 player = {
@@ -107,6 +108,7 @@ def get_players():
                     "first_name": athlete["firstName"],
                     "last_name": athlete["lastName"],
                     "is_active": True,
+                    "team_id": team["id"],
                 }
                 if (
                     player_id in result

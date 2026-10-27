@@ -73,6 +73,9 @@ python -m data.ingestion.historical_backfill
 
 The first ingestion command loads current teams/players and Curry's 2025-26 game
 logs. The existing backfill command retains its 2024-25 season and 5,000-row target.
+Current roster players receive their team's internal ID directly from ESPN's
+team roster. Reingestion updates that assignment after trades. Historical game
+logs only fill missing team assignments and never overwrite an assigned team.
 Set `DATABASE_URL` for the intended database before running these write operations.
 To make read-only sample requests, use `python -m scripts.test_nba_api`.
 

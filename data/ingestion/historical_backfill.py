@@ -1,8 +1,9 @@
 import time
 
 import psycopg
-from nba_api.stats.static import players
+import requests
 
+from data.collection import espn as players
 from data.collection.nba_game_logs import fetch_player_game_log
 from data.ingestion.database_ingestion import (
     get_database_url,
@@ -125,6 +126,7 @@ def main():
                 KeyError,
                 TypeError,
                 psycopg.Error,
+                requests.RequestException,
             ) as error:
                 failures += 1
 

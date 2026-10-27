@@ -1,0 +1,247 @@
+{
+  "header": {
+    "id": "401705764",
+    "season": {
+      "year": 2025,
+      "current": false,
+      "type": 2
+    },
+    "competitions": [
+      {
+        "date": "2025-04-13T19:30Z",
+        "competitors": [
+          {
+            "id": "9",
+            "homeAway": "home",
+            "winner": false,
+            "score": "119",
+            "team": {
+              "id": "9",
+              "abbreviation": "GS"
+            },
+            "record": [
+              {
+                "type": "total",
+                "summary": "48-34",
+                "displayValue": "48-34"
+              },
+              {
+                "type": "home",
+                "summary": "24-17",
+                "displayValue": "24-17"
+              },
+              {
+                "type": "vsconf",
+                "summary": "0-0",
+                "displayValue": "0-0"
+              }
+            ]
+          },
+          {
+            "id": "12",
+            "homeAway": "away",
+            "winner": true,
+            "score": "124",
+            "team": {
+              "id": "12",
+              "abbreviation": "LAC"
+            },
+            "record": [
+              {
+                "type": "total",
+                "summary": "50-32",
+                "displayValue": "50-32"
+              },
+              {
+                "type": "road",
+                "summary": "20-21",
+                "displayValue": "20-21"
+              },
+              {
+                "type": "vsconf",
+                "summary": "0-0",
+                "displayValue": "0-0"
+              }
+            ]
+          }
+        ],
+        "status": {
+          "type": {
+            "id": "3",
+            "name": "STATUS_FINAL",
+            "state": "post",
+            "completed": true,
+            "description": "Final",
+            "detail": "Final/OT",
+            "shortDetail": "Final/OT",
+            "altDetail": "OT"
+          }
+        }
+      }
+    ]
+  },
+  "boxscore": {
+    "players": [
+      {
+        "team": {
+          "id": "12"
+        },
+        "statistics": [
+          {
+            "labels": [
+              "MIN",
+              "PTS",
+              "FG",
+              "3PT",
+              "FT",
+              "REB",
+              "AST",
+              "TO",
+              "STL",
+              "BLK",
+              "OREB",
+              "DREB",
+              "PF",
+              "+/-"
+            ],
+            "athletes": [
+              {
+                "athlete": {
+                  "id": "3914285"
+                },
+                "didNotPlay": true,
+                "stats": []
+              },
+              {
+                "athlete": {
+                  "id": "5165257"
+                },
+                "didNotPlay": true,
+                "stats": []
+              },
+              {
+                "athlete": {
+                  "id": "4396818"
+                },
+                "didNotPlay": true,
+                "stats": []
+              },
+              {
+                "athlete": {
+                  "id": "4431752"
+                },
+                "didNotPlay": true,
+                "stats": []
+              },
+              {
+                "athlete": {
+                  "id": "4433246"
+                },
+                "didNotPlay": true,
+                "stats": []
+              },
+              {
+                "athlete": {
+                  "id": "4845363"
+                },
+                "didNotPlay": true,
+                "stats": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "team": {
+          "id": "9"
+        },
+        "statistics": [
+          {
+            "labels": [
+              "MIN",
+              "PTS",
+              "FG",
+              "3PT",
+              "FT",
+              "REB",
+              "AST",
+              "TO",
+              "STL",
+              "BLK",
+              "OREB",
+              "DREB",
+              "PF",
+              "+/-"
+            ],
+            "athletes": [
+              {
+                "athlete": {
+                  "id": "3975"
+                },
+                "didNotPlay": false,
+                "stats": [
+                  "38",
+                  "36",
+                  "10-20",
+                  "7-12",
+                  "9-9",
+                  "3",
+                  "6",
+                  "8",
+                  "2",
+                  "0",
+                  "1",
+                  "2",
+                  "2",
+                  "-16"
+                ]
+              },
+              {
+                "athlete": {
+                  "id": "4066240"
+                },
+                "didNotPlay": true,
+                "stats": []
+              },
+              {
+                "athlete": {
+                  "id": "4278075"
+                },
+                "didNotPlay": true,
+                "stats": []
+              },
+              {
+                "athlete": {
+                  "id": "4431684"
+                },
+                "didNotPlay": true,
+                "stats": []
+              },
+              {
+                "athlete": {
+                  "id": "4433247"
+                },
+                "didNotPlay": true,
+                "stats": []
+              },
+              {
+                "athlete": {
+                  "id": "4997536"
+                },
+                "didNotPlay": true,
+                "stats": []
+              },
+              {
+                "athlete": {
+                  "id": "4592714"
+                },
+                "didNotPlay": true,
+                "stats": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

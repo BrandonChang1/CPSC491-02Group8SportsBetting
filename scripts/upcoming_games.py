@@ -1,8 +1,7 @@
-"""Return NBA games scheduled in the next 14 days using nba_api.
+"""Return NBA games scheduled in the next 14 days using ESPN.
 
 The script prints JSON to stdout so the Node/Express server can consume it.
-It intentionally avoids pandas; nba_api's dictionary interface is sufficient for
-this feature and keeps the schedule endpoint independent of DataFrame support.
+ESPN events are adapted to the existing schedule response contract.
 """
 
 from __future__ import annotations
@@ -10,8 +9,15 @@ from __future__ import annotations
 import json
 import sys
 from collections.abc import Iterable
+from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from typing import Any
+from zoneinfo import ZoneInfo
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from data.collection.espn import SITE, abbreviation, request_json
 
 LOOKAHEAD_DAYS = 14
 
@@ -31,23 +37,43 @@ def seasons_for_window(start: datetime, end: datetime) -> list[str]:
     return seasons
 
 
-def _rows_from_dataset(dataset: dict[str, Any]) -> list[dict[str, Any]]:
-    headers = dataset.get("headers", [])
-    rows = dataset.get("data", [])
-    return [dict(zip(headers, row)) for row in rows]
+def schedule_row(event):
+    competition = event["competitions"][0]
+    status = competition["status"]["type"]
+    row = {
+        "gameId": f"espn:{event['id']}", "gameDateTimeUTC": event["date"],
+        "gameStatus": {"pre": 1, "in": 2, "post": 3}[status["state"]],
+        "gameStatusText": status["detail"],
+        "gameLabel": event.get("season", {}).get("slug", ""),
+    }
+    venue = competition.get("venue", {})
+    row.update(arenaName=venue.get("fullName", ""),
+               arenaCity=venue.get("address", {}).get("city", ""),
+               arenaState=venue.get("address", {}).get("state", ""))
+    for competitor in competition["competitors"]:
+        prefix = competitor["homeAway"] + "Team"
+        team = competitor["team"]
+        row.update({f"{prefix}_teamCity": team["location"],
+                    f"{prefix}_teamName": team["name"],
+                    f"{prefix}_teamTricode": abbreviation(team),
+                    f"{prefix}_score": competitor.get("score")})
+    return row
 
 
-def fetch_schedule_rows(season: str) -> list[dict[str, Any]]:
-    """Fetch one NBA season schedule through nba_api's ScheduleLeagueV2 endpoint."""
-    # Import here so pure filtering/unit tests do not need a working network call.
-    from nba_api.stats.endpoints import scheduleleaguev2
-
-    schedule = scheduleleaguev2.ScheduleLeagueV2(
-        league_id="00",
-        season=season,
-        timeout=30,
-    )
-    return _rows_from_dataset(schedule.season_games.get_dict())
+def fetch_schedule_rows(season: str, start=None, end=None) -> list[dict[str, Any]]:
+    # ESPN's NBA scoreboard accepts single dates, not date ranges.
+    now = datetime.now(UTC)
+    start = start or now - timedelta(days=14)
+    end = end or now + timedelta(days=LOOKAHEAD_DAYS)
+    first_day = start.astimezone(ZoneInfo("America/New_York")).date()
+    last_day = end.astimezone(ZoneInfo("America/New_York")).date()
+    days = [first_day + timedelta(days=offset) for offset in range((last_day - first_day).days + 1)]
+    def fetch_day(day):
+        return request_json(SITE, "scoreboard", dates=day.strftime("%Y%m%d"), limit=100)["events"]
+    with ThreadPoolExecutor(max_workers=6) as executor:
+        events = {event["id"]: event for daily in executor.map(fetch_day, days) for event in daily}
+    return [schedule_row(event) for event in events.values()
+            if season_for_date(datetime.fromisoformat(event["date"])) == season]
 
 
 def _parse_game_time(row: dict[str, Any]) -> datetime | None:
@@ -65,8 +91,8 @@ def _parse_game_time(row: dict[str, Any]) -> datetime | None:
         except ValueError:
             pass
 
-    # ScheduleLeagueV2 normally includes gameDateTimeUTC. This fallback keeps the
-    # feature usable if NBA changes the timestamp shape but leaves the game date.
+    # The adapter normally supplies gameDateTimeUTC. This fallback keeps the
+    # feature usable if ESPN changes the timestamp shape but leaves the game date.
     date_value = row.get("gameDate") or row.get("gameDateUTC")
     time_value = row.get("gameTimeUTC") or "00:00:00"
     if not date_value:
@@ -177,7 +203,7 @@ def lookup_games(game_ids: Iterable[str], now: datetime | None = None) -> dict[s
     end = now + timedelta(days=14)
     rows: list[dict[str, Any]] = []
     for season in seasons_for_window(start, end):
-        rows.extend(fetch_schedule_rows(season))
+        rows.extend(fetch_schedule_rows(season, start, end))
 
     games: list[dict[str, Any]] = []
     for row in rows:
@@ -227,12 +253,12 @@ def get_upcoming_games(now: datetime | None = None) -> dict[str, Any]:
     end = now + timedelta(days=LOOKAHEAD_DAYS)
     rows: list[dict[str, Any]] = []
     for season in seasons_for_window(now, end):
-        rows.extend(fetch_schedule_rows(season))
+        rows.extend(fetch_schedule_rows(season, now, end))
 
     games = normalize_upcoming_games(rows, now, LOOKAHEAD_DAYS)
     return {
         "success": True,
-        "source": "nba_api ScheduleLeagueV2",
+        "source": "ESPN",
         "generatedAt": now.isoformat().replace("+00:00", "Z"),
         "windowEndsAt": end.isoformat().replace("+00:00", "Z"),
         "count": len(games),

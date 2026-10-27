@@ -1,0 +1,87 @@
+{
+  "names": [
+    "minutes",
+    "fieldGoalsMade-fieldGoalsAttempted",
+    "fieldGoalPct",
+    "threePointFieldGoalsMade-threePointFieldGoalsAttempted",
+    "threePointPct",
+    "freeThrowsMade-freeThrowsAttempted",
+    "freeThrowPct",
+    "totalRebounds",
+    "assists",
+    "blocks",
+    "steals",
+    "fouls",
+    "turnovers",
+    "points"
+  ],
+  "events": {
+    "401705764": {
+      "id": "401705764",
+      "gameDate": "2025-04-13T19:30:00.000+00:00"
+    }
+  },
+  "seasonTypes": [
+    {
+      "displayName": "2024-25 Regular Season",
+      "categories": [
+        {
+          "type": "event",
+          "events": [
+            {
+              "eventId": "401705764",
+              "stats": [
+                "38",
+                "10-20",
+                "50.0",
+                "7-12",
+                "58.3",
+                "9-9",
+                "100.0",
+                "3",
+                "6",
+                "0",
+                "2",
+                "2",
+                "8",
+                "36"
+              ]
+            },
+            {
+              "eventId": "401705764",
+              "stats": [
+                "38",
+                "10-20",
+                "50.0",
+                "7-12",
+                "58.3",
+                "9-9",
+                "100.0",
+                "3",
+                "6",
+                "0",
+                "2",
+                "2",
+                "8",
+                "36"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "displayName": "2024-25 Postseason",
+      "categories": [
+        {
+          "type": "event",
+          "events": [
+            {
+              "eventId": "playoff-not-included"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

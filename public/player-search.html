@@ -312,7 +312,7 @@
                 modelDescription.textContent = `Model version: ${modelVersion}. Trained on historical NBA player results.`;
                 modelSource.append(modelTitle, modelDescription);
                 const info = document.createElement("p");
-                info.textContent = `Based on ${result.source === "nba_api" ? "NBA API" : "database"} game history through ${result.lastGameDate}; season ${result.season}.`;
+                info.textContent = `Based on ${result.source === "espn" ? "ESPN" : "database"} game history through ${result.lastGameDate}; season ${result.season}.`;
                 const estimate = document.createElement("div");
                 estimate.className = "average-card";
                 const estimateLabel = document.createElement("span");

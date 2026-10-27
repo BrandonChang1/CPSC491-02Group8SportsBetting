@@ -63,6 +63,9 @@ jobs:
       - name: Run Python linting
         run: ruff check . --exclude ml,.venv,node_modules,.git,.github,venv,dist,build,__pycache__
 
+      - name: Validate ESPN ingestion with offline fixtures
+        run: python -m pytest tests/test_espn.py tests/test_nba_game_logs.py -v
+
       # -----------------------------------------
       # Node.js setup
       # -----------------------------------------
@@ -180,7 +183,7 @@ jobs:
         run: |
           python -m pytest \
             --ignore=tests/test_database_integrity.py \
-            --ignore=tests/test_ingestion_indempotency.py \
+            --ignore=tests/test_ingestion_idempotency.py \
             --ignore=tests/test_modeling_dataset_validation.py
 
       # -----------------------------------------
@@ -209,6 +212,12 @@ jobs:
           cp package-lock.json build/
           cp server.js build/
           cp BUILD_VERSION.txt build/
+          cp requirements.txt build/
+          mkdir -p build/data/collection build/data/processing build/ml
+          cp data/__init__.py build/data/
+          cp data/collection/*.py data/collection/*.json build/data/collection/
+          cp data/processing/*.py build/data/processing/
+          cp ml/*.py build/ml/
 
           if [ -d scripts ]; then
             cp -r scripts build/

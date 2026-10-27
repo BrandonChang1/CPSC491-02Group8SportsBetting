@@ -296,3 +296,53 @@ def test_duplicate_player_game_records_remain_zero(
         ).fetchall()
 
     assert duplicates == []
+
+def test_espn_reingestion_reuses_legacy_game_id(database_url, controlled_game_logs):
+    """Switching providers must retain the original game and player-stat identity."""
+    ingest_games(controlled_game_logs)
+    ingest_player_game_stats(controlled_game_logs)
+    before = get_stored_values(database_url)
+    espn_logs = controlled_game_logs.copy()
+    espn_logs["game_id"] = "espn:401999999"
+
+    for _ in range(2):
+        assert ingest_games(espn_logs)["failed"] == 0
+        assert ingest_player_game_stats(espn_logs)["failed"] == 0
+
+    assert get_game_count(database_url) == 1
+    assert get_player_game_count(database_url) == 1
+    assert get_stored_values(database_url) == before
+    with psycopg.connect(database_url) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM games WHERE id = %s", ("espn:401999999",)).fetchone()[0] == 0
+
+
+def test_game_identity_mismatch_does_not_overwrite_history(database_url, controlled_game_logs):
+    ingest_games(controlled_game_logs)
+    ingest_player_game_stats(controlled_game_logs)
+    before = get_stored_values(database_url)
+    wrong_date = controlled_game_logs.copy()
+    wrong_date["game_date"] = pd.Timestamp("2025-01-02")
+    assert ingest_games(wrong_date)["failed"] == 1
+    assert ingest_player_game_stats(wrong_date)["failed"] == 1
+    assert get_stored_values(database_url) == before
+    with psycopg.connect(database_url) as connection:
+        assert str(connection.execute("SELECT game_date FROM games WHERE id = %s", (TEST_GAME_ID,)).fetchone()[0]) == "2025-01-01"
+
+
+def test_full_espn_response_reuses_legacy_database_record(database_url, controlled_game_logs, espn_responses):
+    from data.collection.nba_game_logs import fetch_player_game_log
+
+    assert ingest_games(controlled_game_logs)["failed"] == 0
+    logs = fetch_player_game_log(201939, "2024-25").assign(
+        player_id=TEST_PLAYER_ID,
+        game_date=pd.Timestamp("2025-01-01"),
+        matchup="T64H vs. T64A",
+    )
+    for _ in range(2):
+        assert ingest_games(logs)["failed"] == 0
+        assert ingest_player_game_stats(logs)["failed"] == 0
+    assert get_game_count(database_url) == 1
+    assert get_player_game_count(database_url) == 1
+    values = get_stored_values(database_url)
+    assert values[:4] == (38, 36, 3, 6)
+    assert values[5:] == (TEST_AWAY_TEAM_ID, True)

@@ -1,9 +1,13 @@
 import json
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import pandas as pd
-from nba_api.stats.endpoints import playergamelog
-from nba_api.stats.static import players
+
+from data.collection import espn as players
+from data.collection.nba_game_logs import fetch_player_game_log
 
 DEFAULT_SEASON = "2025-26"
 MAX_SEARCH_RESULTS = 10
@@ -59,13 +63,11 @@ def get_games_for_review(player_id, review=DEFAULT_REVIEW, season=DEFAULT_SEASON
     if review not in VALID_REVIEWS:
         review = DEFAULT_REVIEW
 
-    game_log = playergamelog.PlayerGameLog(
-        player_id=player_id,
-        season=season,
-        season_type_all_star="Regular Season",
-    )
-
-    df = game_log.get_data_frames()[0].copy()
+    df = fetch_player_game_log(player_id, season).rename(columns={
+        "game_date": "GAME_DATE", "matchup": "MATCHUP", "win_loss": "WL",
+        "minutes": "MIN", "points": "PTS", "rebounds": "REB",
+        "assists": "AST", "plus_minus": "PLUS_MINUS",
+    })
 
     if df.empty:
         return [], {}, review

@@ -51,18 +51,18 @@ router.get("/api/players/:id/prediction", asyncHandler(async (req, res) => {
     );
     games = result.rows;
   } catch (error) {
-    // A missing/unavailable DB also triggers the nba_api fallback.
+    // A missing/unavailable DB also triggers the espn fallback.
     databaseError = error;
-    console.warn("Prediction database lookup failed; using nba_api:", error.message);
+    console.warn("Prediction database lookup failed; using espn:", error.message);
   }
 
   if (!games.length) {
-    source = "nba_api";
+    source = "espn";
     let fetched;
     try {
       fetched = await executePython("fetch_nba_history.py", [String(id)]);
     } catch (error) {
-      return res.status(503).json({ success: false, source, message: `NBA API unavailable: ${error.message}` });
+      return res.status(503).json({ success: false, source, message: `ESPN API unavailable: ${error.message}` });
     }
     if (!fetched.success || !fetched.games.length) {
       return res.status(503).json({

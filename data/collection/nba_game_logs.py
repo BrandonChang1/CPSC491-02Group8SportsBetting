@@ -1,5 +1,11 @@
-from nba_api.stats.endpoints import playergamelog
+import pandas as pd
 
+from data.collection.espn import (
+    espn_player_id,
+    game_summary,
+    player_boxscore,
+    player_events,
+)
 from scripts.clean_nba_data import clean_player_game_log
 
 
@@ -18,13 +24,10 @@ def fetch_player_game_log(
         A cleaned pandas DataFrame containing the player's game log.
     """
 
-    game_log = playergamelog.PlayerGameLog(
-        player_id=player_id,
-        season=season,
-        season_type_all_star="Regular Season",
-    )
-
-    raw_df = game_log.get_data_frames()[0]
+    athlete_id = espn_player_id(player_id)
+    rows = [player_boxscore(game_summary(event_id), athlete_id, player_id)
+            for event_id in player_events(player_id, season)]
+    raw_df = pd.DataFrame([row for row in rows if row is not None])
 
     if raw_df.empty:
         return raw_df

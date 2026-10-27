@@ -20,6 +20,7 @@ data/modeling/**
 !data/collection/
 !data/collection/__init__.py
 !data/collection/*.py
+!data/collection/*.json
 !data/sample/
 !data/sample/*.csv
 !data/sample/sample_player_game_logs.csv

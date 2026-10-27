@@ -32,13 +32,12 @@ Tests are located in:
 Several player-game records should be compared against the original
 NBA source data.
 
-| Player | Game | Field | Database Value | Source Value | Result |
+| Player | Game | Field | Database | Source | Result |
 |---|---|---|---|---|---|
-| TBD | TBD | points | TBD | TBD | TBD |
-| TBD | TBD | minutes | TBD | TBD | TBD |
-| TBD | TBD | opponent | TBD | TBD | TBD |
-| TBD | TBD | home/away | TBD | TBD | TBD |
-| TBD | TBD | rebounds | TBD | TBD | TBD |
+| Stephen Curry | 0022500002 | points | 23 | 23 | PASS |
+| Stephen Curry | 0022500002 | minutes | 32 | 32 | PASS |
+| Stephen Curry | 0022500002 | opponent | LAL | LAL | PASS |
+| Stephen Curry | 0022500002 | home/away | Away | Away | PASS |
 
 These values should be completed during the Sprint 3 validation cycle.
 

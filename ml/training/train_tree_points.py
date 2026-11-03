@@ -3,15 +3,15 @@
 Run from the repository root: python -m ml.training.train_tree_points
 Input features are lagged/prior-game statistics, avoiding target leakage.
 """
-from pathlib import Path
 import json
+from pathlib import Path
 
 import joblib
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.impute import SimpleImputer
-from sklearn.pipeline import Pipeline
 from sklearn.metrics import mean_absolute_error
+from sklearn.pipeline import Pipeline
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / 'data/sample/player_game_stats_sample_features.csv'

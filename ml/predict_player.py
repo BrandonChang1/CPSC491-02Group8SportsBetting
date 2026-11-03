@@ -13,7 +13,7 @@ import pandas as pd
 
 # Import the project's existing season calculation rather than duplicating it.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from data.processing.points_features import assign_season  # noqa: E402
+from data.processing.points_features import assign_season
 
 MODEL_PATH = Path(__file__).resolve().parent / "models" / "artifacts" / "random_forest_points.joblib"
 

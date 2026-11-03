@@ -1,5 +1,6 @@
 import unittest
 from datetime import UTC, date, datetime
+
 from scripts.team_recent_results import (
     collect_recent_records,
     seasons_for_today,

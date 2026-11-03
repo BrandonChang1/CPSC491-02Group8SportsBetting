@@ -19,7 +19,7 @@ const request = require("supertest");
 const pool = require("../app/db");
 const predictionsRouter = require("../app/routes/predictions");
 
-const MANIFEST_PATH = path.join(__dirname, "..", "..", "ml", "models", "artifacts", "linear_regression_points.manifest.json");
+const MANIFEST_PATH = path.join(__dirname, "..", "..", "ml", "models", "artifacts", "random_forest_points.manifest.json");
 const GAMES = [
   { game_date: "2026-01-01", points: 18, minutes: 31 },
   { game_date: "2026-01-03", points: 24, minutes: 35 },

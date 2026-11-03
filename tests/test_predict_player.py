@@ -21,7 +21,7 @@ def test_predict_calculates_season_and_recent_averages():
     assert result["season"] == "2025-26"
     assert result["lastGameDate"] == "2025-10-24"
     assert result["gamesAvailable"] == 4
-    assert result["modelVersion"] == "linear-regression-points-v1"
+    assert result["modelVersion"] == "random-forest-points-v1"
     assert isinstance(result["predictedPoints"], float)
     assert result["predictedPoints"] >= 0
     assert "is_home" in result["missingContext"]
@@ -89,7 +89,7 @@ def test_recent_minutes_passed_to_trained_model(monkeypatch):
             return [22.35]
 
     monkeypatch.setattr(predict_player, "load_model", lambda: VerifiedModel(
-        artifact={"pipeline": FakePipeline()}, manifest={}, model_version="linear-regression-points-v1",
+        artifact={"pipeline": FakePipeline()}, manifest={}, model_version="random-forest-points-v1",
     ))
     result = predict_player.predict([
         {"game_date": "2026-01-01", "points": 10, "minutes": 20},

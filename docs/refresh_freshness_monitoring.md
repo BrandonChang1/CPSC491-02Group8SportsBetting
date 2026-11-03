@@ -192,10 +192,20 @@ Report SHA-256 values at capture time (rerunning tests replaces the reports):
 | Report | SHA-256 |
 | --- | --- |
 | `refresh-freshness.xml` | `2c732679ff6b3eb3cc8de82c77bc4811c3281be2a81c97a4a36d67bc34b6b858` |
-| `refresh-full-regression.xml` | `80357207f1d14b8c8a987e43e2de9b70587f5ba81a67fb40db7c35c64e3a3ef8` |
+| `refresh-full-regression.xml` | `7aa62b3db55426cc1b594940e64bf03fb63e9dbc841a2449b3eb12ea264e8802` |
 
 Remaining operational work: confirm the two-day policy with the refresh owner,
 automate expected-game selection, schedule checks and verify alert delivery.
 If measuring actual refresh execution age is required, add persisted run
 timestamps/statuses and assess those separately. Local evidence does not prove
 these deployment behaviors.
+
+### Verification after merging main
+
+The merge with `origin/main` at `b03bc82` retains main's approved random-forest
+artifact, manifest verification, feature schema and model label. The overlapping
+model-label conflict was resolved and the prediction test expectation was updated
+to `random-forest-points-v1`. Freshness-monitoring changes were retained.
+The refreshed full-regression report records 251 passing tests. Local loading of
+the approved random-forest artifact emits scikit-learn version warnings (artifact
+1.8.0 versus installed 1.9.1); no model retraining or dependency change was made.

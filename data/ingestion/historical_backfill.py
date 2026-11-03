@@ -13,6 +13,7 @@ from data.ingestion.database_ingestion import (
     ingest_teams,
     recalculate_recent_minutes_avg,
 )
+from data.ingestion.monitoring import logger, run
 
 TARGET_STAT_ROWS = 5000
 
@@ -71,7 +72,7 @@ def main():
     )
 
     processed_players = 0
-    failures = 0
+    failures = team_results["failed"] + player_results["failed"]
 
     for player in active_players:
         if current_count >= TARGET_STAT_ROWS:
@@ -97,9 +98,7 @@ def main():
                 )
 
                 if game_logs.empty:
-                    print(
-                        "No game logs returned."
-                    )
+                    logger.warning("no_game_logs player_id=%d season=%s", player_id, season)
                     continue
 
                 game_results = ingest_games(
@@ -112,11 +111,14 @@ def main():
                     )
                 )
 
+                failures += game_results["failed"] + stat_results["failed"]
+
                 print(
                     f"{season}: "
                     f"games={game_results['successful']} "
                     f"stats={stat_results['successful']} "
-                    f"failed={stat_results['failed']}"
+                    f"games_failed={game_results['failed']} "
+                    f"stats_failed={stat_results['failed']}"
                 )
 
                 time.sleep(1)
@@ -130,10 +132,9 @@ def main():
             ) as error:
                 failures += 1
 
-                print(
-                    f"Failed to process "
-                    f"{player_name} "
-                    f"for {season}: {error}"
+                logger.error(
+                    "player_season_failed player_id=%d season=%s error_type=%s",
+                    player_id, season, type(error).__name__,
                 )
 
         processed_players += 1
@@ -157,7 +158,7 @@ def main():
 
     final_count = get_player_game_stat_count()
 
-    print("\nHistorical backfill complete.")
+    print("\nHistorical backfill finished.")
 
     print(
         f"Players processed: "
@@ -184,6 +185,11 @@ def main():
             f"Current total: {final_count}"
         )
 
+    if failures or final_count < TARGET_STAT_ROWS:
+        logger.error("backfill_incomplete failures=%d target_reached=%s", failures, final_count >= TARGET_STAT_ROWS)
+        return 1
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(run(main))

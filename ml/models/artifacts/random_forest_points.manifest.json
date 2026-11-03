@@ -1,9 +1,9 @@
 {
-  "model_version": "random-forest-points-v1",
-  "model_sha256": "43427f3b3a253d728736692e01b30a5db005e9b7da16f5270e4c0b5f7de8c2a2",
+  "model_version": "random-forest-points-v1.1.0",
+  "model_sha256": "ac6b2b3b839c4cb5fdc35537977b9933e4caaf148683e0370b4db90433c273c2",
   "dataset_version": "player_game_stats_sample_features_3df1c9ab3d07",
   "dataset_hash": "3df1c9ab3d0722ce2daa222bf39f5c740a6349f9e4980c3d02fdf95898e156f7",
-  "git_commit_sha": "d794dd00e90ac662c4898915f163fd7ba1c7cf8e",
+  "git_commit_sha": "b03bc823c6588b421abde835423f6525b75b0634",
   "feature_schema": [
     {
       "name": "pts_season_avg",
@@ -28,30 +28,144 @@
   ],
   "training_config": {
     "training_script": "ml/training/train_tree_points.py",
-    "estimator": "Pipeline(SimpleImputer(strategy=median) -> RandomForestRegressor(n_estimators=120, min_samples_leaf=4, random_state=42))",
-    "target": "points",
-    "split": "dataset split column (chronological)",
-    "dropna_subset": [
-      "game_date",
-      "points",
-      "pts_last5_avg"
+    "evaluation_module": "ml/training/evaluation.py",
+    "estimator": "Pipeline(SimpleImputer(strategy=median) -> RandomForestRegressor)",
+    "forest_params": {
+      "n_estimators": 120,
+      "min_samples_leaf": 4,
+      "random_state": 42,
+      "n_jobs": -1
+    },
+    "features": [
+      "pts_season_avg",
+      "pts_last5_avg",
+      "pts_last10_avg",
+      "is_home",
+      "recent_minutes_avg"
     ],
-    "scikit_learn_version": "1.8.0",
-    "metrics_source": "Recomputed 2026-11-02 on this artifact with the training script split (scikit-learn 1.9.1); random_forest_metrics.csv describes an older notebook model"
+    "target": "points",
+    "train_fraction": 0.8,
+    "min_test_players": 10,
+    "dataset": "data/sample/player_game_stats_sample_features.csv",
+    "dataset_sha256": "3df1c9ab3d0722ce2daa222bf39f5c740a6349f9e4980c3d02fdf95898e156f7",
+    "holdout": {
+      "method": "chronological, first 80% of eligible rows by game date (time_split by='rows')",
+      "eligibility": "rows with points and every baseline feature present: ['pts_season_avg', 'pts_last5_avg', 'pts_last10_avg']",
+      "train": {
+        "rows": 3960,
+        "players": 84,
+        "first_game": "2024-10-24",
+        "last_game": "2025-03-12"
+      },
+      "test": {
+        "rows": 1002,
+        "players": 77,
+        "first_game": "2025-03-13",
+        "last_game": "2026-04-12"
+      },
+      "test_rows_by_season": {
+        "2024-25": {
+          "rows": 960,
+          "players": 77
+        },
+        "2025-26": {
+          "rows": 42,
+          "players": 1
+        }
+      }
+    },
+    "scikit_learn_version": "1.9.1"
   },
   "evaluation_metrics": {
+    "model": "random-forest-points-v1.1.0",
     "train": {
-      "n": 4921,
-      "MAE": 3.599,
-      "RMSE": 4.761,
-      "R2": 0.796
+      "n": 3960,
+      "MAE": 3.594,
+      "RMSE": 4.756,
+      "R2": 0.797
     },
     "test": {
-      "n": 42,
-      "MAE": 8.394,
-      "RMSE": 10.73,
-      "R2": -0.084
+      "n": 1002,
+      "MAE": 5.77,
+      "RMSE": 7.383,
+      "R2": 0.517
+    },
+    "baselines_test": {
+      "Season avg": {
+        "n": 1002,
+        "MAE": 5.73,
+        "RMSE": 7.456,
+        "R2": 0.508
+      },
+      "Last 5 avg": {
+        "n": 1002,
+        "MAE": 5.82,
+        "RMSE": 7.644,
+        "R2": 0.483
+      },
+      "Last 10 avg": {
+        "n": 1002,
+        "MAE": 5.673,
+        "RMSE": 7.36,
+        "R2": 0.52
+      }
+    },
+    "best_baseline": "Last 10 avg",
+    "beats_best_baseline": false,
+    "test_by_season": {
+      "2024-25": {
+        "Season avg": {
+          "n": 960,
+          "MAE": 5.616,
+          "RMSE": 7.266,
+          "R2": 0.512
+        },
+        "Last 5 avg": {
+          "n": 960,
+          "MAE": 5.699,
+          "RMSE": 7.445,
+          "R2": 0.487
+        },
+        "Last 10 avg": {
+          "n": 960,
+          "MAE": 5.563,
+          "RMSE": 7.193,
+          "R2": 0.521
+        },
+        "random-forest-points-v1.1.0": {
+          "n": 960,
+          "MAE": 5.654,
+          "RMSE": 7.194,
+          "R2": 0.521
+        }
+      },
+      "2025-26": {
+        "Season avg": {
+          "n": 42,
+          "MAE": 8.348,
+          "RMSE": 10.925,
+          "R2": -0.124
+        },
+        "Last 5 avg": {
+          "n": 42,
+          "MAE": 8.6,
+          "RMSE": 11.273,
+          "R2": -0.197
+        },
+        "Last 10 avg": {
+          "n": 42,
+          "MAE": 8.179,
+          "RMSE": 10.471,
+          "R2": -0.033
+        },
+        "random-forest-points-v1.1.0": {
+          "n": 42,
+          "MAE": 8.409,
+          "RMSE": 10.83,
+          "R2": -0.105
+        }
+      }
     }
   },
-  "generated_at": "2026-11-03T00:43:05.877530+00:00"
+  "generated_at": "2026-11-03T01:02:13.484130+00:00"
 }

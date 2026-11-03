@@ -1,0 +1,56 @@
+# SCRUM-112 split/leakage tests — 2026-11-03T00:58Z — commit b03bc82 + working tree
+# python -m pytest -v tests/test_training_evaluation.py tests/test_time_split.py tests/test_points_features.py tests/test_modeling_features.py tests/test_modeling_dataset_validation.py
+# Python 3.12.5, scikit-learn 1.9.1
+
+============================= test session starts ==============================
+platform darwin -- Python 3.12.5, pytest-9.2.0, pluggy-1.7.0 -- <scratch>/venv/bin/python
+rootdir: /Users/swayamshree/Desktop/Capstone Project/CPSC491-02Group8SportsBetting
+collecting ... collected 45 items
+
+tests/test_training_evaluation.py::test_row_split_never_splits_a_date_and_keeps_train_before_test PASSED [  2%]
+tests/test_training_evaluation.py::test_date_split_leaves_one_player_where_row_split_does_not PASSED [  4%]
+tests/test_training_evaluation.py::test_unknown_split_mode_raises PASSED [  6%]
+tests/test_training_evaluation.py::test_committed_split_column_is_the_one_player_holdout PASSED [  8%]
+tests/test_training_evaluation.py::test_holdout_ignores_csv_split_and_covers_many_players PASSED [ 11%]
+tests/test_training_evaluation.py::test_holdout_refuses_too_few_test_players PASSED [ 13%]
+tests/test_training_evaluation.py::test_model_and_baselines_are_scored_on_identical_rows PASSED [ 15%]
+tests/test_training_evaluation.py::test_predictions_for_other_rows_are_rejected PASSED [ 17%]
+tests/test_training_evaluation.py::test_committed_training_features_use_only_prior_games PASSED [ 20%]
+tests/test_training_evaluation.py::test_evaluation_record_is_complete_and_consistent PASSED [ 22%]
+tests/test_training_evaluation.py::test_manifest_generation_refuses_metrics_for_a_different_artifact PASSED [ 24%]
+tests/test_time_split.py::test_split_is_80_20_by_date PASSED             [ 26%]
+tests/test_time_split.py::test_train_dates_all_before_test_dates PASSED  [ 28%]
+tests/test_time_split.py::test_same_date_never_in_both_splits PASSED     [ 31%]
+tests/test_time_split.py::test_split_keeps_every_row PASSED              [ 33%]
+tests/test_time_split.py::test_invalid_fraction_raises[0] PASSED         [ 35%]
+tests/test_time_split.py::test_invalid_fraction_raises[1] PASSED         [ 37%]
+tests/test_time_split.py::test_invalid_fraction_raises[-0.2] PASSED      [ 40%]
+tests/test_time_split.py::test_invalid_fraction_raises[1.5] PASSED       [ 42%]
+tests/test_time_split.py::test_single_date_raises PASSED                 [ 44%]
+tests/test_time_split.py::test_changing_future_game_does_not_change_past_features PASSED [ 46%]
+tests/test_time_split.py::test_train_features_independent_of_test_rows PASSED [ 48%]
+tests/test_time_split.py::test_sample_data_features_use_only_prior_games PASSED [ 51%]
+tests/test_points_features.py::test_last5_and_last10_use_previous_games PASSED [ 53%]
+tests/test_points_features.py::test_first_game_has_no_features PASSED    [ 55%]
+tests/test_points_features.py::test_short_history_averages_available_games PASSED [ 57%]
+tests/test_points_features.py::test_current_game_points_not_in_own_features PASSED [ 60%]
+tests/test_points_features.py::test_players_are_kept_separate PASSED     [ 62%]
+tests/test_points_features.py::test_season_average_resets_at_new_season PASSED [ 64%]
+tests/test_points_features.py::test_unsorted_input_and_no_mutation PASSED [ 66%]
+tests/test_points_features.py::test_features_rounded_to_two_decimals PASSED [ 68%]
+tests/test_modeling_features.py::test_parse_player_matchup_home PASSED   [ 71%]
+tests/test_modeling_features.py::test_parse_player_matchup_away PASSED   [ 73%]
+tests/test_modeling_features.py::test_parse_player_matchup_invalid PASSED [ 75%]
+tests/test_modeling_features.py::test_add_modeling_context PASSED        [ 77%]
+tests/test_modeling_dataset_validation.py::test_required_modeling_fields_are_present PASSED [ 80%]
+tests/test_modeling_dataset_validation.py::test_opponent_field_is_present_and_valid PASSED [ 82%]
+tests/test_modeling_dataset_validation.py::test_home_away_field_uses_boolean_format PASSED [ 84%]
+tests/test_modeling_dataset_validation.py::test_recent_minutes_is_correctly_available PASSED [ 86%]
+tests/test_modeling_dataset_validation.py::test_required_fields_do_not_have_unexpected_nulls PASSED [ 88%]
+tests/test_modeling_dataset_validation.py::test_numeric_fields_have_numeric_types PASSED [ 91%]
+tests/test_modeling_dataset_validation.py::test_repeated_generation_has_same_schema PASSED [ 93%]
+tests/test_modeling_dataset_validation.py::test_repeated_generation_has_same_record_set PASSED [ 95%]
+tests/test_modeling_dataset_validation.py::test_repeated_generation_has_same_hash PASSED [ 97%]
+tests/test_modeling_dataset_validation.py::test_missing_required_field_is_reported_clearly PASSED [100%]
+
+============================== 45 passed in 0.61s ==============================

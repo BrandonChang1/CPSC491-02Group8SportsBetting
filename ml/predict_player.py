@@ -13,9 +13,10 @@ import pandas as pd
 # Import the project's existing season calculation rather than duplicating it.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from data.processing.points_features import assign_season  # noqa: E402
-from ml.model_integrity import ModelIntegrityError, load_verified_model  # noqa: E402
+from ml.model_integrity import REGISTRY_PATH, ModelIntegrityError, load_approved_model  # noqa: E402
 
-MODEL_PATH = Path(__file__).resolve().parent / "models" / "artifacts" / "random_forest_points.joblib"
+# The served model is the registry's single "approved" entry (ml/models/registry.json).
+REGISTRY = REGISTRY_PATH
 MODEL_NAME = "random-forest-points"
 SUPPORTED_MAJOR_VERSIONS = {1}
 # Ordered (name, training dtype) pairs this code builds; the model's manifest must match exactly.
@@ -30,9 +31,13 @@ EXPECTED_FEATURE_SCHEMA = [
 
 
 def load_model():
-    """Load the points model only after it passes manifest verification."""
-    return load_verified_model(
-        MODEL_PATH,
+    """Load the registry's approved points model, only after it passes manifest verification.
+
+    Raises a ModelIntegrityError (so predict() fails closed) if no model or more
+    than one is approved, or the approved model's file or manifest is missing.
+    """
+    return load_approved_model(
+        registry_path=REGISTRY,
         model_name=MODEL_NAME,
         supported_major_versions=SUPPORTED_MAJOR_VERSIONS,
         expected_feature_schema=EXPECTED_FEATURE_SCHEMA,

@@ -57,29 +57,44 @@ def add_points_features(games: pd.DataFrame) -> pd.DataFrame:
 def time_split(
     games: pd.DataFrame,
     train_fraction: float = 0.8,
+    by: str = "dates",
 ) -> pd.DataFrame:
     """
     Label each game as train or test by date.
 
-    The oldest train_fraction of game dates go to train and the rest to
-    test, so every train game is played before every test game.
+    With by="dates", the oldest train_fraction of game dates go to train.
+    With by="rows", the cutoff is the last date at which train still holds
+    at most train_fraction of the rows. Either way a date is never split,
+    so every train game is played before every test game.
+
+    Use by="rows" when later dates are sparse (e.g. one player's next
+    season): splitting by dates would then leave a test set of a few
+    rows from a single player.
 
     Raises:
-        ValueError: If train_fraction is not between 0 and 1, or there
-            are fewer than 2 game dates to split.
+        ValueError: If train_fraction is not between 0 and 1, by is not
+            "dates" or "rows", or there are fewer than 2 game dates.
     """
 
     if not 0 < train_fraction < 1:
         raise ValueError(
             f"train_fraction must be between 0 and 1, got {train_fraction}"
         )
+    if by not in ("dates", "rows"):
+        raise ValueError(f'by must be "dates" or "rows", got {by!r}')
 
     game_dates = sorted(games["game_date"].unique())
 
     if len(game_dates) < 2:
         raise ValueError("Need at least 2 game dates to split")
 
-    cutoff_index = max(math.floor(len(game_dates) * train_fraction) - 1, 0)
+    if by == "dates":
+        cutoff_index = max(math.floor(len(game_dates) * train_fraction) - 1, 0)
+    else:
+        rows_per_date = games["game_date"].value_counts().reindex(game_dates)
+        row_share = rows_per_date.cumsum() / len(games)
+        # Last date within the fraction, keeping at least one date on each side.
+        cutoff_index = min(max(int((row_share <= train_fraction).sum()) - 1, 0), len(game_dates) - 2)
     train_cutoff = game_dates[cutoff_index]
 
     games = games.copy()

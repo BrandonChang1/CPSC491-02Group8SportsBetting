@@ -1,0 +1,8 @@
+{
+  "loaded_model_version": "random-forest-points-v1.1.0",
+  "registry_approved_version": "random-forest-points-v1.1.0",
+  "manifest_model_version": "random-forest-points-v1.1.0",
+  "manifest_model_sha256": "ac6b2b3b839c4cb5fdc35537977b9933e4caaf148683e0370b4db90433c273c2",
+  "artifact_sha256": "ac6b2b3b839c4cb5fdc35537977b9933e4caaf148683e0370b4db90433c273c2",
+  "consistent": true
+}

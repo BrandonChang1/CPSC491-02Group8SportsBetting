@@ -21,7 +21,7 @@ def test_predict_calculates_season_and_recent_averages():
     assert result["season"] == "2025-26"
     assert result["lastGameDate"] == "2025-10-24"
     assert result["gamesAvailable"] == 4
-    assert result["modelVersion"] == "random-forest-points-v1"
+    assert result["modelVersion"] == "random-forest-points-v1.1.0"
     assert isinstance(result["predictedPoints"], float)
     assert result["predictedPoints"] >= 0
     assert "is_home" in result["missingContext"]
@@ -74,7 +74,7 @@ def test_main_outputs_machine_readable_error_for_bad_json(monkeypatch, capsys):
 
 
 def test_missing_model_returns_error_not_fake_ml_prediction(monkeypatch, tmp_path):
-    monkeypatch.setattr(predict_player, "MODEL_PATH", tmp_path / "missing.joblib")
+    monkeypatch.setattr(predict_player, "REGISTRY", tmp_path / "missing_registry.json")
     result = predict_player.predict([{"game_date": "2026-01-02", "points": 21}])
     assert result["success"] is False
     assert "unavailable" in result["message"]

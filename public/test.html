@@ -175,7 +175,7 @@
                 if (!data.success) {
 
                     result.textContent =
-                        "Error: " + data.message;
+                        "Unable to retrieve NBA data right now. Please try again later.";
 
                     return;
                 }
@@ -263,8 +263,7 @@
             catch (error) {
 
                 result.textContent =
-                    "Error communicating with server: "
-                    + error.message;
+                    "Unable to retrieve NBA data right now. Please try again later.";
 
             }
             

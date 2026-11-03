@@ -17,8 +17,8 @@ from sklearn.linear_model import LinearRegression
 from sklearn.pipeline import Pipeline
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from ml import model_release, predict_player  # noqa: E402
-from ml.model_integrity import read_registry, registry_file, save_model, set_status  # noqa: E402
+from ml import model_release, predict_player
+from ml.model_integrity import read_registry, registry_file, save_model, set_status
 
 
 def fixture_data(directory):

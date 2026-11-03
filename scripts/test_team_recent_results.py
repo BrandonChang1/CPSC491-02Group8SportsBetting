@@ -1,7 +1,10 @@
 import unittest
 from datetime import UTC, date, datetime
 
-from team_recent_results import collect_recent_records, seasons_for_today
+from scripts.team_recent_results import (
+    collect_recent_records,
+    seasons_for_today,
+)
 
 
 class RecentResultsTests(unittest.TestCase):

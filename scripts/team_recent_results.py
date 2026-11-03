@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import json
 import sys
-from datetime import UTC, datetime
+from datetime import UTC, date
 
 TEAM_ABBREVIATIONS = {
     "ATL", "BOS", "BKN", "CHA", "CHI", "CLE", "DAL", "DEN", "DET", "GSW",
@@ -33,7 +33,7 @@ def collect_recent_records(season_rows, today, limit=10):
         if team not in TEAM_ABBREVIATIONS or not game_id or wl not in ("W", "L"):
             continue
         try:
-            game_date = datetime.strptime(raw_date, "%Y-%m-%d").date()
+            game_date = date.fromisoformat(raw_date)
         except ValueError:
             continue
         if game_date >= today or (team, game_id) in seen:
@@ -60,7 +60,7 @@ def fetch_season_rows(season):
 
 
 def main():
-    now = datetime.now(UTC)
+    now = date.now(UTC)
     all_rows = []
     errors = []
     for season in seasons_for_today(now):

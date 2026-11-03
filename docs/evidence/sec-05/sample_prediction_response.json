@@ -1,0 +1,23 @@
+{
+  "request": "GET /api/players/9300001/prediction",
+  "status": 200,
+  "body": {
+    "success": true,
+    "predictedPoints": 23.05,
+    "modelVersion": "linear-regression-points-v1",
+    "missingContext": [
+      "is_home"
+    ],
+    "model": "Trained linear regression (points)",
+    "season": "2025-26",
+    "lastGameDate": "2026-01-05",
+    "gamesAvailable": 3,
+    "predictions": {
+      "season": 23,
+      "last5": 23,
+      "last10": 23
+    },
+    "note": "Model estimate for a hypothetical next game, not a specific matchup or guaranteed outcome. Unknown inputs are imputed.",
+    "source": "database"
+  }
+}

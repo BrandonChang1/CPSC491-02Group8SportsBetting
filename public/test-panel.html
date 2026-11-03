@@ -101,6 +101,7 @@
     const depositButton = document.getElementById("depositButton");
     const withdrawButton = document.getElementById("withdrawButton");
     const createMockButton = document.getElementById("createMockButton");
+    const nbaUnavailableMessage = "Unable to retrieve NBA data right now. Please try again later.";
     let currentBalance = 1000;
     let currentBets = [];
     let currentRealGames = [];
@@ -318,9 +319,14 @@
             renderBets(currentBets);
             renderGames(currentRealGames, currentMockGames);
             renderPastBetGames(currentBets);
+            if (gameMessage.textContent === nbaUnavailableMessage) gameMessage.textContent = "";
         } catch (error) {
             if (requestId === latestStateRequest && version === stateVersion) {
-                gameMessage.textContent = error.message;
+                gameMessage.textContent = nbaUnavailableMessage;
+                // Never show stale game cards and betting controls during an outage.
+                currentRealGames = [];
+                currentMockGames = [];
+                gamesList.replaceChildren();
             }
         }
     }

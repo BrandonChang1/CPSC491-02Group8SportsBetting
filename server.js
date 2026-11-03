@@ -430,7 +430,7 @@ app.get("/api/frontend-test-panel/state", async (req, res) => {
     } catch (error) {
         return res.status(502).json({
             success: false,
-            message: error.message,
+            message: "Unable to retrieve NBA data right now. Please try again later.",
             balance: frontendTestState.balance,
             bets: frontendTestState.bets,
             mockGames: frontendTestState.mockGames,
@@ -514,6 +514,19 @@ app.post("/api/frontend-test-panel/bets", async (req, res) => {
         });
     }
 
+    // Revalidate live ESPN availability immediately before EVERY wager,
+    // including mock wagers. Never rely on an earlier page load.
+    let realGames;
+    try {
+        realGames = await getRealUpcomingGames();
+    } catch (error) {
+        console.error("ESPN availability check failed before bet:", error.message);
+        return res.status(503).json({
+            success: false,
+            message: "ESPN API Error. Bet cannot be placed."
+        });
+    }
+
     let gameLabel;
     let validSelections;
 
@@ -534,16 +547,6 @@ app.post("/api/frontend-test-panel/bets", async (req, res) => {
         gameLabel = `${game.awayTeam} vs ${game.homeTeam}`;
         validSelections = [game.awayTeam, game.homeTeam];
     } else if (gameType === "real") {
-        let realGames;
-        try {
-            realGames = await getRealUpcomingGames();
-        } catch (error) {
-            return res.status(502).json({
-                success: false,
-                message: error.message
-            });
-        }
-
         const game = realGames.find((item) => item.gameId === gameId);
         if (!game || Date.now() >= Date.parse(game.tipoffUtc)) {
             return res.status(400).json({

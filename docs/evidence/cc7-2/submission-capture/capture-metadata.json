@@ -1,0 +1,16 @@
+{
+  "repository_baseline": "e4369bb6170f4114e8d370b177abd823394c27f3",
+  "scope": "Fresh offline failure-logging recheck; other reports are retained prior executions",
+  "local_working_tree_changes_present": true,
+  "tests": 32,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "code_hashes": {
+    "data/ingestion/monitoring.py": "a0d12d3700b636dc5b22700b23e60841e8420f8c0ba0c6c315e6d0849a15fbb9",
+    "data/ingestion/database_ingestion.py": "85feaf8dd079458408e6d1ebcf91abfc8e057ff53fd3dcec432589ae248b5e25",
+    "data/ingestion/historical_backfill.py": "30a2a47728b84594a67b6ae80f6a39bee074b3ad2f13d4effd894a064ae1bd8f",
+    "tests/test_ingestion_failure_logging.py": "7d71023023cf9138079d38fa18d32db298a7d30e4346653b37e04fe9dcae5d3b"
+  },
+  "report_sha256": "705771d2545a843e7cb795ce42dca301eab78f301705fc9a38b280c68174f349"
+}

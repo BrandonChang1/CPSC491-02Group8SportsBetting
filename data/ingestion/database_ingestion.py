@@ -1,4 +1,5 @@
 import os
+from contextlib import nullcontext
 
 import pandas as pd
 import psycopg
@@ -26,13 +27,16 @@ def get_database_url() -> str:
 
     return database_url
 
-def recalculate_recent_minutes_avg() -> None:
+def recalculate_recent_minutes_avg(connection=None, player_id=None) -> None:
     """
     Recalculate the five-game recent-minutes average
     for every stored player-game record.
 
     Only games before the current game are included,
     preventing data leakage.
+
+    An optional connection shares the caller's transaction; player_id limits
+    recalculation to that player's complete stored history.
     """
 
     database_url = get_database_url()
@@ -53,6 +57,7 @@ def recalculate_recent_minutes_avg() -> None:
             FROM player_game_stats pgs
             JOIN games g
                 ON pgs.game_id = g.id
+            WHERE (%s::bigint IS NULL OR pgs.player_id = %s)
         )
         UPDATE player_game_stats pgs
         SET recent_minutes_avg =
@@ -65,11 +70,11 @@ def recalculate_recent_minutes_avg() -> None:
                 rolling_minutes.game_id
     """
 
-    with psycopg.connect(
-        database_url,
-        autocommit=True,
-    ) as connection:
-        connection.execute(query)
+    with (
+        nullcontext(connection) if connection is not None
+        else psycopg.connect(database_url, autocommit=True)
+    ) as active_connection:
+        active_connection.execute(query, (player_id, player_id))
 
 def ingest_teams() -> dict:
     """
@@ -153,13 +158,16 @@ TEAM_ID_BACKFILL_SQL = """
 """
 
 
-def refresh_player_team_ids() -> int:
+def refresh_player_team_ids(connection=None) -> int:
     """Fill missing teams from each player's latest stored matchup.
 
     It does not create teams or query live NBA rosters.
     """
-    with psycopg.connect(get_database_url(), autocommit=True) as connection:
-        result = connection.execute(TEAM_ID_BACKFILL_SQL)
+    with (
+        nullcontext(connection) if connection is not None
+        else psycopg.connect(get_database_url(), autocommit=True)
+    ) as active_connection:
+        result = active_connection.execute(TEAM_ID_BACKFILL_SQL)
         return result.rowcount
 
 
@@ -294,7 +302,7 @@ def canonical_game_id(connection, row, team_ids):
         raise ValueError(f"Game identity mismatch: {game_id}")
     return game_id
 
-def ingest_games(game_logs) -> dict:
+def ingest_games(game_logs, connection=None) -> dict:
     """
     Insert games from a cleaned player game-log DataFrame.
 
@@ -315,12 +323,12 @@ def ingest_games(game_logs) -> dict:
 
     database_url = get_database_url()
 
-    with psycopg.connect(
-        database_url,
-        autocommit=True,
-    ) as connection:
+    with (
+        nullcontext(connection) if connection is not None
+        else psycopg.connect(database_url, autocommit=True)
+    ) as active_connection:
 
-        team_ids = get_team_id_map(connection)
+        team_ids = get_team_id_map(active_connection)
 
         for _, row in game_logs.iterrows():
             processed += 1
@@ -345,9 +353,9 @@ def ingest_games(game_logs) -> dict:
                         f"{away_abbreviation}"
                     )
 
-                game_id = canonical_game_id(connection, row, team_ids)
+                game_id = canonical_game_id(active_connection, row, team_ids)
 
-                connection.execute(
+                active_connection.execute(
                     """
                     INSERT INTO games (
                         id,
@@ -384,7 +392,7 @@ def ingest_games(game_logs) -> dict:
         "failed": failed,
     }
 
-def ingest_player_game_stats(game_logs) -> dict:
+def ingest_player_game_stats(game_logs, connection=None) -> dict:
     """
     Insert cleaned player game-log rows into player_game_stats.
 
@@ -405,12 +413,12 @@ def ingest_player_game_stats(game_logs) -> dict:
     # Add opponent, home/away, and rolling recent-minutes context.
     contextualized_logs = add_modeling_context(game_logs)
 
-    with psycopg.connect(
-        database_url,
-        autocommit=True,
-    ) as connection:
+    with (
+        nullcontext(connection) if connection is not None
+        else psycopg.connect(database_url, autocommit=True)
+    ) as active_connection:
 
-        team_ids = get_team_id_map(connection)
+        team_ids = get_team_id_map(active_connection)
 
         for _, row in contextualized_logs.iterrows():
             processed += 1
@@ -426,7 +434,7 @@ def ingest_player_game_stats(game_logs) -> dict:
                         f"{row['opponent_abbreviation']}"
                     )
 
-                game_id = canonical_game_id(connection, row, team_ids)
+                game_id = canonical_game_id(active_connection, row, team_ids)
 
                 # pandas represents the first unavailable rolling average
                 # as NaN. Convert only that NaN value to SQL NULL.
@@ -437,7 +445,7 @@ def ingest_player_game_stats(game_logs) -> dict:
                         row["recent_minutes_avg"]
                     )
 
-                connection.execute(
+                active_connection.execute(
                     """
                     INSERT INTO player_game_stats (
                         player_id,
@@ -562,10 +570,9 @@ def ingest_player_game_stats(game_logs) -> dict:
 
                 logger.error("row_failed stage=player_game_stats row=%d error_type=%s", processed, type(error).__name__)
 
-    # Refresh recorded team associations after stats have been inserted.
-    # Do not silently swallow a database error: ingestion should report it.
-    if successful:
-        refresh_player_team_ids()
+        # Keep the refresh in the caller's transaction when one was supplied.
+        if successful:
+            refresh_player_team_ids(active_connection)
 
     return {
         "processed": processed,

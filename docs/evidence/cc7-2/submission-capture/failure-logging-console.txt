@@ -1,0 +1,48 @@
+SEC-04 ingestion failure logging verification
+Captured: 2026-11-02T17:19:42.458974-08:00
+Revision: e4369bb6170f4114e8d370b177abd823394c27f3
+Command: .venv/bin/python -m pytest tests/test_ingestion_failure_logging.py -v --junitxml=docs/evidence/cc7-2/submission-capture/failure-logging-recheck.xml -o junit_logging=all
+
+============================= test session starts ==============================
+platform darwin -- Python 3.11.0, pytest-9.1.1, pluggy-1.6.0 -- /Users/cadensantiago/CPSC491-02Group8SportsBetting/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/cadensantiago/CPSC491-02Group8SportsBetting
+collecting ... collected 32 items
+
+tests/test_ingestion_failure_logging.py::test_row_failure_is_safe_counted_and_followed_by_success[IntegrityError-teams] PASSED [  3%]
+tests/test_ingestion_failure_logging.py::test_row_failure_is_safe_counted_and_followed_by_success[IntegrityError-players] PASSED [  6%]
+tests/test_ingestion_failure_logging.py::test_row_failure_is_safe_counted_and_followed_by_success[IntegrityError-games] PASSED [  9%]
+tests/test_ingestion_failure_logging.py::test_row_failure_is_safe_counted_and_followed_by_success[IntegrityError-player_game_stats] PASSED [ 12%]
+tests/test_ingestion_failure_logging.py::test_row_failure_is_safe_counted_and_followed_by_success[OperationalError-teams] PASSED [ 15%]
+tests/test_ingestion_failure_logging.py::test_row_failure_is_safe_counted_and_followed_by_success[OperationalError-players] PASSED [ 18%]
+tests/test_ingestion_failure_logging.py::test_row_failure_is_safe_counted_and_followed_by_success[OperationalError-games] PASSED [ 21%]
+tests/test_ingestion_failure_logging.py::test_row_failure_is_safe_counted_and_followed_by_success[OperationalError-player_game_stats] PASSED [ 25%]
+tests/test_ingestion_failure_logging.py::test_row_failure_is_safe_counted_and_followed_by_success[KeyError-teams] PASSED [ 28%]
+tests/test_ingestion_failure_logging.py::test_row_failure_is_safe_counted_and_followed_by_success[KeyError-players] PASSED [ 31%]
+tests/test_ingestion_failure_logging.py::test_row_failure_is_safe_counted_and_followed_by_success[KeyError-games] PASSED [ 34%]
+tests/test_ingestion_failure_logging.py::test_row_failure_is_safe_counted_and_followed_by_success[KeyError-player_game_stats] PASSED [ 37%]
+tests/test_ingestion_failure_logging.py::test_real_api_request_failure_is_safely_reported[Timeout] PASSED [ 40%]
+tests/test_ingestion_failure_logging.py::test_real_api_request_failure_is_safely_reported[HTTPError] PASSED [ 43%]
+tests/test_ingestion_failure_logging.py::test_database_connection_failure_is_safely_reported PASSED [ 46%]
+tests/test_ingestion_failure_logging.py::test_partial_stage_causes_nonzero_status[ingest_teams-ingestion] PASSED [ 50%]
+tests/test_ingestion_failure_logging.py::test_partial_stage_causes_nonzero_status[ingest_teams-backfill] PASSED [ 53%]
+tests/test_ingestion_failure_logging.py::test_partial_stage_causes_nonzero_status[ingest_players-ingestion] PASSED [ 56%]
+tests/test_ingestion_failure_logging.py::test_partial_stage_causes_nonzero_status[ingest_players-backfill] PASSED [ 59%]
+tests/test_ingestion_failure_logging.py::test_partial_stage_causes_nonzero_status[ingest_games-ingestion] PASSED [ 62%]
+tests/test_ingestion_failure_logging.py::test_partial_stage_causes_nonzero_status[ingest_games-backfill] PASSED [ 65%]
+tests/test_ingestion_failure_logging.py::test_partial_stage_causes_nonzero_status[ingest_player_game_stats-ingestion] PASSED [ 68%]
+tests/test_ingestion_failure_logging.py::test_partial_stage_causes_nonzero_status[ingest_player_game_stats-backfill] PASSED [ 71%]
+tests/test_ingestion_failure_logging.py::test_successful_command_returns_zero[ingestion] PASSED [ 75%]
+tests/test_ingestion_failure_logging.py::test_successful_command_returns_zero[backfill] PASSED [ 78%]
+tests/test_ingestion_failure_logging.py::test_backfill_catches_player_failure_without_leaking[Timeout] PASSED [ 81%]
+tests/test_ingestion_failure_logging.py::test_backfill_catches_player_failure_without_leaking[ValueError] PASSED [ 84%]
+tests/test_ingestion_failure_logging.py::test_backfill_catches_player_failure_without_leaking[OperationalError] PASSED [ 87%]
+tests/test_ingestion_failure_logging.py::test_backfill_continues_with_next_player PASSED [ 90%]
+tests/test_ingestion_failure_logging.py::test_empty_history_is_visible[ingestion] PASSED [ 93%]
+tests/test_ingestion_failure_logging.py::test_empty_history_is_visible[backfill] PASSED [ 96%]
+tests/test_ingestion_failure_logging.py::test_postprocessing_database_failure_is_safe PASSED [100%]
+
+- generated xml file: /Users/cadensantiago/CPSC491-02Group8SportsBetting/docs/evidence/cc7-2/submission-capture/failure-logging-recheck.xml -
+============================== 32 passed in 0.34s ==============================
+
+pytest_exit_status=0

@@ -1,5 +1,8 @@
 # ESPN NBA ingestion
 
+For append-only incremental refresh, persisted run outcomes and last-success
+timestamps, see [incremental refresh tracking](incremental_refresh_tracking.md).
+
 For model feature availability, inspected response samples, and the ML handoff
 CSV, see [ESPN feature availability](espn_feature_availability.md).
 

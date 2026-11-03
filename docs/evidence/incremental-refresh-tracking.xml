@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="45" time="0.911" timestamp="2026-11-02T17:29:27.518214-08:00" hostname="Cadens-MacBook-Pro-6.local"><testcase classname="tests.test_refresh_tracking" name="test_incremental_refresh_records_success_preserves_history_and_retries" time="0.054"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_refresh_tracking" name="test_failed_api_attempt_is_durable_and_does_not_advance_last_success" time="0.024"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:incremental_refresh.py:91 refresh_failed run_id=2 error_type=Timeout
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_refresh_tracking" name="test_failed_batch_rolls_back_all_games_and_stats_then_recovers" time="0.040"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:568 row_failed stage=player_game_stats row=2 error_type=InvalidTextRepresentation
+ERROR    data.ingestion:incremental_refresh.py:91 refresh_failed run_id=2 error_type=InFailedSqlTransaction
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_refresh_tracking" name="test_existing_values_and_legacy_game_identity_are_preserved" time="0.059"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_refresh_tracking" name="test_source_gap_is_filled_and_rolling_minutes_use_full_history" time="0.038"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_refresh_tracking" name="test_invalid_or_incomplete_refresh_cannot_become_success[empty]" time="0.024"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:incremental_refresh.py:91 refresh_failed run_id=2 error_type=ValueError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_refresh_tracking" name="test_invalid_or_incomplete_refresh_cannot_become_success[wrong-player]" time="0.022"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:incremental_refresh.py:91 refresh_failed run_id=2 error_type=ValueError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_refresh_tracking" name="test_invalid_or_incomplete_refresh_cannot_become_success[identity-conflict]" time="0.023"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:incremental_refresh.py:91 refresh_failed run_id=2 error_type=ValueError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_refresh_tracking" name="test_invalid_or_incomplete_refresh_cannot_become_success[duplicate]" time="0.025"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:incremental_refresh.py:91 refresh_failed run_id=2 error_type=ValueError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_refresh_tracking" name="test_invalid_or_incomplete_refresh_cannot_become_success[duplicate-provider-id]" time="0.025"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:incremental_refresh.py:91 refresh_failed run_id=2 error_type=ValueError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_refresh_tracking" name="test_invalid_or_incomplete_refresh_cannot_become_success[negative]" time="0.024"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:incremental_refresh.py:91 refresh_failed run_id=2 error_type=ValueError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_refresh_tracking" name="test_invalid_or_incomplete_refresh_cannot_become_success[nan]" time="0.025"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:incremental_refresh.py:91 refresh_failed run_id=2 error_type=ValueError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_refresh_tracking" name="test_invalid_or_incomplete_refresh_cannot_become_success[future]" time="0.025"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:incremental_refresh.py:91 refresh_failed run_id=2 error_type=ValueError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_refresh_tracking" name="test_invalid_or_incomplete_refresh_cannot_become_success[postprocessing]" time="0.027"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:incremental_refresh.py:91 refresh_failed run_id=2 error_type=OperationalError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_refresh_tracking" name="test_interrupted_write_rolls_back_and_leaves_visible_running_attempt" time="0.029"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_refresh_tracking" name="test_status_separates_scope_latest_failure_and_stale_success" time="0.022"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_refresh_tracking" name="test_invalid_scope_is_rejected_before_database_access[0-2024-25]" time="0.000"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_refresh_tracking" name="test_invalid_scope_is_rejected_before_database_access[-1-2024-25]" time="0.000"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_refresh_tracking" name="test_invalid_scope_is_rejected_before_database_access[201939-2024-26]" time="0.000"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_refresh_tracking" name="test_status_command_reports_monitoring_exit_status[succeeded-False-0]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_refresh_tracking" name="test_status_command_reports_monitoring_exit_status[failed-False-1]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_refresh_tracking" name="test_status_command_reports_monitoring_exit_status[running-False-1]" time="0.000"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_refresh_tracking" name="test_status_command_reports_monitoring_exit_status[succeeded-True-1]" time="0.000"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_refresh_tracking" name="test_status_command_reports_monitoring_exit_status[None-True-1]" time="0.000"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_incremental_refresh" name="test_incremental_insert_and_retry_preserve_history" time="0.025"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_incremental_refresh" name="test_failed_refresh_retains_history_and_recovers" time="0.025"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:568 row_failed stage=player_game_stats row=1 error_type=ForeignKeyViolation
+ERROR    data.ingestion:check_data_freshness.py:37 freshness_anomaly player_id=201939 reason=missing_expected_game expected_date=2025-01-03 latest=2025-01-01 delay_days=3 threshold_days=2
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_incremental_refresh" name="test_changed_game_identity_cannot_overwrite_history" time="0.031"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:384 row_failed stage=games row=1 error_type=ValueError
+ERROR    data.ingestion:database_ingestion.py:568 row_failed stage=player_game_stats row=1 error_type=ValueError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_incremental_refresh" name="test_failed_update_preserves_existing_values" time="0.023"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:568 row_failed stage=player_game_stats row=1 error_type=InvalidTextRepresentation
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_incremental_refresh" name="test_truncated_refresh_does_not_delete_history" time="0.026"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_incremental_refresh" name="test_freshness_monitor_cannot_hide_missing_date_with_newer_data" time="0.021"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:check_data_freshness.py:37 freshness_anomaly player_id=201939 reason=missing_expected_game expected_date=2025-01-03 latest=2025-01-05 delay_days=3 threshold_days=2
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_freshness_threshold_and_missing_game[latest0-1-10-0-freshness_ok]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+INFO     data.ingestion:check_data_freshness.py:33 freshness_ok player_id=101 expected_date=2025-01-10 latest=2025-01-10
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_freshness_threshold_and_missing_game[latest1-1-20-0-freshness_ok]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+INFO     data.ingestion:check_data_freshness.py:33 freshness_ok player_id=101 expected_date=2025-01-10 latest=2025-01-10
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_freshness_threshold_and_missing_game[latest2-0-10-0-refresh_pending]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+WARNING  data.ingestion:check_data_freshness.py:42 refresh_pending player_id=101 expected_date=2025-01-10 latest=2025-01-09 delay_days=0 threshold_days=2
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_freshness_threshold_and_missing_game[latest3-0-12-0-refresh_pending]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+WARNING  data.ingestion:check_data_freshness.py:42 refresh_pending player_id=101 expected_date=2025-01-10 latest=2025-01-09 delay_days=2 threshold_days=2
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_freshness_threshold_and_missing_game[latest4-0-13-1-missing_expected_game]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:check_data_freshness.py:37 freshness_anomaly player_id=101 reason=missing_expected_game expected_date=2025-01-10 latest=2025-01-09 delay_days=3 threshold_days=2
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_freshness_threshold_and_missing_game[None-0-13-1-missing_expected_game]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:check_data_freshness.py:37 freshness_anomaly player_id=101 reason=missing_expected_game expected_date=2025-01-10 latest=None delay_days=3 threshold_days=2
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_freshness_threshold_and_missing_game[None-0-10-0-refresh_pending]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+WARNING  data.ingestion:check_data_freshness.py:42 refresh_pending player_id=101 expected_date=2025-01-10 latest=None delay_days=0 threshold_days=2
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_freshness_threshold_and_missing_game[latest7-0-13-1-missing_expected_game]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:check_data_freshness.py:37 freshness_anomaly player_id=101 reason=missing_expected_game expected_date=2025-01-10 latest=2025-01-12 delay_days=3 threshold_days=2
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_freshness_threshold_and_missing_game[latest8-1-13-1-future_record]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:check_data_freshness.py:27 freshness_anomaly player_id=101 reason=future_record latest=2025-01-20
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_freshness_threshold_and_missing_game[latest9-2-13-1-multiple_appearances]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:check_data_freshness.py:30 freshness_anomaly player_id=101 reason=multiple_appearances expected_date=2025-01-10
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_invalid_scope_is_rejected_before_query[0-expected0]" time="0.000"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_invalid_scope_is_rejected_before_query[-1-expected1]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_invalid_scope_is_rejected_before_query[1-expected2]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_command_uses_read_only_transaction" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_database_failure_has_safe_nonzero_result" time="0.000"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:monitoring.py:20 ingestion_failed command=scripts.check_data_freshness error_type=OperationalError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase></testsuite></testsuites>

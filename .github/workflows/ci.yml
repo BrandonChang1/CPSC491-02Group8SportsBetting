@@ -197,6 +197,12 @@ jobs:
           CI: ""
         run: npm run test:e2e
 
+      - name: Validate incremental refresh tracking
+        run: >-
+          python -m pytest tests/test_refresh_tracking.py tests/test_incremental_refresh.py
+          tests/test_data_freshness.py -v
+          --junitxml=assessment-results/incremental-refresh.xml -o junit_logging=all
+
       # -----------------------------------------
       # Sprint 3 Data & Storage regression tests
       # -----------------------------------------
@@ -219,7 +225,8 @@ jobs:
             --ignore=tests/test_pipeline_anomalies.py \
             --ignore=tests/test_ingestion_failure_logging.py \
             --ignore=tests/test_data_freshness.py \
-            --ignore=tests/test_incremental_refresh.py
+            --ignore=tests/test_incremental_refresh.py \
+            --ignore=tests/test_refresh_tracking.py
 
       # -----------------------------------------
       # Versioning
@@ -301,6 +308,7 @@ jobs:
           path: |
             test-results/**/*.xml
             test-results/**/*.json
+            assessment-results/*.xml
           if-no-files-found: warn
           retention-days: 30
 

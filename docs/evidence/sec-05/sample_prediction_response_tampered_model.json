@@ -1,0 +1,10 @@
+{
+  "request": "GET /api/players/9300001/prediction",
+  "status": 503,
+  "body": {
+    "success": false,
+    "errorCode": "hash_mismatch",
+    "message": "Trained points model unavailable: the model failed integrity verification.",
+    "source": "database"
+  }
+}

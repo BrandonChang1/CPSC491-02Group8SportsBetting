@@ -51,13 +51,20 @@ GIT_SHA_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 class ModelIntegrityError(Exception):
     """Base class: the artifact failed verification and must not be used."""
 
+    # Stable, client-safe identifier for the failure (messages may contain paths).
+    code = "model_integrity_error"
+
 
 class ManifestMissingError(ModelIntegrityError):
     """No manifest file exists for the artifact."""
 
+    code = "manifest_missing"
+
 
 class IncompleteManifestError(ModelIntegrityError):
     """The manifest is unreadable or has missing, empty or malformed fields."""
+
+    code = "manifest_incomplete"
 
     def __init__(self, problems):
         self.problems = list(problems)
@@ -67,13 +74,19 @@ class IncompleteManifestError(ModelIntegrityError):
 class ModelHashMismatchError(ModelIntegrityError):
     """The artifact bytes do not match the manifest's model_sha256."""
 
+    code = "hash_mismatch"
+
 
 class IncompatibleModelVersionError(ModelIntegrityError):
     """The manifest's model_version is not one this code supports."""
 
+    code = "incompatible_model_version"
+
 
 class FeatureSchemaMismatchError(ModelIntegrityError):
     """The model's feature schema differs from what the prediction code sends."""
+
+    code = "feature_schema_mismatch"
 
 
 @dataclass(frozen=True)
@@ -104,16 +117,19 @@ def git_commit_sha(artifact_path):
 
     A committed, unmodified artifact maps to the last commit that changed it, so
     manifests for already-trained models point at the code that produced them.
-    A new or modified artifact maps to HEAD.
+    A new, modified or out-of-repo artifact maps to HEAD.
     """
     def git(*args):
         return subprocess.run(["git", *args], cwd=REPO_ROOT, capture_output=True, text=True, check=True).stdout.strip()
 
     path = str(Path(artifact_path).resolve())
-    if not git("status", "--porcelain", "--", path):
-        last_change = git("log", "-1", "--format=%H", "--", path)
-        if last_change:
-            return last_change
+    try:
+        if not git("status", "--porcelain", "--", path):
+            last_change = git("log", "-1", "--format=%H", "--", path)
+            if last_change:
+                return last_change
+    except subprocess.CalledProcessError:
+        pass  # path is outside the repository
     return git("rev-parse", "HEAD")
 
 

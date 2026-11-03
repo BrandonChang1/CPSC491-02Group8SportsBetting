@@ -74,7 +74,15 @@ def predict(games):
         estimate = float(model.artifact["pipeline"].predict(pd.DataFrame([features])[feature_names])[0])
         if not math.isfinite(estimate):
             raise ValueError("Saved model returned an invalid estimate")
-    except (ModelIntegrityError, OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
+    except ModelIntegrityError as exc:
+        # Full details (paths, hashes) go to the server log, not the API client.
+        print(f"Model integrity verification failed: {exc}", file=sys.stderr)
+        return {
+            "success": False,
+            "errorCode": exc.code,
+            "message": "Trained points model unavailable: the model failed integrity verification.",
+        }
+    except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
         return {"success": False, "message": f"Trained points model unavailable: {exc}"}
 
     return {

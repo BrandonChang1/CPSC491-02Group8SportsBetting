@@ -89,7 +89,7 @@ def test_recent_minutes_passed_to_trained_model(monkeypatch):
             return [22.35]
 
     monkeypatch.setattr(predict_player, "load_model", lambda: VerifiedModel(
-        artifact={"pipeline": FakePipeline()}, manifest={}, model_version="linear-regression-points-v1",
+        artifact={"pipeline": FakePipeline()}, manifest={}, model_version="random-forest-points-v1",
     ))
     result = predict_player.predict([
         {"game_date": "2026-01-01", "points": 10, "minutes": 20},

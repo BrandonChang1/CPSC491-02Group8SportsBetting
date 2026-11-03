@@ -194,10 +194,10 @@ def test_artifact_features_disagreeing_with_manifest_are_rejected(tmp_path, monk
 
 
 @pytest.mark.parametrize("version", [
-    pytest.param("linear-regression-points-v2", id="unsupported-major"),
-    pytest.param("linear-regression-points-v0.9.0", id="older-major"),
-    pytest.param("random-forest-points-v1", id="different-model"),
-    pytest.param("linear-regression-points-1", id="malformed"),
+    pytest.param("random-forest-points-v2", id="unsupported-major"),
+    pytest.param("random-forest-points-v0.9.0", id="older-major"),
+    pytest.param("linear-regression-points-v1", id="different-model"),
+    pytest.param("random-forest-points-1", id="malformed"),
 ])
 def test_incompatible_model_version_is_rejected(approved_model, version, monkeypatch, deserialize_calls):
     manifest = approved_model.manifest

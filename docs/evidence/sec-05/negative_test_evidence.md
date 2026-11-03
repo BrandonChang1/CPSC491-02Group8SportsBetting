@@ -1,6 +1,6 @@
 # SEC-05 negative-test evidence (SCRUM-111, SCRUM-113)
 
-**Date:** 2026-10-26 · **Branch:** `swayam` · **Suite:** `tests/test_model_integrity.py`
+**Date:** 2026-10-26, re-run 2026-11-02 for the random forest model · **Branch:** `swayam` · **Suite:** `tests/test_model_integrity.py`
 **Raw output:** [pytest_output.txt](pytest_output.txt) (43 passed) · [backend_api_test_output.txt](backend_api_test_output.txt) (1 passed)
 
 Every test builds its own small model and approved manifest in pytest's `tmp_path` (`tests/conftest.py`), then breaks one thing. Each negative test asserts three things:
@@ -21,11 +21,11 @@ Every test builds its own small model and approved manifest in pytest's `tmp_pat
 | 15 | Missing manifest | Manifest file deleted | `ManifestMissingError` (`manifest_missing`) | **PASS** |
 | 16–20 | Incompatible feature schema | Reordered; `is_home` dtype changed; feature removed; extra feature added; feature renamed | `FeatureSchemaMismatchError` (`feature_schema_mismatch`) | **PASS** (5 of 5) |
 | 21 | Bundle features disagree with manifest | Valid manifest and hash, but the bundle's own feature order is reversed | `FeatureSchemaMismatchError`, raised after the bytes are verified and before the model is returned | **PASS** |
-| 22–25 | Incompatible model_version | `…-v2`; `…-v0.9.0`; `random-forest-points-v1`; malformed `…-points-1` | `IncompatibleModelVersionError` (`incompatible_model_version`) | **PASS** (4 of 4) |
+| 22–25 | Incompatible model_version | `…-v2`; `…-v0.9.0`; `linear-regression-points-v1`; malformed `…-points-1` | `IncompatibleModelVersionError` (`incompatible_model_version`) | **PASS** (4 of 4) |
 
 **Positive controls (same fixtures):**
 - An approved model loads and returns `VerifiedModel` with the manifest's version (1 deserialization).
-- `predict()` returns a prediction with `modelVersion` equal to the manifest's `linear-regression-points-v1.2.0`.
+- `predict()` returns a prediction with `modelVersion` equal to the manifest's `random-forest-points-v1.2.0`.
 
 **Do the tests catch real failures?** I disabled the hash comparison in `load_verified_model`: cases 1–4 failed. I disabled the schema comparison: cases 16–20 failed. Both checks were restored afterward.
 
@@ -39,7 +39,7 @@ Every test builds its own small model and approved manifest in pytest's `tmp_pat
 
 | Case | File | Result |
 |------|------|--------|
-| Approved model | [sample_prediction_response.json](sample_prediction_response.json) | `200`, `modelVersion: "linear-regression-points-v1"`, matching the approved manifest |
+| Approved model | [sample_prediction_response.json](sample_prediction_response.json) | `200`, `modelVersion: "random-forest-points-v1"`, matching the approved manifest |
 | Tampered model (one bit flipped, in a scratch copy of the code) | [sample_prediction_response_tampered_model.json](sample_prediction_response_tampered_model.json) | `503`, `errorCode: "hash_mismatch"`, no `predictedPoints` or `modelVersion` |
 
 ## Reproduce

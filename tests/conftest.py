@@ -14,7 +14,7 @@ from sklearn.pipeline import Pipeline
 from data.collection import espn
 from ml import model_integrity, predict_player
 
-FIXTURE_MODEL_VERSION = "linear-regression-points-v1.2.0"
+FIXTURE_MODEL_VERSION = "random-forest-points-v1.2.0"
 FIXTURE_COMMIT = "0" * 40
 FIXTURES = Path(__file__).with_name("fixtures")
 

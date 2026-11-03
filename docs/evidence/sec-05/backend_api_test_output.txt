@@ -1,7 +1,7 @@
-# SEC-05 backend API test — 2026-10-27T01:03Z
+# SEC-05 backend API test — 2026-11-03T00:44Z
 # PYTHON_COMMAND=<venv python> node --test backend/tests/predictionsApi.test.js
 
-✔ GET /api/players/:id/prediction returns the approved manifest's model_version (1818.072416ms)
+✔ GET /api/players/:id/prediction returns the approved manifest's model_version (2036.958042ms)
 ℹ tests 1
 ℹ suites 0
 ℹ pass 1
@@ -9,4 +9,4 @@
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 2055.276458
+ℹ duration_ms 2243.079875

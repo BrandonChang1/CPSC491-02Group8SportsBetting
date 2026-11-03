@@ -3,12 +3,12 @@
   "status": 200,
   "body": {
     "success": true,
-    "predictedPoints": 23.05,
-    "modelVersion": "linear-regression-points-v1",
+    "predictedPoints": 22.46,
+    "modelVersion": "random-forest-points-v1",
     "missingContext": [
       "is_home"
     ],
-    "model": "Trained linear regression (points)",
+    "model": "Trained random forest (tree-based points regression)",
     "season": "2025-26",
     "lastGameDate": "2026-01-05",
     "gamesAvailable": 3,

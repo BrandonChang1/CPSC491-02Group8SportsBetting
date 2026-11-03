@@ -42,7 +42,7 @@ REQUIRED_FIELDS = {
     "evaluation_metrics": dict,
 }
 
-# e.g. "linear-regression-points-v1" or "linear-regression-points-v1.2.0"
+# e.g. "random-forest-points-v1" or "random-forest-points-v1.2.0"
 MODEL_VERSION_PATTERN = re.compile(r"^(?P<name>[a-z0-9]+(?:-[a-z0-9]+)*)-v(?P<major>\d+)(?:\.\d+){0,2}$")
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 GIT_SHA_PATTERN = re.compile(r"^[0-9a-f]{40}$")

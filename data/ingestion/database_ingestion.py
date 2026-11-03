@@ -3,8 +3,9 @@ import os
 import pandas as pd
 import psycopg
 from dotenv import load_dotenv
-from nba_api.stats.static import players, teams
 
+from data.collection import espn as players
+from data.collection import espn as teams
 from data.collection.nba_game_logs import fetch_player_game_log
 from data.processing.modeling_features import add_modeling_context
 
@@ -132,6 +133,38 @@ def ingest_teams() -> dict:
     }
 
 
+# Historical estimates only fill missing assignments; ESPN rosters take priority.
+TEAM_ID_BACKFILL_SQL = """
+    WITH latest_team AS (
+        SELECT DISTINCT ON (s.player_id)
+            s.player_id,
+            t.id AS team_id
+        FROM player_game_stats s
+        JOIN games g ON g.id = s.game_id
+        JOIN teams t ON t.abbreviation =
+            split_part(trim(s.matchup), ' ', 1)
+        WHERE s.matchup IS NOT NULL
+          AND (s.matchup LIKE '% vs. %' OR s.matchup LIKE '% @ %')
+        ORDER BY s.player_id, g.game_date DESC, s.game_id DESC
+    )
+    UPDATE players p
+    SET team_id = lt.team_id
+    FROM latest_team lt
+    WHERE p.id = lt.player_id
+      AND p.team_id IS NULL
+"""
+
+
+def refresh_player_team_ids() -> int:
+    """Fill missing teams from each player's latest stored matchup.
+
+    It does not create teams or query live NBA rosters.
+    """
+    with psycopg.connect(get_database_url(), autocommit=True) as connection:
+        result = connection.execute(TEAM_ID_BACKFILL_SQL)
+        return result.rowcount
+
+
 def ingest_players() -> dict:
     """
     Retrieve NBA players and insert them into PostgreSQL.
@@ -162,15 +195,17 @@ def ingest_players() -> dict:
                         full_name,
                         first_name,
                         last_name,
-                        is_active
+                        is_active,
+                        team_id
                     )
-                    VALUES (%s, %s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s, %s)
                     ON CONFLICT (id)
                     DO UPDATE SET
                         full_name = EXCLUDED.full_name,
                         first_name = EXCLUDED.first_name,
                         last_name = EXCLUDED.last_name,
-                        is_active = EXCLUDED.is_active
+                        is_active = EXCLUDED.is_active,
+                        team_id = COALESCE(EXCLUDED.team_id, players.team_id)
                     """,
                     (
                         player["id"],
@@ -178,6 +213,7 @@ def ingest_players() -> dict:
                         player["first_name"],
                         player["last_name"],
                         player["is_active"],
+                        player["team_id"],
                     ),
                 )
 
@@ -243,6 +279,26 @@ def get_team_id_map(connection) -> dict:
         for team_id, abbreviation in rows
     }
 
+
+def canonical_game_id(connection, row, team_ids):
+    """Reuse NBA-era game IDs for the same date and home/away teams."""
+    home, away = parse_matchup(row["matchup"])
+    home_id, away_id = team_ids[home], team_ids[away]
+    date = pd.Timestamp(row["game_date"]).date()
+    matches = connection.execute(
+        """SELECT id, game_date, home_team_id, away_team_id FROM games
+           WHERE id = %s OR (game_date = %s AND home_team_id = %s AND away_team_id = %s)""",
+        (row["game_id"], date, home_id, away_id),
+    ).fetchall()
+    if len(matches) > 1:
+        raise ValueError("Ambiguous game mapping; reconcile existing duplicate games first")
+    if not matches:
+        return row["game_id"]
+    game_id, stored_date, stored_home, stored_away = matches[0]
+    if (stored_date, stored_home, stored_away) != (date, home_id, away_id):
+        raise ValueError(f"Game identity mismatch: {game_id}")
+    return game_id
+
 def ingest_games(game_logs) -> dict:
     """
     Insert games from a cleaned player game-log DataFrame.
@@ -294,6 +350,8 @@ def ingest_games(game_logs) -> dict:
                         f"{away_abbreviation}"
                     )
 
+                game_id = canonical_game_id(connection, row, team_ids)
+
                 connection.execute(
                     """
                     INSERT INTO games (
@@ -311,7 +369,7 @@ def ingest_games(game_logs) -> dict:
                         away_team_id = EXCLUDED.away_team_id
                     """,
                     (
-                        row["game_id"],
+                        game_id,
                         row["game_date"],
                         home_team_id,
                         away_team_id,
@@ -375,6 +433,8 @@ def ingest_player_game_stats(game_logs) -> dict:
                         "Unknown opponent team abbreviation: "
                         f"{row['opponent_abbreviation']}"
                     )
+
+                game_id = canonical_game_id(connection, row, team_ids)
 
                 # pandas represents the first unavailable rolling average
                 # as NaN. Convert only that NaN value to SQL NULL.
@@ -469,7 +529,7 @@ def ingest_player_game_stats(game_logs) -> dict:
                     """,
                     (
                         row["player_id"],
-                        row["game_id"],
+                        game_id,
                         row["minutes"],
                         row["points"],
                         row["rebounds"],
@@ -514,6 +574,11 @@ def ingest_player_game_stats(game_logs) -> dict:
                     f"{row.get('game_id', 'unknown')}: "
                     f"{error}"
                 )
+
+    # Refresh recorded team associations after stats have been inserted.
+    # Do not silently swallow a database error: ingestion should report it.
+    if successful:
+        refresh_player_team_ids()
 
     return {
         "processed": processed,

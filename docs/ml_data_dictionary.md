@@ -1,7 +1,7 @@
 # NBA ML Data Dictionary
 
 ## Source
-nba_api PlayerGameLog endpoint
+ESPN athlete game logs and event box scores (see [ESPN ingestion](espn_ingestion.md))
 
 ## Raw available fields
 SEASON_ID

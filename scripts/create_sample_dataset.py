@@ -1,7 +1,6 @@
 from pathlib import Path
 
-from nba_api.stats.static import players
-
+from data.collection import espn as players
 from data.collection.nba_game_logs import fetch_player_game_log
 
 

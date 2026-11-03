@@ -13,7 +13,7 @@ test("player analytics controls are present", async ({ page }) => {
     await page.goto("/player-search.html");
     await expect(page.getByTestId("player-search-heading")).toBeVisible();
     await expect(page.getByTestId("player-search-input")).toBeVisible();
-    await expect(page.getByTestId("player-predictions")).toBeVisible();
+    await expect(page.getByTestId("player-predictions").first()).toBeVisible();
     await page.getByTestId("review-last-10").check();
     await expect(page.getByTestId("review-last-10")).toBeChecked();
 });

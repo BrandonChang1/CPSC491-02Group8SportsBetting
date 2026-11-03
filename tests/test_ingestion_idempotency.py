@@ -1,10 +1,13 @@
 import os
+from contextlib import nullcontext
+from pathlib import Path
 
 import pandas as pd
 import psycopg
 import pytest
 from dotenv import load_dotenv
 
+from data.ingestion import database_ingestion as ingestion
 from data.ingestion.database_ingestion import (
     ingest_games,
     ingest_player_game_stats,
@@ -17,6 +20,44 @@ TEST_PLAYER_ID = 999999001
 TEST_HOME_TEAM_ID = 999999101
 TEST_AWAY_TEAM_ID = 999999102
 TEST_GAME_ID = "TEST640001"
+
+
+def test_roster_teams_override_history_and_survive_backfill(database_url, monkeypatch):
+    # Temporary tables keep this regression isolated from stored player data.
+    with psycopg.connect(database_url) as connection:
+        schema = Path("database/schema.sql").read_text()
+        connection.execute(schema.replace("CREATE TABLE", "CREATE TEMP TABLE"))
+        connection.execute("""
+            INSERT INTO teams (id, full_name, abbreviation)
+            VALUES (1, 'Old Team', 'OLD'), (2, 'New Team', 'NEW');
+            INSERT INTO players (id, full_name, is_active)
+            VALUES (101, 'Historical Player', FALSE);
+            INSERT INTO games (id, game_date, home_team_id, away_team_id)
+            VALUES ('roster-test', '2025-01-01', 1, 2);
+            INSERT INTO player_game_stats (player_id, game_id, matchup)
+            VALUES (101, 'roster-test', 'OLD vs. NEW');
+        """)
+        roster = [{
+            "id": 100, "full_name": "Roster Player", "first_name": "Roster",
+            "last_name": "Player", "is_active": True, "team_id": 1,
+        }]
+        with monkeypatch.context() as patch:
+            patch.setattr(ingestion.players, "get_players", lambda: roster)
+            patch.setattr(ingestion.psycopg, "connect", lambda *a, **kw: nullcontext(connection))
+            assert ingestion.ingest_players() == {"processed": 1, "successful": 1, "failed": 0}
+            assert connection.execute("SELECT team_id FROM players WHERE id=100").fetchone() == (1,)
+            connection.execute("""
+                INSERT INTO player_game_stats (player_id, game_id, matchup)
+                VALUES (100, 'roster-test', 'OLD vs. NEW')
+            """)
+            roster[0]["team_id"] = 2
+            for _ in range(2):
+                assert ingestion.ingest_players()["successful"] == 1
+                ingestion.refresh_player_team_ids()
+                assert connection.execute("SELECT team_id FROM players ORDER BY id").fetchall() == [(2,), (1,)]
+            migration = Path("database/migrations/004_backfill_player_team_ids.sql").read_text()
+            connection.execute(migration)
+            assert connection.execute("SELECT team_id FROM players WHERE id=100").fetchone() == (2,)
 
 
 @pytest.fixture
@@ -296,3 +337,53 @@ def test_duplicate_player_game_records_remain_zero(
         ).fetchall()
 
     assert duplicates == []
+
+def test_espn_reingestion_reuses_legacy_game_id(database_url, controlled_game_logs):
+    """Switching providers must retain the original game and player-stat identity."""
+    ingest_games(controlled_game_logs)
+    ingest_player_game_stats(controlled_game_logs)
+    before = get_stored_values(database_url)
+    espn_logs = controlled_game_logs.copy()
+    espn_logs["game_id"] = "espn:401999999"
+
+    for _ in range(2):
+        assert ingest_games(espn_logs)["failed"] == 0
+        assert ingest_player_game_stats(espn_logs)["failed"] == 0
+
+    assert get_game_count(database_url) == 1
+    assert get_player_game_count(database_url) == 1
+    assert get_stored_values(database_url) == before
+    with psycopg.connect(database_url) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM games WHERE id = %s", ("espn:401999999",)).fetchone()[0] == 0
+
+
+def test_game_identity_mismatch_does_not_overwrite_history(database_url, controlled_game_logs):
+    ingest_games(controlled_game_logs)
+    ingest_player_game_stats(controlled_game_logs)
+    before = get_stored_values(database_url)
+    wrong_date = controlled_game_logs.copy()
+    wrong_date["game_date"] = pd.Timestamp("2025-01-02")
+    assert ingest_games(wrong_date)["failed"] == 1
+    assert ingest_player_game_stats(wrong_date)["failed"] == 1
+    assert get_stored_values(database_url) == before
+    with psycopg.connect(database_url) as connection:
+        assert str(connection.execute("SELECT game_date FROM games WHERE id = %s", (TEST_GAME_ID,)).fetchone()[0]) == "2025-01-01"
+
+
+def test_full_espn_response_reuses_legacy_database_record(database_url, controlled_game_logs, espn_responses):
+    from data.collection.nba_game_logs import fetch_player_game_log
+
+    assert ingest_games(controlled_game_logs)["failed"] == 0
+    logs = fetch_player_game_log(201939, "2024-25").assign(
+        player_id=TEST_PLAYER_ID,
+        game_date=pd.Timestamp("2025-01-01"),
+        matchup="T64H vs. T64A",
+    )
+    for _ in range(2):
+        assert ingest_games(logs)["failed"] == 0
+        assert ingest_player_game_stats(logs)["failed"] == 0
+    assert get_game_count(database_url) == 1
+    assert get_player_game_count(database_url) == 1
+    values = get_stored_values(database_url)
+    assert values[:4] == (38, 36, 3, 6)
+    assert values[5:] == (TEST_AWAY_TEAM_ID, True)

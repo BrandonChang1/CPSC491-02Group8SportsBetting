@@ -26,6 +26,9 @@ CREATE TABLE games (
     CHECK (home_team_id <> away_team_id)
 );
 
+CREATE UNIQUE INDEX games_date_teams_unique
+    ON games (game_date, home_team_id, away_team_id);
+
 CREATE TABLE player_game_stats (
     player_id BIGINT NOT NULL,
     game_id VARCHAR(20) NOT NULL,

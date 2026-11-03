@@ -10,6 +10,7 @@ const { router: authRouter, requireAuth } = require("./backend/app/routes/auth")
 const { notFoundHandler, errorHandler } = require("./backend/app/middleware/errorHandler");
 
 const { fetchRecentTeamRecords, addPredictions } = require("./backend/app/services/teamWinPrediction");
+const { fetchTreeTeamEstimates, estimateMatchup } = require("./backend/app/services/treeTeamPrediction");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -342,12 +343,72 @@ app.get("/player-stats", (req, res) => {
     );
 });
 
+// Schedule endpoint used by public/upcoming-games.html.
+// Keep it separate from the experimental prediction endpoint.
+app.get("/api/upcoming-games", async (_req, res) => {
+    try {
+        const games = await getRealUpcomingGames();
+        return res.json({ success: true, count: games.length, games });
+    } catch (error) {
+        console.error("Unable to load NBA schedule:", error);
+        return res.status(502).json({
+            success: false,
+            message: error.message || "Unable to retrieve NBA schedule.",
+            count: 0,
+            games: []
+        });
+    }
+});
+
 // Game-specific baseline probabilities, independent of simulated betting odds.
 app.get("/api/upcoming-games/predictions", async (req, res) => {
     try {
         const games = await getRealUpcomingGames();
-        const records = await fetchRecentTeamRecords();
-        return res.json({ success: true, games: addPredictions(games, records) });
+        // Prefer player point forecasts from the existing Random Forest model.
+        // Keep the previous recent-results estimate as a fallback when player
+        // coverage is incomplete or the model/database is unavailable.
+        let projected = new Map();
+        let treeError = null;
+        try {
+            projected = await fetchTreeTeamEstimates();
+        } catch (error) {
+            treeError = error.message;
+            console.warn("Tree team prediction unavailable, trying historical-results fallback:", error.message);
+        }
+        const treeGames = games.map(game => ({
+            ...game,
+            winPrediction: estimateMatchup(
+                projected.get(String(game.awayTeam?.tricode || '').toUpperCase()),
+                projected.get(String(game.homeTeam?.tricode || '').toUpperCase())
+            )
+        }));
+        if (treeGames.every(game => game.winPrediction)) {
+            return res.json({ success: true, games: treeGames });
+        }
+        let historical = treeGames;
+        let historicalError = null;
+        try {
+            historical = addPredictions(games, await fetchRecentTeamRecords());
+        } catch (error) {
+            historicalError = error.message;
+            console.warn("Historical team records unavailable:", error.message);
+        }
+        return res.json({
+            success: true,
+            games: treeGames.map((game, i) => ({
+                ...game,
+                winPrediction: game.winPrediction || historical[i].winPrediction || null,
+                predictionStatus: game.winPrediction || historical[i].winPrediction ? null : {
+                    reason: treeError ? 'tree_model_error' : 'insufficient_player_coverage',
+                    message: treeError || 'No usable Random Forest player projections for both teams in the local database.',
+                    playerForecasts: {
+                        away: projected.get(String(game.awayTeam?.tricode || '').toUpperCase())?.playersUsed || 0,
+                        home: projected.get(String(game.homeTeam?.tricode || '').toUpperCase())?.playersUsed || 0
+                    },
+                    teamResultsFallback: historicalError || 'Fewer than three recent results for at least one team.'
+                }
+            }))
+        });
     } catch (error) {
         console.error("Unable to estimate upcoming games:", error);
         return res.status(503).json({ success: false, message: "Upcoming-game estimates are temporarily unavailable.", games: [] });

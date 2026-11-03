@@ -4,7 +4,7 @@ const asyncHandler = require("../asyncHandler");
 const { parsePagination, parseIntParam } = require("../validators");
 const { NotFoundError } = require("../errors");
 const { getPlayerPrediction } = require("../services/prediction");
-
+const { requireAuth } = require("./auth");
 const router = express.Router();
 
 /**
@@ -117,6 +117,7 @@ router.get(
  */
 router.get(
   "/players/:id/prediction",
+  requireAuth,
   asyncHandler(async (req, res) => {
     const id = parseIntParam(req.params.id, "player id");
     res.json(await getPlayerPrediction(id));

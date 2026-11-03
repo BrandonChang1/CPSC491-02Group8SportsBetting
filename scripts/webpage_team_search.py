@@ -1,8 +1,10 @@
 import json
 import sys
+from pathlib import Path
 
-from nba_api.stats.endpoints import teamgamelog
-from nba_api.stats.static import teams
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from data.collection import espn as teams
 
 
 def find_team(team_name):
@@ -51,43 +53,13 @@ def main():
             }))
             return
 
-        team_id = team["id"]
-
-        game_log = teamgamelog.TeamGameLog(
-            team_id=team_id,
-            season="2025-26"
-        )
-
-        df = game_log.get_data_frames()[0]
-
-        columns_to_return = [
-            "GAME_DATE",
-            "MATCHUP",
-            "WL",
-            "W",
-            "L",
-            "PTS",
-            "REB",
-            "AST"
-        ]
-
-        # Keep only columns that actually exist
-        available_columns = [
-            column
-            for column in columns_to_return
-            if column in df.columns
-        ]
-
-        df = df[available_columns]
-
-        # Limit output for testing
-        df = df.head(10)
+        games = teams.team_game_log(team, "2025-26")
 
         result = {
             "success": True,
             "message": (
                 f"Found {team['full_name']}. "
-                f"Retrieved {len(df)} games."
+                f"Retrieved {len(games)} games."
             ),
             "team": {
                 "id": team["id"],
@@ -96,7 +68,7 @@ def main():
                 "city": team["city"],
                 "nickname": team["nickname"]
             },
-            "data": df.to_dict(orient="records")
+            "data": games
         }
 
         print(json.dumps(result))

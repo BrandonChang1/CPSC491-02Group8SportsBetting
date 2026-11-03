@@ -2,9 +2,8 @@
 import json
 import sys
 from datetime import UTC, datetime
-from unittest.mock import MagicMock
+from unittest.mock import Mock
 
-import pandas as pd
 import pytest
 
 from ml import fetch_nba_history
@@ -22,22 +21,26 @@ def test_seasons_to_try_before_season_start():
 
 def test_fetch_games_sorts_deduplicates_and_cleans(monkeypatch):
     monkeypatch.setattr(fetch_nba_history, "seasons_to_try", lambda: ["2025-26", "2024-25"])
+    def event(date, points):
+        return {"gameDate": date, "stats": {"points": points}}
+
     frames = {
-        "2025-26": pd.DataFrame([
-            {"GAME_DATE": "2025-10-24", "Game_ID": "002", "PTS": "30"},
-            {"GAME_DATE": "2025-10-22", "Game_ID": "001", "PTS": "20"},
-            {"GAME_DATE": "2025-10-23", "Game_ID": "bad", "PTS": "n/a"},
-            {"GAME_DATE": "2025-10-25", "Game_ID": "nan", "PTS": float("nan")},
-            {"GAME_DATE": "", "Game_ID": "empty", "PTS": 14},
-        ]),
-        "2024-25": pd.DataFrame([
-            {"GAME_DATE": "2025-10-22", "Game_ID": "001", "PTS": 21},
-            {"GAME_DATE": "2025-04-01", "Game_ID": "old", "PTS": 10},
-        ]),
+        "2025-26": {
+            "002": event("2025-10-24T20:00Z", "30"),
+            "001": event("2025-10-22T20:00Z", "20"),
+            "bad": event("2025-10-23T20:00Z", "n/a"),
+            "nan": event("2025-10-25T20:00Z", float("nan")),
+            "infinite": event("2025-10-25T20:00Z", float("inf")),
+            "empty": event("", 14),
+            "negative": event("2025-10-26T20:00Z", -1),
+        },
+        "2024-25": {
+            "001": event("2025-10-22T20:00Z", 21),
+            "old": event("2025-04-01T20:00Z", 10),
+        },
     }
-    api = MagicMock()
-    api.side_effect = lambda **kwargs: MagicMock(get_data_frames=lambda: [frames[kwargs["season"]]])
-    monkeypatch.setattr(fetch_nba_history.playergamelog, "PlayerGameLog", api)
+    api = Mock(side_effect=lambda player_id, season: frames[season])
+    monkeypatch.setattr(fetch_nba_history, "player_events", api)
 
     result = fetch_nba_history.fetch_games(123)
 
@@ -52,20 +55,16 @@ def test_fetch_games_sorts_deduplicates_and_cleans(monkeypatch):
         "errors": [],
     }
     assert api.call_count == 2
-    api.assert_any_call(player_id=123, season="2025-26", season_type_all_star="Regular Season", timeout=15)
+    api.assert_any_call(123, "2025-26")
 
 
 def test_fetch_games_reports_empty_history(monkeypatch):
     monkeypatch.setattr(fetch_nba_history, "seasons_to_try", lambda: ["2025-26"])
-    monkeypatch.setattr(
-        fetch_nba_history.playergamelog,
-        "PlayerGameLog",
-        lambda **kwargs: MagicMock(get_data_frames=lambda: [pd.DataFrame()]),
-    )
+    monkeypatch.setattr(fetch_nba_history, "player_events", lambda *args: {})
     assert fetch_nba_history.fetch_games(123) == {
         "success": False,
         "games": [],
-        "message": "No NBA game history available from nba_api.",
+        "message": "No NBA game history available from ESPN.",
         "errors": [],
     }
 
@@ -73,14 +72,12 @@ def test_fetch_games_reports_empty_history(monkeypatch):
 def test_fetch_games_keeps_partial_results_when_api_fails(monkeypatch):
     monkeypatch.setattr(fetch_nba_history, "seasons_to_try", lambda: ["2025-26", "2024-25"])
 
-    def fake_api(**kwargs):
-        if kwargs["season"] == "2025-26":
+    def fake_api(player_id, season):
+        if season == "2025-26":
             raise TimeoutError("timeout")
-        return MagicMock(get_data_frames=lambda: [pd.DataFrame([
-            {"GAME_DATE": "2025-04-01", "Game_ID": "001", "PTS": 17},
-        ])])
+        return {"001": {"gameDate": "2025-04-01T20:00Z", "stats": {"points": 17}}}
 
-    monkeypatch.setattr(fetch_nba_history.playergamelog, "PlayerGameLog", fake_api)
+    monkeypatch.setattr(fetch_nba_history, "player_events", fake_api)
     result = fetch_nba_history.fetch_games(123)
     assert result["success"] is True
     assert result["games"] == [{"game_date": "2025-04-01", "points": 17.0}]
@@ -90,10 +87,10 @@ def test_fetch_games_keeps_partial_results_when_api_fails(monkeypatch):
 def test_fetch_games_handles_total_api_failure(monkeypatch):
     monkeypatch.setattr(fetch_nba_history, "seasons_to_try", lambda: ["2025-26"])
 
-    def fail(**kwargs):
+    def fail(*args):
         raise RuntimeError("API unavailable")
 
-    monkeypatch.setattr(fetch_nba_history.playergamelog, "PlayerGameLog", fail)
+    monkeypatch.setattr(fetch_nba_history, "player_events", fail)
     result = fetch_nba_history.fetch_games(123)
     assert result["success"] is False
     assert result["games"] == []

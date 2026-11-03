@@ -1,4 +1,4 @@
-"""Next-game points baseline predictions from database game history passed as JSON.
+"""Next-game random-forest points predictions from game history passed as JSON.
 
 Reads {'games': [{'game_date': 'YYYY-MM-DD', 'points': 12}, ...]} on stdin.
 Outputs one JSON result on stdout, suitable for the Express route.
@@ -42,7 +42,7 @@ def predict(games):
     df = pd.DataFrame(games)
     if df.empty or not {"game_date", "points"}.issubset(df.columns):
         return {"success": False, "message": "No historical games available for predictions."}
-    df["game_date"] = pd.to_datetime(df["game_date"], errors="coerce")
+    df["game_date"] = pd.to_datetime(df["game_date"], format="%Y-%m-%d", errors="coerce")
     df["points"] = pd.to_numeric(df["points"], errors="coerce")
     if "minutes" in df:
         df["minutes"] = pd.to_numeric(df["minutes"], errors="coerce")

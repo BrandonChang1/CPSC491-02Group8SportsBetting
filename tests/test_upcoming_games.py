@@ -51,3 +51,43 @@ def test_only_future_scheduled_games_within_fourteen_days_are_returned():
     assert [game["gameId"] for game in result] == ["tomorrow", "day14"]
     assert result[0]["awayTeam"]["name"] == "Los Angeles Lakers"
     assert result[0]["homeTeam"]["name"] == "Denver Nuggets"
+
+
+def test_espn_schedule_adapter_and_bounded_window(monkeypatch):
+    from scripts import upcoming_games
+    calls = []
+    event = {
+        "id": "401705764", "date": "2026-10-27T02:00Z",
+        "competitions": [{
+            "status": {"type": {"state": "pre", "detail": "Scheduled"}},
+            "competitors": [
+                {"homeAway": "home", "team": {"location": "Golden State", "name": "Warriors", "abbreviation": "GS"}},
+                {"homeAway": "away", "team": {"location": "Los Angeles", "name": "Lakers", "abbreviation": "LAL"}},
+            ],
+        }],
+    }
+    def fake_request(base, path, **params):
+        calls.append((path, params))
+        return {"events": [event]}
+    monkeypatch.setattr(upcoming_games, "request_json", fake_request)
+    now = datetime(2026, 10, 26, tzinfo=UTC)
+    result = upcoming_games.get_upcoming_games(now)
+    assert result["source"] == "ESPN"
+    assert result["count"] == 1
+    assert result["games"][0]["gameId"] == "espn:401705764"
+    assert result["games"][0]["homeTeam"]["tricode"] == "GSW"
+    assert len(calls) == 15
+    # ESPN indexes days in Eastern time, including games after midnight UTC.
+    assert min(params["dates"] for _, params in calls) == "20261025"
+    assert max(params["dates"] for _, params in calls) == "20261108"
+    assert all(path == "scoreboard" and len(params["dates"]) == 8 and params["limit"] == 100 for path, params in calls)
+
+
+def test_espn_final_scores_still_settle_games(monkeypatch):
+    from scripts import upcoming_games
+    row = sample_game("espn:401705764", "2026-10-25T02:00Z", status=3)
+    row.update(homeTeam_score="100", awayTeam_score="99")
+    monkeypatch.setattr(upcoming_games, "fetch_schedule_rows", lambda *args: [row])
+    result = upcoming_games.lookup_games(["espn:401705764"], datetime(2026, 10, 26, tzinfo=UTC))
+    assert result["games"][0]["winner"] == "Denver Nuggets"
+    assert result["games"][0]["statusCode"] == 3

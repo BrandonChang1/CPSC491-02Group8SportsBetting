@@ -13,7 +13,7 @@
 </head>
 <body><header><div class="header-inner"><div class="brand">NBA <span>/</span> Player Analytics</div><a class="back-link" href="/">Back to home</a></div></header>
 <main><p class="eyebrow">NBA schedule</p><h1>Upcoming games &amp; win estimates</h1>
-<p class="subtitle">Next seven days. Estimates use each team's last ten recorded games and a small home-court adjustment; they are not sportsbook odds or calibrated ML probabilities.</p>
+<p class="subtitle">Next seven days. Experimental estimates prioritize Random Forest player-point projections, with recent team results as a fallback when player data is insufficient. These are not calibrated probabilities or betting odds.</p>
 <section class="panel"><h2>Scheduled matchups</h2><p id="status" role="status">Loading upcoming NBA games…</p><div id="matchups" class="matchups"></div></section>
 </main>
 <script>
@@ -32,8 +32,8 @@
       const home = escapeText(game.homeTeam?.name || game.homeTeam?.tricode || 'Home');
       const p = game.winPrediction;
       article.innerHTML = `<div class="matchup-head"><strong>${away} @ ${home}</strong><span class="time">${escapeText(new Date(game.tipoffUtc).toLocaleString())}</span></div>` + (p
-        ? `<div class="prob-row"><span>${away}: ${p.awayWinPercent}%</span><span>${home}: ${p.homeWinPercent}%</span></div><div class="prob-bar" aria-label="Away win estimate ${p.awayWinPercent} percent; home win estimate ${p.homeWinPercent} percent"><div class="away-prob" style="width:${p.awayWinPercent}%"></div><div class="home-prob" style="width:${p.homeWinPercent}%"></div></div><p class="note">Based on ${p.awayGamesUsed} away-team and ${p.homeGamesUsed} home-team historical results. Experimental estimate; not betting odds.</p>`
-        : `<p class="note">Win estimates unavailable: insufficient recent team results (minimum 3 games per team).</p>`);
+        ? `<div class="prob-row"><span>${away}: ${p.awayWinPercent}%</span><span>${home}: ${p.homeWinPercent}%</span></div><div class="prob-bar" aria-label="Away win estimate ${p.awayWinPercent} percent; home win estimate ${p.homeWinPercent} percent"><div class="away-prob" style="width:${p.awayWinPercent}%"></div><div class="home-prob" style="width:${p.homeWinPercent}%"></div></div><p class="note">${p.method === "random_forest_player_points_heuristic" ? `Random Forest player points: ${away} ${p.awayProjectedPoints.toFixed(1)} (${p.awayPlayersUsed} players), ${home} ${p.homeProjectedPoints.toFixed(1)} (${p.homePlayersUsed} players). Rotation-normalized scoring index; ${p.coverage === "limited" ? "Low player coverage — estimates are especially uncertain. " : ""}${p.homeHistoricalRosterPlayers || p.awayHistoricalRosterPlayers ? "Some team assignments were inferred from historical matchups and may be outdated. " : ""}Latest stored player games: ${escapeText(p.awayLatestDataDate || "unknown")} (away), ${escapeText(p.homeLatestDataDate || "unknown")} (home). Win percentages are heuristic, not calibrated probabilities.` : `Fallback: based on ${p.awayGamesUsed} away-team and ${p.homeGamesUsed} home-team historical results.`} Experimental estimate; not betting odds.</p>`
+        : `<p class="note">Win estimates unavailable: ${escapeText(game.predictionStatus?.message || "No usable team or player data.")} Player forecasts: ${Number(game.predictionStatus?.playerForecasts?.away || 0)} away, ${Number(game.predictionStatus?.playerForecasts?.home || 0)} home. Team-results fallback: ${escapeText(game.predictionStatus?.teamResultsFallback || "insufficient data")}.</p>`);
       list.append(article);
     }
   } catch (error) { status.textContent = error.message; }

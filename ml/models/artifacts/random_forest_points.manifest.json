@@ -1,0 +1,57 @@
+{
+  "model_version": "random-forest-points-v1",
+  "model_sha256": "43427f3b3a253d728736692e01b30a5db005e9b7da16f5270e4c0b5f7de8c2a2",
+  "dataset_version": "player_game_stats_sample_features_3df1c9ab3d07",
+  "dataset_hash": "3df1c9ab3d0722ce2daa222bf39f5c740a6349f9e4980c3d02fdf95898e156f7",
+  "git_commit_sha": "d794dd00e90ac662c4898915f163fd7ba1c7cf8e",
+  "feature_schema": [
+    {
+      "name": "pts_season_avg",
+      "dtype": "float64"
+    },
+    {
+      "name": "pts_last5_avg",
+      "dtype": "float64"
+    },
+    {
+      "name": "pts_last10_avg",
+      "dtype": "float64"
+    },
+    {
+      "name": "is_home",
+      "dtype": "bool"
+    },
+    {
+      "name": "recent_minutes_avg",
+      "dtype": "float64"
+    }
+  ],
+  "training_config": {
+    "training_script": "ml/training/train_tree_points.py",
+    "estimator": "Pipeline(SimpleImputer(strategy=median) -> RandomForestRegressor(n_estimators=120, min_samples_leaf=4, random_state=42))",
+    "target": "points",
+    "split": "dataset split column (chronological)",
+    "dropna_subset": [
+      "game_date",
+      "points",
+      "pts_last5_avg"
+    ],
+    "scikit_learn_version": "1.8.0",
+    "metrics_source": "Recomputed 2026-11-02 on this artifact with the training script split (scikit-learn 1.9.1); random_forest_metrics.csv describes an older notebook model"
+  },
+  "evaluation_metrics": {
+    "train": {
+      "n": 4921,
+      "MAE": 3.599,
+      "RMSE": 4.761,
+      "R2": 0.796
+    },
+    "test": {
+      "n": 42,
+      "MAE": 8.394,
+      "RMSE": 10.73,
+      "R2": -0.084
+    }
+  },
+  "generated_at": "2026-11-03T00:43:05.877530+00:00"
+}

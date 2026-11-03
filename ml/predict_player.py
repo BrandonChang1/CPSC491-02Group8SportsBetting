@@ -15,15 +15,16 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from data.processing.points_features import assign_season  # noqa: E402
 from ml.model_integrity import ModelIntegrityError, load_verified_model  # noqa: E402
 
-MODEL_PATH = Path(__file__).resolve().parent / "models" / "artifacts" / "linear_regression_points.joblib"
-MODEL_NAME = "linear-regression-points"
+MODEL_PATH = Path(__file__).resolve().parent / "models" / "artifacts" / "random_forest_points.joblib"
+MODEL_NAME = "random-forest-points"
 SUPPORTED_MAJOR_VERSIONS = {1}
 # Ordered (name, training dtype) pairs this code builds; the model's manifest must match exactly.
+# Dtypes are as ml/training/train_tree_points.py trains them (is_home stays bool there).
 EXPECTED_FEATURE_SCHEMA = [
     ("pts_season_avg", "float64"),
     ("pts_last5_avg", "float64"),
     ("pts_last10_avg", "float64"),
-    ("is_home", "int64"),
+    ("is_home", "bool"),
     ("recent_minutes_avg", "float64"),
 ]
 
@@ -36,12 +37,6 @@ def load_model():
         supported_major_versions=SUPPORTED_MAJOR_VERSIONS,
         expected_feature_schema=EXPECTED_FEATURE_SCHEMA,
     )
-from data.processing.points_features import assign_season
-
-MODEL_PATH = Path(__file__).resolve().parent / "models" / "artifacts" / "random_forest_points.joblib"
-
-def load_model():
-    return joblib.load(MODEL_PATH)
 
 
 def predict(games):
@@ -96,7 +91,6 @@ def predict(games):
         "predictedPoints": round(max(0.0, estimate), 2),
         "modelVersion": model.model_version,
         "missingContext": [key for key in ("is_home", "recent_minutes_avg") if math.isnan(features[key])],
-        "model": "Trained linear regression (points)",
         "model": "Trained random forest (tree-based points regression)",
         "season": f"{latest_season}-{str(latest_season + 1)[-2:]}",
         "lastGameDate": df.iloc[-1]["game_date"].strftime("%Y-%m-%d"),

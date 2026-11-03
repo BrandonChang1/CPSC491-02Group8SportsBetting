@@ -1,0 +1,744 @@
+{
+  "captured_at_utc": "2026-11-03T01:05:50.445437+00:00",
+  "scope": "SEC-04 / CC7.2 Sprint 4 interim evidence; metadata inspection only, no new test execution",
+  "repository_baseline": "870f02cedac548d809b680b9f1ebeceed1161abb",
+  "proposal": {
+    "url": "https://docs.google.com/document/d/1l8euXlMGXi-CjAZtP_0K2UOqW0aluzsx/edit",
+    "title": "Sprint 4 Individual Data Ingestion Compliance Proposal",
+    "revision_label": "Revised November 2, 2026",
+    "owner": "Caden Santiago",
+    "control": "SEC-04 / CC7.2",
+    "retrieved_as": "text export",
+    "export_sha256": "7f5882a6991f6efebff11f0d512680ddc8b01e1fd6266aa212c00e9b24cf0e0b"
+  },
+  "jira": {
+    "board_url": "https://csu-group-8.atlassian.net/jira/software/projects/SCRUM/boards/1",
+    "issue_metadata_verified": false,
+    "note": "Anonymous request for known SCRUM-102 returned HTTP 404; no Jira issue state or additional issue key was inferred."
+  },
+  "pull_requests": [
+    {
+      "number": 90,
+      "title": "Test/data refresh freshness monitoring",
+      "html_url": "https://github.com/BrandonChang1/CPSC491-02Group8SportsBetting/pull/90",
+      "state": "closed",
+      "merged_at": "2026-11-03T00:56:32Z",
+      "merge_commit_sha": "870f02cedac548d809b680b9f1ebeceed1161abb",
+      "author": "cadensantiagoat",
+      "head_branch": "test/data-refresh-freshness-monitoring",
+      "head_sha": "20320ce1a3ccc393de4127a645c9f4047daea001"
+    },
+    {
+      "number": 88,
+      "title": "test: verify ingestion failure logging and anomaly review",
+      "html_url": "https://github.com/BrandonChang1/CPSC491-02Group8SportsBetting/pull/88",
+      "state": "closed",
+      "merged_at": "2026-11-03T00:38:35Z",
+      "merge_commit_sha": "4c176699e1e76cd1a3b4c02171369ddcf045351b",
+      "author": "cadensantiagoat",
+      "head_branch": "test/ingestion-failure-logging-anomally-review",
+      "head_sha": "3e5e9537e53c15ec9c947e1d8276bea6b7a82e3f"
+    },
+    {
+      "number": 81,
+      "title": "docs: assess ESPN NBA feature availability and add ML sample dataset",
+      "html_url": "https://github.com/BrandonChang1/CPSC491-02Group8SportsBetting/pull/81",
+      "state": "closed",
+      "merged_at": "2026-10-27T07:04:58Z",
+      "merge_commit_sha": "fb901d262658d42dcd591d457669531ff96d1007",
+      "author": "cadensantiagoat",
+      "head_branch": "research/scrum-115-espn-feature-availability",
+      "head_sha": "1889ede79019d02a064f03e136a4d303e8cda5d8"
+    },
+    {
+      "number": 80,
+      "title": "test: add automated data pipeline anomaly detection",
+      "html_url": "https://github.com/BrandonChang1/CPSC491-02Group8SportsBetting/pull/80",
+      "state": "closed",
+      "merged_at": "2026-10-27T01:26:01Z",
+      "merge_commit_sha": "6f6b365aeebc0dd829d723c96334833c7fbce46a",
+      "author": "cadensantiagoat",
+      "head_branch": "test/scrum-102-data-anomaly-detection",
+      "head_sha": "0c678023c61a13a58027f18e964287783624a57a"
+    },
+    {
+      "number": 78,
+      "title": "feat: migrate NBA data ingestion to ESPN (SCRUM-108)",
+      "html_url": "https://github.com/BrandonChang1/CPSC491-02Group8SportsBetting/pull/78",
+      "state": "closed",
+      "merged_at": "2026-10-27T00:57:43Z",
+      "merge_commit_sha": "6bc1f06f1c6f2da0aea97b92f79dcc9e3fe5ec63",
+      "author": "cadensantiagoat",
+      "head_branch": "feature/scrum-108-espn-api-migration",
+      "head_sha": "da811997a7e280ad720762515931d96ceb624bca"
+    }
+  ],
+  "workflow_runs": [
+    {
+      "id": 41556385360,
+      "html_url": "https://github.com/BrandonChang1/CPSC491-02Group8SportsBetting/actions/runs/41556385360",
+      "head_branch": "main",
+      "head_sha": "870f02cedac548d809b680b9f1ebeceed1161abb",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-03T00:56:34Z",
+      "updated_at": "2026-11-03T00:58:58Z",
+      "event": "push",
+      "jobs": [
+        {
+          "id": 125656176594,
+          "html_url": "https://github.com/BrandonChang1/CPSC491-02Group8SportsBetting/actions/runs/41556385360/job/125656176594",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Checkout repository",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Set up Python",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install Python dependencies",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Run Python linting",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Validate ESPN ingestion with offline fixtures",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verify ingestion failure logging",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Set up Node.js",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Show Node environment",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Install Node dependencies",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Run database migrations",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Seed Sprint 3 CI test data",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Check data pipeline anomalies",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Validate refresh freshness and historical preservation",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Run backend automated tests",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Start backend",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Verify backend is running",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Stop backend",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Install Playwright Chromium",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Run Playwright frontend test",
+              "conclusion": "success",
+              "number": 21
+            },
+            {
+              "name": "Run Sprint 3 data regression tests",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Run Python project tests",
+              "conclusion": "success",
+              "number": 23
+            },
+            {
+              "name": "Create build version",
+              "conclusion": "success",
+              "number": 24
+            },
+            {
+              "name": "Create build artifact",
+              "conclusion": "success",
+              "number": 25
+            },
+            {
+              "name": "Upload build artifact",
+              "conclusion": "success",
+              "number": 26
+            },
+            {
+              "name": "Summarize automated tests",
+              "conclusion": "success",
+              "number": 27
+            },
+            {
+              "name": "Upload test reports and server log",
+              "conclusion": "success",
+              "number": 28
+            },
+            {
+              "name": "Post Set up Node.js",
+              "conclusion": "success",
+              "number": 53
+            },
+            {
+              "name": "Post Set up Python",
+              "conclusion": "success",
+              "number": 54
+            },
+            {
+              "name": "Post Checkout repository",
+              "conclusion": "success",
+              "number": 55
+            },
+            {
+              "name": "Stop containers",
+              "conclusion": "success",
+              "number": 56
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success",
+              "number": 57
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 41555957615,
+      "html_url": "https://github.com/BrandonChang1/CPSC491-02Group8SportsBetting/actions/runs/41555957615",
+      "head_branch": "test/data-refresh-freshness-monitoring",
+      "head_sha": "20320ce1a3ccc393de4127a645c9f4047daea001",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-03T00:52:43Z",
+      "updated_at": "2026-11-03T00:54:39Z",
+      "event": "pull_request",
+      "jobs": [
+        {
+          "id": 125654770734,
+          "html_url": "https://github.com/BrandonChang1/CPSC491-02Group8SportsBetting/actions/runs/41555957615/job/125654770734",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Checkout repository",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Set up Python",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install Python dependencies",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Run Python linting",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Validate ESPN ingestion with offline fixtures",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verify ingestion failure logging",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Set up Node.js",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Show Node environment",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Install Node dependencies",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Run database migrations",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Seed Sprint 3 CI test data",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Check data pipeline anomalies",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Validate refresh freshness and historical preservation",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Run backend automated tests",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Start backend",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Verify backend is running",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Stop backend",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Install Playwright Chromium",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Run Playwright frontend test",
+              "conclusion": "success",
+              "number": 21
+            },
+            {
+              "name": "Run Sprint 3 data regression tests",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Run Python project tests",
+              "conclusion": "success",
+              "number": 23
+            },
+            {
+              "name": "Create build version",
+              "conclusion": "skipped",
+              "number": 24
+            },
+            {
+              "name": "Create build artifact",
+              "conclusion": "skipped",
+              "number": 25
+            },
+            {
+              "name": "Upload build artifact",
+              "conclusion": "skipped",
+              "number": 26
+            },
+            {
+              "name": "Summarize automated tests",
+              "conclusion": "success",
+              "number": 27
+            },
+            {
+              "name": "Upload test reports and server log",
+              "conclusion": "success",
+              "number": 28
+            },
+            {
+              "name": "Post Set up Node.js",
+              "conclusion": "success",
+              "number": 53
+            },
+            {
+              "name": "Post Set up Python",
+              "conclusion": "success",
+              "number": 54
+            },
+            {
+              "name": "Post Checkout repository",
+              "conclusion": "success",
+              "number": 55
+            },
+            {
+              "name": "Stop containers",
+              "conclusion": "success",
+              "number": 56
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success",
+              "number": 57
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 41553839487,
+      "html_url": "https://github.com/BrandonChang1/CPSC491-02Group8SportsBetting/actions/runs/41553839487",
+      "head_branch": "test/ingestion-failure-logging-anomally-review",
+      "head_sha": "3e5e9537e53c15ec9c947e1d8276bea6b7a82e3f",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-03T00:34:34Z",
+      "updated_at": "2026-11-03T00:36:22Z",
+      "event": "pull_request",
+      "jobs": [
+        {
+          "id": 125647738385,
+          "html_url": "https://github.com/BrandonChang1/CPSC491-02Group8SportsBetting/actions/runs/41553839487/job/125647738385",
+          "conclusion": "failure",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Checkout repository",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Set up Python",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install Python dependencies",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Run Python linting",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Validate ESPN ingestion with offline fixtures",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verify ingestion failure logging",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Set up Node.js",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Show Node environment",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Install Node dependencies",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Run database migrations",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Seed Sprint 3 CI test data",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Check data pipeline anomalies",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Run backend automated tests",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Start backend",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Verify backend is running",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Stop backend",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Install Playwright Chromium",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Run Playwright frontend test",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Run Sprint 3 data regression tests",
+              "conclusion": "success",
+              "number": 21
+            },
+            {
+              "name": "Run Python project tests",
+              "conclusion": "failure",
+              "number": 22
+            },
+            {
+              "name": "Create build version",
+              "conclusion": "skipped",
+              "number": 23
+            },
+            {
+              "name": "Create build artifact",
+              "conclusion": "skipped",
+              "number": 24
+            },
+            {
+              "name": "Upload build artifact",
+              "conclusion": "skipped",
+              "number": 25
+            },
+            {
+              "name": "Summarize automated tests",
+              "conclusion": "success",
+              "number": 26
+            },
+            {
+              "name": "Upload test reports and server log",
+              "conclusion": "success",
+              "number": 27
+            },
+            {
+              "name": "Post Set up Node.js",
+              "conclusion": "skipped",
+              "number": 51
+            },
+            {
+              "name": "Post Set up Python",
+              "conclusion": "skipped",
+              "number": 52
+            },
+            {
+              "name": "Post Checkout repository",
+              "conclusion": "success",
+              "number": 53
+            },
+            {
+              "name": "Stop containers",
+              "conclusion": "success",
+              "number": 54
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success",
+              "number": 55
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "artifact_content_verified": false,
+  "artifact_download_http_status": 401,
+  "artifact_note": "API metadata confirms artifact records, not their files. The 230-byte test-results artifact requires authenticated content inspection; no JUnit presence is claimed.",
+  "main_run_artifacts": [
+    {
+      "id": 13194028538,
+      "name": "build-140-870f02c",
+      "size_in_bytes": 144562,
+      "digest": "sha256:b817d75007a7be460dbcba3b1e9bb1365d0aa521469b28ecc99727f7456618d1",
+      "expired": false,
+      "created_at": "2026-11-03T00:58:50Z",
+      "expires_at": "2026-12-03T00:58:49Z",
+      "archive_download_url": "https://api.github.com/repos/BrandonChang1/CPSC491-02Group8SportsBetting/actions/artifacts/13194028538/zip"
+    },
+    {
+      "id": 13193823625,
+      "name": "test-results-140",
+      "size_in_bytes": 230,
+      "digest": "sha256:7e1ea0240934a8b474f5c8bfcea3e5e2ef6c6202291e33a67b93cffaf2a0dcc4",
+      "expired": false,
+      "created_at": "2026-11-03T00:58:51Z",
+      "expires_at": "2026-12-03T00:58:50Z",
+      "archive_download_url": "https://api.github.com/repos/BrandonChang1/CPSC491-02Group8SportsBetting/actions/artifacts/13193823625/zip"
+    }
+  ],
+  "local_reports": [
+    {
+      "path": "docs/evidence/ingestion-anomaly-review.xml",
+      "url": "https://github.com/BrandonChang1/CPSC491-02Group8SportsBetting/blob/870f02cedac548d809b680b9f1ebeceed1161abb/docs/evidence/ingestion-anomaly-review.xml",
+      "sha256": "01bfd103f9928abfe77de5f743c9ef70e2a580c34c2c47e8976c7bb70b9ed045",
+      "tests": 54,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamps": [
+        "2026-11-02T16:30:22.191800-08:00"
+      ],
+      "testcase_counts_by_module": {
+        "tests.test_pipeline_anomalies": 35,
+        "tests.test_ingestion_idempotency": 6,
+        "tests.test_database_integrity": 13
+      }
+    },
+    {
+      "path": "docs/evidence/ingestion-failure-tests.xml",
+      "url": "https://github.com/BrandonChang1/CPSC491-02Group8SportsBetting/blob/870f02cedac548d809b680b9f1ebeceed1161abb/docs/evidence/ingestion-failure-tests.xml",
+      "sha256": "f6e4d7c8c55c7a8ccc4874fb9dab00322ca0ff343c784b3ba9820377c7c7aa91",
+      "tests": 60,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamps": [
+        "2026-11-02T16:30:23.527718-08:00"
+      ],
+      "testcase_counts_by_module": {
+        "tests.test_ingestion_failure_logging": 32,
+        "tests.test_database_ingestion": 3,
+        "tests.test_espn": 23,
+        "tests.test_nba_game_logs": 2
+      }
+    },
+    {
+      "path": "docs/evidence/refresh-freshness.xml",
+      "url": "https://github.com/BrandonChang1/CPSC491-02Group8SportsBetting/blob/870f02cedac548d809b680b9f1ebeceed1161abb/docs/evidence/refresh-freshness.xml",
+      "sha256": "2c732679ff6b3eb3cc8de82c77bc4811c3281be2a81c97a4a36d67bc34b6b858",
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamps": [
+        "2026-11-02T16:45:28.935446-08:00"
+      ],
+      "testcase_counts_by_module": {
+        "tests.test_data_freshness": 15,
+        "tests.test_incremental_refresh": 6
+      }
+    },
+    {
+      "path": "docs/evidence/refresh-full-regression.xml",
+      "url": "https://github.com/BrandonChang1/CPSC491-02Group8SportsBetting/blob/870f02cedac548d809b680b9f1ebeceed1161abb/docs/evidence/refresh-full-regression.xml",
+      "sha256": "7aa62b3db55426cc1b594940e64bf03fb63e9dbc841a2449b3eb12ea264e8802",
+      "tests": 251,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamps": [
+        "2026-11-02T16:51:07.621787-08:00"
+      ],
+      "testcase_counts_by_module": {
+        "scripts.test_team_recent_results.RecentResultsTests": 2,
+        "tests.test_basic": 1,
+        "tests.test_clean_nba_data": 9,
+        "tests.test_data_freshness": 15,
+        "tests.test_database_ingestion": 3,
+        "tests.test_database_integrity": 13,
+        "tests.test_espn": 23,
+        "tests.test_espn_feature_sample": 4,
+        "tests.test_fetch_nba_history": 10,
+        "tests.test_incremental_refresh": 6,
+        "tests.test_ingestion_failure_logging": 32,
+        "tests.test_ingestion_idempotency": 6,
+        "tests.test_model_integrity": 29,
+        "tests.test_modeling_dataset": 8,
+        "tests.test_modeling_dataset_validation": 10,
+        "tests.test_modeling_features": 4,
+        "tests.test_nba_game_logs": 2,
+        "tests.test_pipeline_anomalies": 35,
+        "tests.test_points_features": 8,
+        "tests.test_predict_player": 11,
+        "tests.test_prediction_model_version": 3,
+        "tests.test_time_split": 12,
+        "tests.test_upcoming_games": 5
+      }
+    }
+  ],
+  "counting_note": "Reports overlap; do not add 60, 54, 21 and 251 as unique tests. CI step success does not provide individual test counts."
+}

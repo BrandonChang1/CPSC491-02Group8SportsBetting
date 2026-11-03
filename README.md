@@ -11,3 +11,5 @@ Step 6 - Enjoy!<br>
 
 
 NBA data ingestion now uses ESPN. See [setup, ID mapping, validation, and limitations](docs/espn_ingestion.md).
+
+Sprint 4 SEC-04 evidence is consolidated in the [CC7.2 interim assessment](docs/sprint4_cc7_2_compliance_assessment.md), including results, PR/CI links, monitoring gaps, and Sprint 5 follow-ups.

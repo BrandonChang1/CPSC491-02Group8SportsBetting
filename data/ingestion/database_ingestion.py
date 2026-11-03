@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from data.collection import espn as players
 from data.collection import espn as teams
 from data.collection.nba_game_logs import fetch_player_game_log
+from data.ingestion.monitoring import logger, run
 from data.processing.modeling_features import add_modeling_context
 
 load_dotenv()
@@ -121,10 +122,7 @@ def ingest_teams() -> dict:
             except (psycopg.Error, KeyError, TypeError) as error:
                 failed += 1
 
-                print(
-                    f"Failed to ingest team "
-                    f"{team.get('full_name', 'unknown')}: {error}"
-                )
+                logger.error("row_failed stage=teams row=%d error_type=%s", processed, type(error).__name__)
 
     return {
         "processed": processed,
@@ -222,10 +220,7 @@ def ingest_players() -> dict:
             except (psycopg.Error, KeyError, TypeError) as error:
                 failed += 1
 
-                print(
-                    f"Failed to ingest player "
-                    f"{player.get('full_name', 'unknown')}: {error}"
-                )
+                logger.error("row_failed stage=players row=%d error_type=%s", processed, type(error).__name__)
 
     return {
         "processed": processed,
@@ -381,10 +376,7 @@ def ingest_games(game_logs) -> dict:
             except (psycopg.Error, KeyError, TypeError, ValueError) as error:
                 failed += 1
 
-                print(
-                    f"Failed to ingest game "
-                    f"{row.get('game_id', 'unknown')}: {error}"
-                )
+                logger.error("row_failed stage=games row=%d error_type=%s", processed, type(error).__name__)
 
     return {
         "processed": processed,
@@ -568,12 +560,7 @@ def ingest_player_game_stats(game_logs) -> dict:
             ) as error:
                 failed += 1
 
-                print(
-                    "Failed to ingest player game stats "
-                    f"for game "
-                    f"{row.get('game_id', 'unknown')}: "
-                    f"{error}"
-                )
+                logger.error("row_failed stage=player_game_stats row=%d error_type=%s", processed, type(error).__name__)
 
     # Refresh recorded team associations after stats have been inserted.
     # Do not silently swallow a database error: ingestion should report it.
@@ -616,6 +603,10 @@ def main():
         season="2025-26",
     )
 
+    if curry_game_logs.empty:
+        logger.error("ingestion_incomplete stage=game_logs reason=empty_response")
+        return 1
+
     game_results = ingest_games(curry_game_logs)
 
     print(
@@ -636,8 +627,13 @@ def main():
         f"failed={stats_results['failed']}",
     )
 
+    failed = sum(result["failed"] for result in (team_results, player_results, game_results, stats_results))
+    if failed:
+        logger.error("ingestion_incomplete failed_rows=%d", failed)
+        return 1
     print("NBA database ingestion complete.")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(run(main))

@@ -1,0 +1,59 @@
+{
+  "model_version": "linear-regression-points-v1",
+  "model_sha256": "c6bfdad2ea27c7bea04191c6427336478b4f437f372d700f02bec5aced98cace",
+  "dataset_version": "player_game_stats_sample_features_3df1c9ab3d07",
+  "dataset_hash": "3df1c9ab3d0722ce2daa222bf39f5c740a6349f9e4980c3d02fdf95898e156f7",
+  "git_commit_sha": "0355d7507a0807bb387c8e5f50803d8299fcf38b",
+  "feature_schema": [
+    {
+      "name": "pts_season_avg",
+      "dtype": "float64"
+    },
+    {
+      "name": "pts_last5_avg",
+      "dtype": "float64"
+    },
+    {
+      "name": "pts_last10_avg",
+      "dtype": "float64"
+    },
+    {
+      "name": "is_home",
+      "dtype": "int64"
+    },
+    {
+      "name": "recent_minutes_avg",
+      "dtype": "float64"
+    }
+  ],
+  "training_config": {
+    "training_notebook": "ml/training/linear_regression.ipynb",
+    "estimator": "Pipeline(SimpleImputer(strategy=median) -> StandardScaler -> LinearRegression)",
+    "target": "points",
+    "split": "dataset split column (chronological)",
+    "train_fraction_if_no_split": 0.8,
+    "cv": "TimeSeriesSplit by game date",
+    "cv_splits": 5,
+    "dropna_subset": [
+      "pts_season_avg",
+      "pts_last5_avg",
+      "pts_last10_avg"
+    ],
+    "scikit_learn_version": "1.9.1"
+  },
+  "evaluation_metrics": {
+    "train": {
+      "n": 4920,
+      "MAE": 5.382,
+      "RMSE": 6.95,
+      "R2": 0.565
+    },
+    "test": {
+      "n": 42,
+      "MAE": 8.123,
+      "RMSE": 10.64,
+      "R2": -0.066
+    }
+  },
+  "generated_at": "2026-10-27T00:51:00.068719+00:00"
+}

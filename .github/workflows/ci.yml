@@ -66,6 +66,11 @@ jobs:
       - name: Validate ESPN ingestion with offline fixtures
         run: python -m pytest tests/test_espn.py tests/test_nba_game_logs.py -v
 
+      - name: Verify ingestion failure logging
+        run: >-
+          python -m pytest tests/test_ingestion_failure_logging.py -v
+          --junitxml=test-results/ingestion-failures.xml -o junit_logging=all
+
       # -----------------------------------------
       # Node.js setup
       # -----------------------------------------

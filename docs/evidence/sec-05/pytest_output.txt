@@ -1,0 +1,92 @@
+# SEC-05 pytest run — 2026-11-03T00:44Z — commit 4c17669 + working tree
+# python -m pytest -v tests/test_model_integrity.py tests/test_prediction_model_version.py tests/test_predict_player.py
+# Python 3.12.5, scikit-learn 1.9.1
+
+============================= test session starts ==============================
+platform darwin -- Python 3.12.5, pytest-9.2.0, pluggy-1.7.0 -- <scratch>/venv/bin/python
+rootdir: /Users/swayamshree/Desktop/Capstone Project/CPSC491-02Group8SportsBetting
+collecting ... collected 43 items
+
+tests/test_model_integrity.py::test_generated_manifest_is_complete_and_hashes_the_artifact PASSED [  2%]
+tests/test_model_integrity.py::test_approved_model_loads_and_predicts PASSED [  4%]
+tests/test_model_integrity.py::test_modified_artifact_is_rejected_before_deserialization[flipped-bit] PASSED [  6%]
+tests/test_model_integrity.py::test_modified_artifact_is_rejected_before_deserialization[appended-byte] PASSED [  9%]
+tests/test_model_integrity.py::test_modified_artifact_is_rejected_before_deserialization[truncated] PASSED [ 11%]
+tests/test_model_integrity.py::test_swapped_in_loadable_model_is_rejected PASSED [ 13%]
+tests/test_model_integrity.py::test_manifest_missing_a_required_field_is_rejected[model_version] PASSED [ 16%]
+tests/test_model_integrity.py::test_manifest_missing_a_required_field_is_rejected[model_sha256] PASSED [ 18%]
+tests/test_model_integrity.py::test_manifest_missing_a_required_field_is_rejected[dataset_version] PASSED [ 20%]
+tests/test_model_integrity.py::test_manifest_missing_a_required_field_is_rejected[dataset_hash] PASSED [ 23%]
+tests/test_model_integrity.py::test_manifest_missing_a_required_field_is_rejected[git_commit_sha] PASSED [ 25%]
+tests/test_model_integrity.py::test_manifest_missing_a_required_field_is_rejected[feature_schema] PASSED [ 27%]
+tests/test_model_integrity.py::test_manifest_missing_a_required_field_is_rejected[training_config] PASSED [ 30%]
+tests/test_model_integrity.py::test_manifest_missing_a_required_field_is_rejected[evaluation_metrics] PASSED [ 32%]
+tests/test_model_integrity.py::test_incomplete_manifest_reports_every_problem PASSED [ 34%]
+tests/test_model_integrity.py::test_unparseable_manifest_is_rejected PASSED [ 37%]
+tests/test_model_integrity.py::test_missing_manifest_is_rejected PASSED  [ 39%]
+tests/test_model_integrity.py::test_incompatible_feature_schema_is_rejected[reordered] PASSED [ 41%]
+tests/test_model_integrity.py::test_incompatible_feature_schema_is_rejected[dtype-changed] PASSED [ 44%]
+tests/test_model_integrity.py::test_incompatible_feature_schema_is_rejected[feature-removed] PASSED [ 46%]
+tests/test_model_integrity.py::test_incompatible_feature_schema_is_rejected[feature-added] PASSED [ 48%]
+tests/test_model_integrity.py::test_incompatible_feature_schema_is_rejected[feature-renamed] PASSED [ 51%]
+tests/test_model_integrity.py::test_artifact_features_disagreeing_with_manifest_are_rejected PASSED [ 53%]
+tests/test_model_integrity.py::test_incompatible_model_version_is_rejected[unsupported-major] PASSED [ 55%]
+tests/test_model_integrity.py::test_incompatible_model_version_is_rejected[older-major] PASSED [ 58%]
+tests/test_model_integrity.py::test_incompatible_model_version_is_rejected[different-model] PASSED [ 60%]
+tests/test_model_integrity.py::test_incompatible_model_version_is_rejected[malformed] PASSED [ 62%]
+tests/test_model_integrity.py::test_every_integrity_error_has_a_distinct_code PASSED [ 65%]
+tests/test_model_integrity.py::test_git_commit_sha_falls_back_to_head_outside_the_repo PASSED [ 67%]
+tests/test_prediction_model_version.py::test_prediction_reports_the_approved_manifest_model_version PASSED [ 69%]
+tests/test_prediction_model_version.py::test_spawned_prediction_process_reports_the_approved_model_version PASSED [ 72%]
+tests/test_prediction_model_version.py::test_model_version_comes_from_the_manifest_not_the_code PASSED [ 74%]
+tests/test_predict_player.py::test_predict_calculates_season_and_recent_averages PASSED [ 76%]
+tests/test_predict_player.py::test_predict_rejects_empty_or_missing_columns[games0] PASSED [ 79%]
+tests/test_predict_player.py::test_predict_rejects_empty_or_missing_columns[games1] PASSED [ 81%]
+tests/test_predict_player.py::test_predict_rejects_empty_or_missing_columns[games2] PASSED [ 83%]
+tests/test_predict_player.py::test_predict_ignores_invalid_dates_and_points PASSED [ 86%]
+tests/test_predict_player.py::test_predict_fails_when_all_rows_invalid PASSED [ 88%]
+tests/test_predict_player.py::test_predict_uses_latest_game_date_even_when_input_reversed PASSED [ 90%]
+tests/test_predict_player.py::test_main_reads_and_writes_json PASSED     [ 93%]
+tests/test_predict_player.py::test_main_outputs_machine_readable_error_for_bad_json PASSED [ 95%]
+tests/test_predict_player.py::test_missing_model_returns_error_not_fake_ml_prediction PASSED [ 97%]
+tests/test_predict_player.py::test_recent_minutes_passed_to_trained_model PASSED [100%]
+
+=============================== warnings summary ===============================
+tests/test_prediction_model_version.py::test_prediction_reports_the_approved_manifest_model_version
+tests/test_predict_player.py::test_predict_calculates_season_and_recent_averages
+tests/test_predict_player.py::test_predict_ignores_invalid_dates_and_points
+tests/test_predict_player.py::test_predict_uses_latest_game_date_even_when_input_reversed
+tests/test_predict_player.py::test_main_reads_and_writes_json
+  <scratch>/venv/lib/python3.12/site-packages/sklearn/base.py:525: InconsistentVersionWarning: Trying to unpickle estimator SimpleImputer from version 1.8.0 when using version 1.9.1. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+  https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+    warnings.warn(
+
+tests/test_prediction_model_version.py::test_prediction_reports_the_approved_manifest_model_version
+tests/test_predict_player.py::test_predict_calculates_season_and_recent_averages
+tests/test_predict_player.py::test_predict_ignores_invalid_dates_and_points
+tests/test_predict_player.py::test_predict_uses_latest_game_date_even_when_input_reversed
+tests/test_predict_player.py::test_main_reads_and_writes_json
+  <scratch>/venv/lib/python3.12/site-packages/sklearn/base.py:525: InconsistentVersionWarning: Trying to unpickle estimator DecisionTreeRegressor from version 1.8.0 when using version 1.9.1. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+  https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+    warnings.warn(
+
+tests/test_prediction_model_version.py::test_prediction_reports_the_approved_manifest_model_version
+tests/test_predict_player.py::test_predict_calculates_season_and_recent_averages
+tests/test_predict_player.py::test_predict_ignores_invalid_dates_and_points
+tests/test_predict_player.py::test_predict_uses_latest_game_date_even_when_input_reversed
+tests/test_predict_player.py::test_main_reads_and_writes_json
+  <scratch>/venv/lib/python3.12/site-packages/sklearn/base.py:525: InconsistentVersionWarning: Trying to unpickle estimator RandomForestRegressor from version 1.8.0 when using version 1.9.1. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+  https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+    warnings.warn(
+
+tests/test_prediction_model_version.py::test_prediction_reports_the_approved_manifest_model_version
+tests/test_predict_player.py::test_predict_calculates_season_and_recent_averages
+tests/test_predict_player.py::test_predict_ignores_invalid_dates_and_points
+tests/test_predict_player.py::test_predict_uses_latest_game_date_even_when_input_reversed
+tests/test_predict_player.py::test_main_reads_and_writes_json
+  <scratch>/venv/lib/python3.12/site-packages/sklearn/base.py:525: InconsistentVersionWarning: Trying to unpickle estimator Pipeline from version 1.8.0 when using version 1.9.1. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+  https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================= 43 passed, 20 warnings in 2.81s ========================

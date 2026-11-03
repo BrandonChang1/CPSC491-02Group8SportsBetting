@@ -5,6 +5,7 @@ import json
 import pytest
 
 from ml import predict_player
+from ml.model_integrity import VerifiedModel
 
 
 def test_predict_calculates_season_and_recent_averages():
@@ -87,10 +88,9 @@ def test_recent_minutes_passed_to_trained_model(monkeypatch):
             assert frame.iloc[0]["pts_last5_avg"] == 20.0
             return [22.35]
 
-    monkeypatch.setattr(predict_player.joblib, "load", lambda path: {
-        "features": ["pts_season_avg", "pts_last5_avg", "pts_last10_avg", "is_home", "recent_minutes_avg"],
-        "pipeline": FakePipeline(),
-    })
+    monkeypatch.setattr(predict_player, "load_model", lambda: VerifiedModel(
+        artifact={"pipeline": FakePipeline()}, manifest={}, model_version="random-forest-points-v1",
+    ))
     result = predict_player.predict([
         {"game_date": "2026-01-01", "points": 10, "minutes": 20},
         {"game_date": "2026-01-03", "points": 30, "minutes": 40},

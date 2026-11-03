@@ -1,4 +1,4 @@
-"""Next-game random-forest points predictions from game history passed as JSON.
+"""Next-game points predictions from game history passed as JSON.
 
 Reads {'games': [{'game_date': 'YYYY-MM-DD', 'points': 12}, ...]} on stdin.
 Outputs one JSON result on stdout, suitable for the Express route.

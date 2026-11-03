@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="21" time="0.242" timestamp="2026-11-02T16:45:28.935446-08:00" hostname="Cadens-MacBook-Pro-6.local"><testcase classname="tests.test_data_freshness" name="test_freshness_threshold_and_missing_game[latest0-1-10-0-freshness_ok]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+INFO     data.ingestion:check_data_freshness.py:33 freshness_ok player_id=101 expected_date=2025-01-10 latest=2025-01-10
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_freshness_threshold_and_missing_game[latest1-1-20-0-freshness_ok]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+INFO     data.ingestion:check_data_freshness.py:33 freshness_ok player_id=101 expected_date=2025-01-10 latest=2025-01-10
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_freshness_threshold_and_missing_game[latest2-0-10-0-refresh_pending]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+WARNING  data.ingestion:check_data_freshness.py:42 refresh_pending player_id=101 expected_date=2025-01-10 latest=2025-01-09 delay_days=0 threshold_days=2
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_freshness_threshold_and_missing_game[latest3-0-12-0-refresh_pending]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+WARNING  data.ingestion:check_data_freshness.py:42 refresh_pending player_id=101 expected_date=2025-01-10 latest=2025-01-09 delay_days=2 threshold_days=2
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_freshness_threshold_and_missing_game[latest4-0-13-1-missing_expected_game]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:check_data_freshness.py:37 freshness_anomaly player_id=101 reason=missing_expected_game expected_date=2025-01-10 latest=2025-01-09 delay_days=3 threshold_days=2
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_freshness_threshold_and_missing_game[None-0-13-1-missing_expected_game]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:check_data_freshness.py:37 freshness_anomaly player_id=101 reason=missing_expected_game expected_date=2025-01-10 latest=None delay_days=3 threshold_days=2
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_freshness_threshold_and_missing_game[None-0-10-0-refresh_pending]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+WARNING  data.ingestion:check_data_freshness.py:42 refresh_pending player_id=101 expected_date=2025-01-10 latest=None delay_days=0 threshold_days=2
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_freshness_threshold_and_missing_game[latest7-0-13-1-missing_expected_game]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:check_data_freshness.py:37 freshness_anomaly player_id=101 reason=missing_expected_game expected_date=2025-01-10 latest=2025-01-12 delay_days=3 threshold_days=2
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_freshness_threshold_and_missing_game[latest8-1-13-1-future_record]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:check_data_freshness.py:27 freshness_anomaly player_id=101 reason=future_record latest=2025-01-20
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_freshness_threshold_and_missing_game[latest9-2-13-1-multiple_appearances]" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:check_data_freshness.py:30 freshness_anomaly player_id=101 reason=multiple_appearances expected_date=2025-01-10
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_invalid_scope_is_rejected_before_query[0-expected0]" time="0.000"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_invalid_scope_is_rejected_before_query[-1-expected1]" time="0.000"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_invalid_scope_is_rejected_before_query[1-expected2]" time="0.000"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_command_uses_read_only_transaction" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_data_freshness" name="test_database_failure_has_safe_nonzero_result" time="0.000"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:monitoring.py:20 ingestion_failed command=scripts.check_data_freshness error_type=OperationalError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_incremental_refresh" name="test_incremental_insert_and_retry_preserve_history" time="0.031"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_incremental_refresh" name="test_failed_refresh_retains_history_and_recovers" time="0.023"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:563 row_failed stage=player_game_stats row=1 error_type=ForeignKeyViolation
+ERROR    data.ingestion:check_data_freshness.py:37 freshness_anomaly player_id=201939 reason=missing_expected_game expected_date=2025-01-03 latest=2025-01-01 delay_days=3 threshold_days=2
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_incremental_refresh" name="test_changed_game_identity_cannot_overwrite_history" time="0.017"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:379 row_failed stage=games row=1 error_type=ValueError
+ERROR    data.ingestion:database_ingestion.py:563 row_failed stage=player_game_stats row=1 error_type=ValueError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_incremental_refresh" name="test_failed_update_preserves_existing_values" time="0.017"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:563 row_failed stage=player_game_stats row=1 error_type=InvalidTextRepresentation
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_incremental_refresh" name="test_truncated_refresh_does_not_delete_history" time="0.021"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_incremental_refresh" name="test_freshness_monitor_cannot_hide_missing_date_with_newer_data" time="0.020"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:check_data_freshness.py:37 freshness_anomaly player_id=201939 reason=missing_expected_game expected_date=2025-01-03 latest=2025-01-05 delay_days=3 threshold_days=2
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase></testsuite></testsuites>

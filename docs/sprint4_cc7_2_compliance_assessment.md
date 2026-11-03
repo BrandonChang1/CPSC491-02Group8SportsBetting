@@ -1,5 +1,13 @@
 # Sprint 4 Interim SOC 2 CC7.2 Compliance Assessment
 
+Subsequent implementation: [incremental refresh tracking](incremental_refresh_tracking.md)
+adds a dedicated command with persisted attempt outcomes, UTC instants, counts,
+and per-scope last-success/stale status. Its new evidence is separate from the
+historical register below. This advances F01/S4-C05 for that command only; the
+older demo/backfill commands, team policy approval, scheduled monitoring and
+human review remain outside that implementation. Preserve the original interim
+results below as the assessment of their recorded baseline.
+
 **Assessor / control owner:** Caden Santiago, Data & Storage.
 **Assigned control:** SEC-04 — Data pipeline integrity and failure monitoring.
 **Assessment date:** November 2, 2026 (Pacific; corresponding GitHub events may be dated November 3 UTC).

@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="32" time="0.338" timestamp="2026-11-02T17:19:41.928888-08:00" hostname="Cadens-MacBook-Pro-6.local"><testcase classname="tests.test_ingestion_failure_logging" name="test_row_failure_is_safe_counted_and_followed_by_success[IntegrityError-teams]" time="0.015"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:127 row_failed stage=teams row=1 error_type=IntegrityError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_row_failure_is_safe_counted_and_followed_by_success[IntegrityError-players]" time="0.006"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:228 row_failed stage=players row=1 error_type=IntegrityError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_row_failure_is_safe_counted_and_followed_by_success[IntegrityError-games]" time="0.007"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:384 row_failed stage=games row=1 error_type=IntegrityError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_row_failure_is_safe_counted_and_followed_by_success[IntegrityError-player_game_stats]" time="0.010"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:568 row_failed stage=player_game_stats row=1 error_type=IntegrityError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_row_failure_is_safe_counted_and_followed_by_success[OperationalError-teams]" time="0.007"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:127 row_failed stage=teams row=1 error_type=OperationalError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_row_failure_is_safe_counted_and_followed_by_success[OperationalError-players]" time="0.006"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:228 row_failed stage=players row=1 error_type=OperationalError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_row_failure_is_safe_counted_and_followed_by_success[OperationalError-games]" time="0.006"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:384 row_failed stage=games row=1 error_type=OperationalError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_row_failure_is_safe_counted_and_followed_by_success[OperationalError-player_game_stats]" time="0.009"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:568 row_failed stage=player_game_stats row=1 error_type=OperationalError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_row_failure_is_safe_counted_and_followed_by_success[KeyError-teams]" time="0.006"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:127 row_failed stage=teams row=1 error_type=KeyError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_row_failure_is_safe_counted_and_followed_by_success[KeyError-players]" time="0.006"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:228 row_failed stage=players row=1 error_type=KeyError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_row_failure_is_safe_counted_and_followed_by_success[KeyError-games]" time="0.006"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:384 row_failed stage=games row=1 error_type=KeyError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_row_failure_is_safe_counted_and_followed_by_success[KeyError-player_game_stats]" time="0.008"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:568 row_failed stage=player_game_stats row=1 error_type=KeyError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_real_api_request_failure_is_safely_reported[Timeout]" time="0.000"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:monitoring.py:20 ingestion_failed command=test_ingestion_failure_logging error_type=Timeout
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_real_api_request_failure_is_safely_reported[HTTPError]" time="0.000"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:monitoring.py:20 ingestion_failed command=test_ingestion_failure_logging error_type=HTTPError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_database_connection_failure_is_safely_reported" time="0.000"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:monitoring.py:20 ingestion_failed command=data.ingestion.database_ingestion error_type=OperationalError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_partial_stage_causes_nonzero_status[ingest_teams-ingestion]" time="0.006"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:636 ingestion_incomplete failed_rows=1
+--------------------------------- Captured Out ---------------------------------
+Starting NBA database ingestion...
+Teams: processed=2 successful=1 failed=1
+Players: processed=1 successful=1 failed=0
+Games: processed=1 successful=1 failed=0
+Player game stats: processed=1 successful=1 failed=0
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_partial_stage_causes_nonzero_status[ingest_teams-backfill]" time="0.006"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:historical_backfill.py:189 backfill_incomplete failures=1 target_reached=True
+--------------------------------- Captured Out ---------------------------------
+Starting historical NBA backfill...
+Target: 1 player-game observations
+Teams: successful=1 failed=1
+Players: successful=1 failed=0
+Starting database row count: 0
+
+Processing Test Player (201939)
+Fetching 2024-25 game logs...
+2024-25: games=1 stats=1 games_failed=0 stats_failed=0
+Database now contains 1 player-game observations.
+
+Recalculating recent_minutes_avg from complete historical data...
+
+Historical backfill finished.
+Players processed: 1
+Player-game observations: 1
+Failures: 1
+Target of 1 observations reached.
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_partial_stage_causes_nonzero_status[ingest_players-ingestion]" time="0.005"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:636 ingestion_incomplete failed_rows=1
+--------------------------------- Captured Out ---------------------------------
+Starting NBA database ingestion...
+Teams: processed=1 successful=1 failed=0
+Players: processed=2 successful=1 failed=1
+Games: processed=1 successful=1 failed=0
+Player game stats: processed=1 successful=1 failed=0
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_partial_stage_causes_nonzero_status[ingest_players-backfill]" time="0.006"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:historical_backfill.py:189 backfill_incomplete failures=1 target_reached=True
+--------------------------------- Captured Out ---------------------------------
+Starting historical NBA backfill...
+Target: 1 player-game observations
+Teams: successful=1 failed=0
+Players: successful=1 failed=1
+Starting database row count: 0
+
+Processing Test Player (201939)
+Fetching 2024-25 game logs...
+2024-25: games=1 stats=1 games_failed=0 stats_failed=0
+Database now contains 1 player-game observations.
+
+Recalculating recent_minutes_avg from complete historical data...
+
+Historical backfill finished.
+Players processed: 1
+Player-game observations: 1
+Failures: 1
+Target of 1 observations reached.
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_partial_stage_causes_nonzero_status[ingest_games-ingestion]" time="0.005"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:636 ingestion_incomplete failed_rows=1
+--------------------------------- Captured Out ---------------------------------
+Starting NBA database ingestion...
+Teams: processed=1 successful=1 failed=0
+Players: processed=1 successful=1 failed=0
+Games: processed=2 successful=1 failed=1
+Player game stats: processed=1 successful=1 failed=0
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_partial_stage_causes_nonzero_status[ingest_games-backfill]" time="0.006"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:historical_backfill.py:189 backfill_incomplete failures=1 target_reached=True
+--------------------------------- Captured Out ---------------------------------
+Starting historical NBA backfill...
+Target: 1 player-game observations
+Teams: successful=1 failed=0
+Players: successful=1 failed=0
+Starting database row count: 0
+
+Processing Test Player (201939)
+Fetching 2024-25 game logs...
+2024-25: games=1 stats=1 games_failed=1 stats_failed=0
+Database now contains 1 player-game observations.
+
+Recalculating recent_minutes_avg from complete historical data...
+
+Historical backfill finished.
+Players processed: 1
+Player-game observations: 1
+Failures: 1
+Target of 1 observations reached.
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_partial_stage_causes_nonzero_status[ingest_player_game_stats-ingestion]" time="0.005"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:636 ingestion_incomplete failed_rows=1
+--------------------------------- Captured Out ---------------------------------
+Starting NBA database ingestion...
+Teams: processed=1 successful=1 failed=0
+Players: processed=1 successful=1 failed=0
+Games: processed=1 successful=1 failed=0
+Player game stats: processed=2 successful=1 failed=1
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_partial_stage_causes_nonzero_status[ingest_player_game_stats-backfill]" time="0.006"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:historical_backfill.py:189 backfill_incomplete failures=1 target_reached=True
+--------------------------------- Captured Out ---------------------------------
+Starting historical NBA backfill...
+Target: 1 player-game observations
+Teams: successful=1 failed=0
+Players: successful=1 failed=0
+Starting database row count: 0
+
+Processing Test Player (201939)
+Fetching 2024-25 game logs...
+2024-25: games=1 stats=1 games_failed=0 stats_failed=1
+Database now contains 1 player-game observations.
+
+Recalculating recent_minutes_avg from complete historical data...
+
+Historical backfill finished.
+Players processed: 1
+Player-game observations: 1
+Failures: 1
+Target of 1 observations reached.
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_successful_command_returns_zero[ingestion]" time="0.006"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+Starting NBA database ingestion...
+Teams: processed=1 successful=1 failed=0
+Players: processed=1 successful=1 failed=0
+Games: processed=1 successful=1 failed=0
+Player game stats: processed=1 successful=1 failed=0
+NBA database ingestion complete.
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_successful_command_returns_zero[backfill]" time="0.006"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+Starting historical NBA backfill...
+Target: 1 player-game observations
+Teams: successful=1 failed=0
+Players: successful=1 failed=0
+Starting database row count: 0
+
+Processing Test Player (201939)
+Fetching 2024-25 game logs...
+2024-25: games=1 stats=1 games_failed=0 stats_failed=0
+Database now contains 1 player-game observations.
+
+Recalculating recent_minutes_avg from complete historical data...
+
+Historical backfill finished.
+Players processed: 1
+Player-game observations: 1
+Failures: 0
+Target of 1 observations reached.
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_backfill_catches_player_failure_without_leaking[Timeout]" time="0.006"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:historical_backfill.py:135 player_season_failed player_id=201939 season=2024-25 error_type=Timeout
+ERROR    data.ingestion:historical_backfill.py:189 backfill_incomplete failures=1 target_reached=True
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_backfill_catches_player_failure_without_leaking[ValueError]" time="0.006"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:historical_backfill.py:135 player_season_failed player_id=201939 season=2024-25 error_type=ValueError
+ERROR    data.ingestion:historical_backfill.py:189 backfill_incomplete failures=1 target_reached=True
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_backfill_catches_player_failure_without_leaking[OperationalError]" time="0.006"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:historical_backfill.py:135 player_season_failed player_id=201939 season=2024-25 error_type=OperationalError
+ERROR    data.ingestion:historical_backfill.py:189 backfill_incomplete failures=1 target_reached=True
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_backfill_continues_with_next_player" time="0.009"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:historical_backfill.py:135 player_season_failed player_id=1 season=2024-25 error_type=Timeout
+ERROR    data.ingestion:historical_backfill.py:189 backfill_incomplete failures=1 target_reached=True
+--------------------------------- Captured Out ---------------------------------
+Starting historical NBA backfill...
+Target: 1 player-game observations
+Teams: successful=1 failed=0
+Players: successful=1 failed=0
+Starting database row count: 0
+
+Processing First (1)
+Fetching 2024-25 game logs...
+Database now contains 0 player-game observations.
+
+Processing Second (2)
+Fetching 2024-25 game logs...
+2024-25: games=1 stats=1 games_failed=0 stats_failed=0
+Database now contains 1 player-game observations.
+
+Recalculating recent_minutes_avg from complete historical data...
+
+Historical backfill finished.
+Players processed: 2
+Player-game observations: 1
+Failures: 1
+Target of 1 observations reached.
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_empty_history_is_visible[ingestion]" time="0.008"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:database_ingestion.py:611 ingestion_incomplete stage=game_logs reason=empty_response
+--------------------------------- Captured Out ---------------------------------
+Starting NBA database ingestion...
+Teams: processed=1 successful=1 failed=0
+Players: processed=1 successful=1 failed=0
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_empty_history_is_visible[backfill]" time="0.006"><system-out>--------------------------------- Captured Log ---------------------------------
+WARNING  data.ingestion:historical_backfill.py:101 no_game_logs player_id=201939 season=2024-25
+ERROR    data.ingestion:historical_backfill.py:189 backfill_incomplete failures=0 target_reached=False
+--------------------------------- Captured Out ---------------------------------
+Starting historical NBA backfill...
+Target: 1 player-game observations
+Teams: successful=1 failed=0
+Players: successful=1 failed=0
+Starting database row count: 0
+
+Processing Test Player (201939)
+Fetching 2024-25 game logs...
+Database now contains 0 player-game observations.
+
+Recalculating recent_minutes_avg from complete historical data...
+
+Historical backfill finished.
+Players processed: 1
+Player-game observations: 0
+Failures: 0
+Target not reached. Current total: 0
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.test_ingestion_failure_logging" name="test_postprocessing_database_failure_is_safe" time="0.005"><system-out>--------------------------------- Captured Log ---------------------------------
+ERROR    data.ingestion:monitoring.py:20 ingestion_failed command=data.ingestion.historical_backfill error_type=OperationalError
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase></testsuite></testsuites>

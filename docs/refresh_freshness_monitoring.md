@@ -1,5 +1,10 @@
 # Data refresh and freshness anomaly monitoring
 
+Follow-up implementation: [incremental refresh tracking](incremental_refresh_tracking.md)
+now provides a separate command with persisted attempt outcomes and last-success
+timestamps. The original assessment below records the earlier implementation;
+its historical test results and stated gaps are retained as captured.
+
 ## Control and acceptance criteria
 
 Incremental NBA ingestion should identify failed updates and overdue expected

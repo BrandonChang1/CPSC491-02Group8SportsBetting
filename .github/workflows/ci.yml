@@ -137,7 +137,7 @@ jobs:
       # against the migrated database, rather than just a syntax check.
       # A failing test here fails this job.
       - name: Run backend automated tests
-        continue-on-error: true
+        continue-on-error: false
         run: npm test
 
       # -----------------------------------------

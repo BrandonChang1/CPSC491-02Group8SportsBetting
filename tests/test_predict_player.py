@@ -21,7 +21,7 @@ def test_predict_calculates_season_and_recent_averages():
     assert result["season"] == "2025-26"
     assert result["lastGameDate"] == "2025-10-24"
     assert result["gamesAvailable"] == 4
-    assert result["modelVersion"] == "random-forest-points-v1"
+    assert result["modelVersion"] == "linear-regression-points-v1"
     assert isinstance(result["predictedPoints"], float)
     assert result["predictedPoints"] >= 0
     assert "is_home" in result["missingContext"]

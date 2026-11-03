@@ -1,4 +1,4 @@
-"""Next-game random-forest points predictions from game history passed as JSON.
+"""Next-game points predictions from game history passed as JSON.
 
 Reads {'games': [{'game_date': 'YYYY-MM-DD', 'points': 12}, ...]} on stdin.
 Outputs one JSON result on stdout, suitable for the Express route.
@@ -36,12 +36,6 @@ def load_model():
         supported_major_versions=SUPPORTED_MAJOR_VERSIONS,
         expected_feature_schema=EXPECTED_FEATURE_SCHEMA,
     )
-from data.processing.points_features import assign_season
-
-MODEL_PATH = Path(__file__).resolve().parent / "models" / "artifacts" / "random_forest_points.joblib"
-
-def load_model():
-    return joblib.load(MODEL_PATH)
 
 
 def predict(games):
@@ -97,7 +91,6 @@ def predict(games):
         "modelVersion": model.model_version,
         "missingContext": [key for key in ("is_home", "recent_minutes_avg") if math.isnan(features[key])],
         "model": "Trained linear regression (points)",
-        "model": "Trained random forest (tree-based points regression)",
         "season": f"{latest_season}-{str(latest_season + 1)[-2:]}",
         "lastGameDate": df.iloc[-1]["game_date"].strftime("%Y-%m-%d"),
         "gamesAvailable": len(df),

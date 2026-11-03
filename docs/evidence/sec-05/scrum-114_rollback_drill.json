@@ -1,0 +1,47 @@
+{
+  "fixtures_created_with": "ml.model_integrity.save_model",
+  "previous_model": "random-forest-points-v1+20261103T013100Z.b03bc82",
+  "failed_upgrade": "random-forest-points-v1+20261103T013101Z.b03bc82",
+  "loaded_before_rollback": "random-forest-points-v1+20261103T013101Z.b03bc82",
+  "rollback": {
+    "status_changes": {
+      "random-forest-points-v1+20261103T013100Z.b03bc82": [
+        "candidate",
+        "approved"
+      ],
+      "random-forest-points-v1+20261103T013101Z.b03bc82": [
+        "approved",
+        "rejected"
+      ]
+    },
+    "verification": {
+      "loaded_model_version": "random-forest-points-v1+20261103T013100Z.b03bc82",
+      "registry_approved_version": "random-forest-points-v1+20261103T013100Z.b03bc82",
+      "manifest_model_version": "random-forest-points-v1+20261103T013100Z.b03bc82",
+      "manifest_model_sha256": "e99dbe217fbcd0569d71a93d87ce7dce4d9558117f44583cf8880302b8cbf8dd",
+      "artifact_sha256": "e99dbe217fbcd0569d71a93d87ce7dce4d9558117f44583cf8880302b8cbf8dd",
+      "consistent": true
+    }
+  },
+  "registry_after": [
+    {
+      "model_version": "random-forest-points-v1+20261103T013100Z.b03bc82",
+      "status": "approved"
+    },
+    {
+      "model_version": "random-forest-points-v1+20261103T013101Z.b03bc82",
+      "status": "rejected"
+    }
+  ],
+  "checks": {
+    "loaded_equals_restored_registry_entry": true,
+    "loaded_equals_restored_manifest": true,
+    "artifact_hash_equals_manifest": true,
+    "prediction_api_model_version_equals_restored": true
+  },
+  "prediction_after_rollback": {
+    "success": true,
+    "modelVersion": "random-forest-points-v1+20261103T013100Z.b03bc82",
+    "predictedPoints": 18.83
+  }
+}

@@ -3,8 +3,8 @@
   "status": 200,
   "body": {
     "success": true,
-    "predictedPoints": 22.46,
-    "modelVersion": "random-forest-points-v1",
+    "predictedPoints": 21.91,
+    "modelVersion": "random-forest-points-v1.1.0",
     "missingContext": [
       "is_home"
     ],

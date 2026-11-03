@@ -1,0 +1,32 @@
+{
+  "models": [
+    {
+      "model_version": "linear-regression-points-v1",
+      "status": "candidate",
+      "created_at": "2026-10-27T00:51:00.068719+00:00",
+      "git_commit_sha": "0355d7507a0807bb387c8e5f50803d8299fcf38b",
+      "metrics": {
+        "n": 42,
+        "MAE": 8.123,
+        "RMSE": 10.64,
+        "R2": -0.066
+      },
+      "manifest_path": "artifacts/linear_regression_points.manifest.json",
+      "artifact_path": "artifacts/linear_regression_points.joblib"
+    },
+    {
+      "model_version": "random-forest-points-v1.1.0",
+      "status": "approved",
+      "created_at": "2026-11-03T01:02:13.484130+00:00",
+      "git_commit_sha": "b03bc823c6588b421abde835423f6525b75b0634",
+      "metrics": {
+        "n": 1002,
+        "MAE": 5.77,
+        "RMSE": 7.383,
+        "R2": 0.517
+      },
+      "manifest_path": "artifacts/random_forest_points.manifest.json",
+      "artifact_path": "artifacts/random_forest_points.joblib"
+    }
+  ]
+}

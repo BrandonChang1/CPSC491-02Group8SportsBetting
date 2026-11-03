@@ -11,7 +11,7 @@ from pathlib import Path
 from conftest import FIXTURE_MODEL_VERSION
 
 from ml import predict_player
-from ml.model_integrity import manifest_path_for
+from ml.model_integrity import approved_entry, registry_file
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 GAMES = [
@@ -21,7 +21,8 @@ GAMES = [
 
 
 def approved_manifest():
-    return json.loads(manifest_path_for(predict_player.MODEL_PATH).read_text())
+    entry = approved_entry(predict_player.REGISTRY)
+    return json.loads(registry_file(predict_player.REGISTRY, entry["manifest_path"]).read_text())
 
 
 def test_prediction_reports_the_approved_manifest_model_version():
@@ -44,7 +45,7 @@ def test_spawned_prediction_process_reports_the_approved_model_version():
 
 
 def test_model_version_comes_from_the_manifest_not_the_code(approved_model, monkeypatch):
-    monkeypatch.setattr(predict_player, "MODEL_PATH", approved_model.artifact_path)
+    monkeypatch.setattr(predict_player, "REGISTRY", approved_model.registry_path)
 
     result = predict_player.predict(GAMES)
 

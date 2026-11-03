@@ -1,44 +1,71 @@
-"""Train a reproducible random-forest next-game points model from feature CSV.
+"""Train and evaluate a reproducible random-forest next-game points model from feature CSV.
 
 Run from the repository root: python -m ml.training.train_tree_points
 Input features are lagged/prior-game statistics, avoiding target leakage.
+Train/test come from ml.training.evaluation.holdout_split (chronological,
+multi-player holdout), and the model is scored against the baselines on the
+same held-out rows. save_model writes the model, its manifest (with this
+config and these metrics) and a "candidate" entry in ml/models/registry.json.
 """
 import json
 from pathlib import Path
 
-import joblib
-import pandas as pd
+import sklearn
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.impute import SimpleImputer
-from sklearn.metrics import mean_absolute_error
 from sklearn.pipeline import Pipeline
+
+from ml.model_integrity import save_model, sha256_file
+from ml.training.evaluation import (
+    FEATURES,
+    MIN_TEST_PLAYERS,
+    TARGET,
+    TRAIN_FRACTION,
+    evaluate_model,
+    holdout_split,
+    load_dataset,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / 'data/sample/player_game_stats_sample_features.csv'
-OUTPUT = ROOT / 'ml/models/artifacts/random_forest_points.joblib'
-FEATURES = ['pts_season_avg', 'pts_last5_avg', 'pts_last10_avg', 'is_home', 'recent_minutes_avg']
+MODEL_NAME = 'random-forest-points'
+FOREST_PARAMS = {'n_estimators': 120, 'min_samples_leaf': 4, 'random_state': 42, 'n_jobs': -1}
 
 
 def main():
-    data = pd.read_csv(DATA)
-    data['game_date'] = pd.to_datetime(data['game_date'], errors='coerce')
-    for field in FEATURES + ['points']:
-        data[field] = pd.to_numeric(data[field], errors='coerce')
-    # Need past results for each player; split labels are precomputed chronologically.
-    data = data.dropna(subset=['game_date', 'points', 'pts_last5_avg'])
-    train = data[data['split'] == 'train']
-    test = data[data['split'] == 'test']
-    if train.empty or test.empty:
-        raise ValueError('Expected nonempty chronological train and test subsets')
+    holdout = holdout_split(load_dataset(DATA))
     model = Pipeline([
         ('imputer', SimpleImputer(strategy='median', add_indicator=False)),
-        ('forest', RandomForestRegressor(n_estimators=120, min_samples_leaf=4, random_state=42, n_jobs=-1)),
+        ('forest', RandomForestRegressor(**FOREST_PARAMS)),
     ])
-    model.fit(train[FEATURES], train['points'])
-    mae = mean_absolute_error(test['points'], model.predict(test[FEATURES]))
-    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    joblib.dump({'features': FEATURES, 'pipeline': model}, OUTPUT)
-    print(json.dumps({'model': 'random-forest-points-v1', 'train_rows': len(train), 'test_rows': len(test), 'test_mae_points': round(float(mae), 3), 'output': str(OUTPUT)}))
+    model.fit(holdout.train[FEATURES], holdout.train[TARGET])
+
+    training_config = {
+        'training_script': 'ml/training/train_tree_points.py',
+        'evaluation_module': 'ml/training/evaluation.py',
+        'estimator': 'Pipeline(SimpleImputer(strategy=median) -> RandomForestRegressor)',
+        'forest_params': FOREST_PARAMS,
+        'features': FEATURES,
+        'target': TARGET,
+        'train_fraction': TRAIN_FRACTION,
+        'min_test_players': MIN_TEST_PLAYERS,
+        'dataset': str(DATA.relative_to(ROOT)),
+        'dataset_sha256': sha256_file(DATA),
+        'holdout': holdout.summary(),
+        'scikit_learn_version': sklearn.__version__,
+    }
+    metrics = evaluate_model(model, holdout, MODEL_NAME)
+    entry = save_model(
+        model,
+        model_name=MODEL_NAME,
+        features=holdout.train[FEATURES],
+        dataset_path=DATA,
+        training_config=training_config,
+        evaluation_metrics=metrics,
+    )
+    print(json.dumps({'saved': entry['model_version'], 'status': entry['status'], 'test': metrics['test'],
+                      'best_baseline': metrics['best_baseline'], 'beats_best_baseline': metrics['beats_best_baseline'],
+                      'artifact': entry['artifact_path'], 'manifest': entry['manifest_path']}))
 
 
 if __name__ == '__main__':

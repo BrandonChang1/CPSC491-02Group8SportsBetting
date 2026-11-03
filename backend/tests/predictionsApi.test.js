@@ -19,7 +19,15 @@ const request = require("supertest");
 const pool = require("../app/db");
 const predictionsRouter = require("../app/routes/predictions");
 
-const MANIFEST_PATH = path.join(__dirname, "..", "..", "ml", "models", "artifacts", "random_forest_points.manifest.json");
+const REGISTRY_PATH = path.join(__dirname, "..", "..", "ml", "models", "registry.json");
+
+/** The manifest of the registry's single approved model (the one the API must serve). */
+function approvedManifest() {
+  const registry = JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8"));
+  const approved = registry.models.filter((entry) => entry.status === "approved");
+  assert.strictEqual(approved.length, 1, "registry must approve exactly one model");
+  return JSON.parse(fs.readFileSync(path.join(path.dirname(REGISTRY_PATH), approved[0].manifest_path), "utf8"));
+}
 const GAMES = [
   { game_date: "2026-01-01", points: 18, minutes: 31 },
   { game_date: "2026-01-03", points: 24, minutes: 35 },
@@ -39,7 +47,7 @@ test.after(async () => {
 });
 
 test("GET /api/players/:id/prediction returns the approved manifest's model_version", async () => {
-  const manifest = JSON.parse(fs.readFileSync(MANIFEST_PATH, "utf8"));
+  const manifest = approvedManifest();
 
   const res = await request(app).get("/api/players/9300001/prediction");
 

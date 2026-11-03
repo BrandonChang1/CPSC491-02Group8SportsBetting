@@ -1,22 +1,29 @@
-"""Model version manifests and verify-before-load for trained model artifacts.
+"""Model version manifests, the model registry, and verify-before-load.
 
 Every joblib artifact in ml/models/artifacts/ has a manifest next to it
 (<artifact stem>.manifest.json) recording the artifact's SHA-256, the dataset
 and code it came from, its ordered feature schema, config and metrics.
 
+save_model() is the only way to create a model file, its manifest and its
+registry entry; nothing here is written by hand. ml/models/registry.json lists
+every model with a status (candidate, approved, rejected). Exactly one model
+may be approved, and set_status() is how that changes.
+
 load_verified_model() is the only supported way to load an artifact: it checks
 the manifest and artifact bytes BEFORE anything is deserialized, because
-joblib/pickle can run arbitrary code on load.
+joblib/pickle can run arbitrary code on load. load_approved_model() picks the
+registry's approved model and loads it through load_verified_model().
 
-Generate a manifest for an existing artifact:
-    python ml/model_integrity.py generate ARTIFACT --model-version NAME-vN \
-        --dataset CSV --feature-schema name:dtype,... --config JSON --metrics CSV
+    python ml/model_integrity.py list
+    python ml/model_integrity.py set-status VERSION approved|rejected|candidate
+    python ml/model_integrity.py check MANIFEST
 """
 import argparse
 import csv
 import hashlib
 import io
 import json
+import os
 import re
 import subprocess
 import sys
@@ -28,6 +35,9 @@ from typing import Any
 import joblib
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+ARTIFACT_DIR = REPO_ROOT / "ml" / "models" / "artifacts"
+REGISTRY_PATH = REPO_ROOT / "ml" / "models" / "registry.json"
+STATUSES = ("candidate", "approved", "rejected")
 CHUNK_SIZE = 1024 * 1024
 
 # Required manifest fields and the JSON type each must have.
@@ -42,8 +52,11 @@ REQUIRED_FIELDS = {
     "evaluation_metrics": dict,
 }
 
-# e.g. "random-forest-points-v1" or "random-forest-points-v1.2.0"
-MODEL_VERSION_PATTERN = re.compile(r"^(?P<name>[a-z0-9]+(?:-[a-z0-9]+)*)-v(?P<major>\d+)(?:\.\d+){0,2}$")
+# e.g. "random-forest-points-v1", "random-forest-points-v1.2.0", or as save_model
+# names them, "random-forest-points-v1+20261102T170000Z.b03bc82" (UTC time, commit).
+MODEL_VERSION_PATTERN = re.compile(
+    r"^(?P<name>[a-z0-9]+(?:-[a-z0-9]+)*)-v(?P<major>\d+)(?:\.\d+){0,2}(?:\+[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)*)?$"
+)
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 GIT_SHA_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 
@@ -89,6 +102,30 @@ class FeatureSchemaMismatchError(ModelIntegrityError):
     code = "feature_schema_mismatch"
 
 
+class RegistryError(ModelIntegrityError):
+    """The registry is missing, unreadable, or inconsistent with a model's manifest."""
+
+    code = "registry_invalid"
+
+
+class NoApprovedModelError(RegistryError):
+    """No registry entry has status "approved"."""
+
+    code = "no_approved_model"
+
+
+class MultipleApprovedModelsError(RegistryError):
+    """More than one registry entry has status "approved"."""
+
+    code = "multiple_approved_models"
+
+
+class ModelArtifactMissingError(ModelIntegrityError):
+    """The registry points at a model file that does not exist."""
+
+    code = "artifact_missing"
+
+
 @dataclass(frozen=True)
 class VerifiedModel:
     """A deserialized artifact that passed verification, plus its manifest."""
@@ -131,31 +168,6 @@ def git_commit_sha(artifact_path):
     except subprocess.CalledProcessError:
         pass  # path is outside the repository
     return git("rev-parse", "HEAD")
-
-
-def parse_feature_schema(spec):
-    """'a:float64,b:int64' -> [{'name': 'a', 'dtype': 'float64'}, ...]"""
-    schema = []
-    for item in spec.split(","):
-        name, _, dtype = item.strip().partition(":")
-        schema.append({"name": name.strip(), "dtype": dtype.strip()})
-    return schema
-
-
-def load_metrics(path):
-    """Read a metrics file: JSON as-is, or a notebook metrics CSV keyed by its split column."""
-    path = Path(path)
-    if path.suffix == ".json":
-        return json.loads(path.read_text())
-    with open(path, newline="") as handle:
-        rows = list(csv.DictReader(handle))
-    def number(value):
-        try:
-            return int(value)
-        except ValueError:
-            return float(value)
-
-    return {row.pop("split"): {key: number(value) for key, value in row.items() if key != "model"} for row in rows}
 
 
 def _is_empty(value):
@@ -222,7 +234,7 @@ def generate_manifest(artifact_path, *, model_version, dataset_path, feature_sch
     if problems:
         raise IncompleteManifestError(problems)
     if not MODEL_VERSION_PATTERN.match(model_version):
-        raise ValueError(f"model_version '{model_version}' must look like 'name-v1' or 'name-v1.2.3'")
+        raise ValueError(f"model_version '{model_version}' must look like 'name-v1', 'name-v1.2.3' or 'name-v1+build'")
     return manifest
 
 
@@ -294,37 +306,208 @@ def load_verified_model(artifact_path, *, model_name, supported_major_versions, 
     return VerifiedModel(artifact=artifact, manifest=manifest, model_version=manifest["model_version"])
 
 
+
+
+# --- Registry -------------------------------------------------------------
+
+
+def read_registry(registry_path=REGISTRY_PATH):
+    registry_path = Path(registry_path)
+    try:
+        registry = json.loads(registry_path.read_text())
+    except FileNotFoundError:
+        raise RegistryError(f"No model registry at {registry_path}") from None
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise RegistryError(f"Model registry {registry_path} could not be read: {exc}") from None
+    if not isinstance(registry, dict) or not isinstance(registry.get("models"), list):
+        raise RegistryError(f"Model registry {registry_path} must be an object with a 'models' list")
+    return registry
+
+
+def _write_registry(registry, registry_path):
+    registry_path = Path(registry_path)
+    temporary = registry_path.with_name(f".{registry_path.name}.tmp")
+    temporary.write_text(json.dumps(registry, indent=2) + "\n")
+    os.replace(temporary, registry_path)
+
+
+def registry_file(registry_path, relative):
+    """Resolve a path stored in the registry (relative to the registry's folder)."""
+    return Path(registry_path).parent / relative
+
+
+def approved_entry(registry_path=REGISTRY_PATH):
+    """The single approved registry entry; raises if there are none or several."""
+    approved = [entry for entry in read_registry(registry_path)["models"] if entry.get("status") == "approved"]
+    if not approved:
+        raise NoApprovedModelError("No model in the registry has status 'approved'")
+    if len(approved) > 1:
+        versions = ", ".join(entry.get("model_version", "?") for entry in approved)
+        raise MultipleApprovedModelsError(f"More than one model is approved: {versions}")
+    return approved[0]
+
+
+def register_model(artifact_path, *, status="candidate", registry_path=REGISTRY_PATH):
+    """Add an intact artifact and its manifest to the registry; returns the new entry.
+
+    Only save_model and the one-time backfill call this. The entry is built from
+    the manifest, so registry and manifest cannot disagree when written.
+    """
+    artifact_path, registry_path = Path(artifact_path), Path(registry_path)
+    manifest_path = manifest_path_for(artifact_path)
+    manifest = json.loads(manifest_path.read_text())
+    problems = validate_manifest(manifest)
+    if problems:
+        raise IncompleteManifestError(problems)
+    if sha256_file(artifact_path) != manifest["model_sha256"]:
+        raise ModelHashMismatchError(f"{artifact_path.name} does not match its manifest; not registering it")
+    if status not in STATUSES:
+        raise ValueError(f"status must be one of {STATUSES}, got {status!r}")
+
+    registry = read_registry(registry_path) if registry_path.exists() else {"models": []}
+    versions = [entry.get("model_version") for entry in registry["models"]]
+    if manifest["model_version"] in versions:
+        raise RegistryError(f"{manifest['model_version']} is already registered")
+    if status == "approved" and any(entry.get("status") == "approved" for entry in registry["models"]):
+        raise MultipleApprovedModelsError("Another model is already approved; use set_status to change approval")
+
+    test_metrics = manifest["evaluation_metrics"].get("test", {})
+    entry = {
+        "model_version": manifest["model_version"],
+        "status": status,
+        "created_at": manifest.get("generated_at"),
+        "git_commit_sha": manifest["git_commit_sha"],
+        "metrics": {key: test_metrics[key] for key in ("n", "MAE", "RMSE", "R2") if key in test_metrics},
+        "manifest_path": Path(os.path.relpath(manifest_path, registry_path.parent)).as_posix(),
+        "artifact_path": Path(os.path.relpath(artifact_path, registry_path.parent)).as_posix(),
+    }
+    registry["models"].append(entry)
+    _write_registry(registry, registry_path)
+    return entry
+
+
+def set_status(version, status, *, registry_path=REGISTRY_PATH):
+    """Change a model's status. Approving one demotes the previously approved model to candidate.
+
+    Returns {version: (old_status, new_status)} for every entry that changed.
+    Approval requires the model's file and manifest to exist and match.
+    """
+    if status not in STATUSES:
+        raise ValueError(f"status must be one of {STATUSES}, got {status!r}")
+    registry = read_registry(registry_path)
+    matches = [entry for entry in registry["models"] if entry.get("model_version") == version]
+    if not matches:
+        raise RegistryError(f"{version} is not in the registry")
+    target = matches[0]
+
+    changes = {}
+    if status == "approved":
+        manifest_path = registry_file(registry_path, target["manifest_path"])
+        artifact_path = registry_file(registry_path, target["artifact_path"])
+        if not manifest_path.exists():
+            raise ManifestMissingError(f"Cannot approve {version}: no manifest at {manifest_path}")
+        if not artifact_path.exists():
+            raise ModelArtifactMissingError(f"Cannot approve {version}: no model file at {artifact_path}")
+        if sha256_file(artifact_path) != json.loads(manifest_path.read_text()).get("model_sha256"):
+            raise ModelHashMismatchError(f"Cannot approve {version}: model file does not match its manifest")
+        for entry in registry["models"]:
+            if entry is not target and entry.get("status") == "approved":
+                changes[entry["model_version"]] = ("approved", "candidate")
+                entry["status"] = "candidate"
+
+    if target["status"] != status:
+        changes[version] = (target["status"], status)
+        target["status"] = status
+    _write_registry(registry, registry_path)
+    return changes
+
+
+def save_model(model, *, model_name, features, dataset_path, training_config, evaluation_metrics,
+               major_version=1, artifact_dir=ARTIFACT_DIR, registry_path=REGISTRY_PATH):
+    """Write a trained model, its manifest and a "candidate" registry entry; returns the entry.
+
+    `features` is the training feature frame: its column order and dtypes become
+    the feature schema. The version is "<model_name>-v<major>+<UTC timestamp>.<short commit>",
+    and every save gets its own file, so earlier models stay available for rollback.
+    """
+    artifact_dir = Path(artifact_dir)
+    artifact_dir.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    commit = git_commit_sha(artifact_dir / f"{model_name}_{timestamp}.joblib")
+    model_version = f"{model_name}-v{major_version}+{timestamp}.{commit[:7]}"
+    artifact_path = artifact_dir / f"{model_name}_{timestamp}_{commit[:7]}.joblib"
+    if artifact_path.exists() or manifest_path_for(artifact_path).exists():
+        raise FileExistsError(f"{artifact_path} already exists")
+
+    feature_schema = [{"name": str(name), "dtype": str(dtype)} for name, dtype in features.dtypes.items()]
+    dirty = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"], cwd=REPO_ROOT,
+                           capture_output=True, text=True, check=True).stdout.strip()
+    try:
+        joblib.dump({"features": [feature["name"] for feature in feature_schema], "pipeline": model}, artifact_path)
+        manifest = generate_manifest(
+            artifact_path,
+            model_version=model_version,
+            dataset_path=dataset_path,
+            feature_schema=feature_schema,
+            # Records whether the commit fully describes the code that trained the model.
+            training_config={**training_config, "git_worktree_clean": not dirty},
+            evaluation_metrics=evaluation_metrics,
+        )
+        write_manifest(artifact_path, manifest)
+        return register_model(artifact_path, status="candidate", registry_path=registry_path)
+    except BaseException:
+        artifact_path.unlink(missing_ok=True)
+        manifest_path_for(artifact_path).unlink(missing_ok=True)
+        raise
+
+
+def load_approved_model(*, model_name, supported_major_versions, expected_feature_schema, registry_path=REGISTRY_PATH):
+    """Load the registry's single approved model through load_verified_model, or raise."""
+    entry = approved_entry(registry_path)
+    artifact_path = registry_file(registry_path, entry["artifact_path"])
+    if not artifact_path.exists():
+        raise ModelArtifactMissingError(f"Approved model file {artifact_path} does not exist")
+    model = load_verified_model(
+        artifact_path,
+        manifest_path=registry_file(registry_path, entry["manifest_path"]),
+        model_name=model_name,
+        supported_major_versions=supported_major_versions,
+        expected_feature_schema=expected_feature_schema,
+    )
+    if model.model_version != entry["model_version"]:
+        raise RegistryError(
+            f"Registry approves {entry['model_version']} but its manifest is {model.model_version}"
+        )
+    return model
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--registry", type=Path, default=REGISTRY_PATH)
     commands = parser.add_subparsers(dest="command", required=True)
 
-    generate = commands.add_parser("generate", help="write <artifact>.manifest.json for a trained artifact")
-    generate.add_argument("artifact", type=Path)
-    generate.add_argument("--model-version", required=True)
-    generate.add_argument("--dataset", required=True, type=Path)
-    generate.add_argument("--dataset-version")
-    generate.add_argument("--feature-schema", required=True, help="ordered name:dtype pairs, comma-separated")
-    generate.add_argument("--config", required=True, help="training config as a JSON string or JSON file path")
-    generate.add_argument("--metrics", required=True, type=Path, help="metrics CSV (with a split column) or JSON")
+    commands.add_parser("list", help="show every registered model and its status")
+
+    status = commands.add_parser("set-status", help="approve, reject or demote a registered model")
+    status.add_argument("version")
+    status.add_argument("status", choices=STATUSES)
 
     check = commands.add_parser("check", help="report every problem with an existing manifest")
     check.add_argument("manifest", type=Path)
 
     args = parser.parse_args(argv)
     try:
-        if args.command == "generate":
-            config_path = Path(args.config)
-            config = json.loads(config_path.read_text() if config_path.suffix == ".json" and config_path.exists() else args.config)
-            manifest = generate_manifest(
-                args.artifact,
-                model_version=args.model_version,
-                dataset_path=args.dataset,
-                dataset_version=args.dataset_version,
-                feature_schema=parse_feature_schema(args.feature_schema),
-                training_config=config,
-                evaluation_metrics=load_metrics(args.metrics),
-            )
-            print(f"Wrote {write_manifest(args.artifact, manifest)}")
+        if args.command == "list":
+            for entry in read_registry(args.registry)["models"]:
+                metrics = entry.get("metrics", {})
+                print(f"{entry['status']:<9} {entry['model_version']:<55} {(entry.get('created_at') or '')[:19]:<19} "
+                      f"{entry['git_commit_sha'][:7]}  test MAE {metrics.get('MAE', '-')}")
+        elif args.command == "set-status":
+            changes = set_status(args.version, args.status, registry_path=args.registry)
+            for version, (old, new) in changes.items():
+                print(f"{version}: {old} -> {new}")
+            if not changes:
+                print(f"{args.version} is already {args.status}")
         else:
             problems = validate_manifest(json.loads(args.manifest.read_text()))
             for problem in problems:

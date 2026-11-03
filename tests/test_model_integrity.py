@@ -60,7 +60,7 @@ def assert_rejected(model, error, monkeypatch, deserialize_calls, *, deserialize
         load(model)
     assert len(deserialize_calls) == (1 if deserialized else 0)
 
-    monkeypatch.setattr(predict_player, "MODEL_PATH", model.artifact_path)
+    monkeypatch.setattr(predict_player, "REGISTRY", model.registry_path)
     result = predict_player.predict(GAMES)
     assert result["success"] is False
     assert result["errorCode"] == error.code
@@ -90,7 +90,7 @@ def test_approved_model_loads_and_predicts(approved_model, deserialize_calls, mo
     assert model.manifest == approved_model.manifest
     assert len(deserialize_calls) == 1
 
-    monkeypatch.setattr(predict_player, "MODEL_PATH", approved_model.artifact_path)
+    monkeypatch.setattr(predict_player, "REGISTRY", approved_model.registry_path)
     result = predict_player.predict(GAMES)
     assert result["success"] is True
     assert isinstance(result["predictedPoints"], float)

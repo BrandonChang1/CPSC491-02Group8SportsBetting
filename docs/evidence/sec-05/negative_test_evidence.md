@@ -39,7 +39,7 @@ Every test builds its own small model and approved manifest in pytest's `tmp_pat
 
 | Case | File | Result |
 |------|------|--------|
-| Approved model | [sample_prediction_response.json](sample_prediction_response.json) | `200`, `modelVersion: "random-forest-points-v1"`, matching the approved manifest |
+| Approved model | [sample_prediction_response.json](sample_prediction_response.json) | `200`, `modelVersion: "random-forest-points-v1.1.0"`, matching the approved manifest |
 | Tampered model (one bit flipped, in a scratch copy of the code) | [sample_prediction_response_tampered_model.json](sample_prediction_response_tampered_model.json) | `503`, `errorCode: "hash_mismatch"`, no `predictedPoints` or `modelVersion` |
 
 ## Reproduce

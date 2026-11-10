@@ -50,8 +50,31 @@ function roundMoney(value) {
 }
 
 app.use(express.json());
+
+// Protect these documents before express.static can serve them.
+// The client-side popup improves navigation; it is not the security boundary.
+const loginOnlyPages = new Set([
+    "/test-panel.html",
+    "/upcoming-games.html",
+    "/upcoming_games.html"
+]);
+app.use((req, res, next) => {
+    let pagePath;
+    try {
+        // Normalize encoded paths too so alternate URL spellings cannot bypass the gate.
+        pagePath = path.posix.normalize(decodeURIComponent(req.path)).toLowerCase();
+    } catch {
+        return res.status(400).send("Invalid URL.");
+    }
+    if (!loginOnlyPages.has(pagePath)) return next();
+    return requireAuth(req, res, next);
+});
+
 app.use(express.static(path.join(__dirname, "public")));
 app.use(authRouter);
+
+// Requests made directly to these APIs must also have a valid user session.
+app.use(["/api/upcoming-games", "/api/frontend-test-panel"], requireAuth);
 app.use(healthRouter);
 app.use(playersRouter);
 app.use(predictionsRouter);

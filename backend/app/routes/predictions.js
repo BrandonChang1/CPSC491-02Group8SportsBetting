@@ -9,6 +9,10 @@ const router = express.Router();
 const python = process.env.PYTHON_COMMAND || (process.platform === "win32" ? "python" : "python3");
 const root = path.join(__dirname, "../../..");
 
+const { NotFoundError } = require("../errors");
+const { requireAuth } = require("./auth");
+const { getModelMetrics } = require("../services/modelMetrics");
+
 function executePython(scriptName, args = [], input) {
   return new Promise((resolve, reject) => {
     const child = spawn(python, [path.join(root, "ml", scriptName), ...args], { cwd: root });
@@ -80,5 +84,18 @@ router.get("/api/players/:id/prediction", asyncHandler(async (req, res) => {
     ...(databaseError ? { fallbackReason: "Database unavailable" } : {}),
   });
 }));
+
+router.get("/models/metrics", requireAuth, asyncHandler(async (req, res) => {
+  const models = await getModelMetrics();
+  if (models.length === 0) {
+    throw new NotFoundError("No model metrics available yet");
+  }
+  const approved = models.find((m) => m.status === "approved");
+  res.json({
+    approved_model_version: approved ? approved.model_version : null,
+    models,
+  });
+}));
+ 
 
 module.exports = router;

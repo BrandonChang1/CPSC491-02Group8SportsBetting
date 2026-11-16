@@ -124,4 +124,76 @@ router.get(
   })
 );
 
+/**
+ * GET /players/:id/trends?limit=
+ *
+ * Recent scoring trend for a player (SCRUM-72). Looks at the player's most
+ * recent `limit` games (default 10, max 50), compares the average of the last
+ * 5 against the 5 games before them, and reports whether scoring is trending
+ * up, down, or flat (a change of more than 1 point either way).
+ *
+ * Requires a login session, like the prediction route (SEC-02).
+ *
+ * - unknown player            -> 404
+ * - non-numeric id / bad limit -> 400
+ * - player with no games       -> 200 with games_analyzed 0 and null averages
+ *   (the player exists, there is just nothing to trend yet)
+ *
+ * PASTE THIS INTO backend/app/routes/players.js, after the prediction route
+ * and above `module.exports`. It uses only imports that file already has
+ * (pool, asyncHandler, parsePagination, parseIntParam, NotFoundError,
+ * requireAuth).
+ */
+router.get(
+  "/players/:id/trends",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const id = parseIntParam(req.params.id, "player id");
+    const { limit } = parsePagination(req.query, { defaultLimit: 10, maxLimit: 50 });
+
+    const player = await pool.query("SELECT id FROM players WHERE id = $1", [id]);
+    if (player.rows.length === 0) {
+      throw new NotFoundError("Player not found");
+    }
+
+    const { rows } = await pool.query(
+      `SELECT g.game_date::text AS game_date, pgs.points
+       FROM player_game_stats pgs
+       JOIN games g ON g.id = pgs.game_id
+       WHERE pgs.player_id = $1 AND pgs.points IS NOT NULL
+       ORDER BY g.game_date DESC
+       LIMIT $2`,
+      [id, limit]
+    );
+
+    // Newest-first from the query; flip to oldest-first so it reads as a trend.
+    const games = rows.reverse().map((r) => ({ game_date: r.game_date, points: Number(r.points) }));
+
+    const average = (list) =>
+      list.length === 0 ? null : Math.round((list.reduce((sum, g) => sum + g.points, 0) / list.length) * 10) / 10;
+
+    const recent = games.slice(-5);
+    const previous = games.slice(-10, -5);
+    const recentAverage = average(recent);
+    const previousAverage = average(previous);
+
+    let change = null;
+    let direction = null;
+    if (recentAverage !== null && previousAverage !== null) {
+      change = Math.round((recentAverage - previousAverage) * 10) / 10;
+      direction = change > 1 ? "up" : change < -1 ? "down" : "flat";
+    }
+
+    res.json({
+      player_id: id,
+      games_analyzed: games.length,
+      recent_average: recentAverage,
+      previous_average: previousAverage,
+      change,
+      direction,
+      games,
+    });
+  })
+);
+
 module.exports = router;

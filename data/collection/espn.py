@@ -2,6 +2,7 @@
 
 import json
 import re
+import time
 import unicodedata
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
@@ -10,6 +11,8 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import requests
+
+from data.ingestion.monitoring import logger
 
 SITE = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba"
 COMMON = "https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba"
@@ -26,10 +29,39 @@ ABBREVIATIONS = {
 }
 
 
+RETRY_ATTEMPTS = 3  # Total tries per request, so a dead source fails after 2 waits.
+RETRY_BASE_DELAY = 1.0  # Seconds; doubles each retry (1s, 2s).
+RETRYABLE_STATUS = {429, 500, 502, 503, 504}
+
+
+def is_recoverable(error):
+    """Transient network/server failures are retried; 4xx and malformed payloads are not."""
+    if isinstance(error, requests.HTTPError):
+        return error.response is not None and error.response.status_code in RETRYABLE_STATUS
+    return isinstance(error, (requests.ConnectionError, requests.Timeout,
+                              requests.exceptions.ChunkedEncodingError, requests.JSONDecodeError))
+
+
 def request_json(base, path, **params):
-    response = requests.get(f"{base}/{path}", params=params, timeout=15)
-    response.raise_for_status()
-    payload = response.json()
+    for attempt in range(1, RETRY_ATTEMPTS + 1):
+        try:
+            response = requests.get(f"{base}/{path}", params=params, timeout=15)
+            response.raise_for_status()
+            payload = response.json()
+            break
+        except requests.RequestException as error:
+            status = getattr(error.response, "status_code", None)
+            # Log the path and error class only: messages can carry full URLs.
+            if attempt == RETRY_ATTEMPTS or not is_recoverable(error):
+                logger.error("espn_request_failed path=%s attempts=%d status=%s error_type=%s",
+                             path, attempt, status, type(error).__name__)
+                raise
+            delay = RETRY_BASE_DELAY * 2 ** (attempt - 1)
+            logger.warning("espn_request_retry path=%s attempt=%d status=%s error_type=%s delay_s=%.1f",
+                           path, attempt, status, type(error).__name__, delay)
+            time.sleep(delay)
+    if attempt > 1:
+        logger.info("espn_request_recovered path=%s attempts=%d", path, attempt)
     if not isinstance(payload, dict) or payload.get("error"):
         raise ValueError(f"Invalid ESPN response for {path}")
     return payload

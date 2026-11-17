@@ -39,6 +39,8 @@ const PLAYER_ID = 9000001;
 const OTHER_PLAYER_ID = 9000002; // has no team, no games — edge case coverage
 const GAME_ID_OLD = "9000001";
 const GAME_ID_NEW = "9000002";
+// Two different players with the same name (like the real "Mike James" pair).
+const TWIN_IDS = [9000003, 9000004];
 
 test.before(async () => {
   await pool.query(
@@ -64,6 +66,14 @@ test.before(async () => {
     [OTHER_PLAYER_ID]
   );
 
+  // Inserted highest id first so physical order can't accidentally match id order.
+  await pool.query(
+    `INSERT INTO players (id, full_name, is_active)
+     VALUES ($2, 'Twin Testalike', false), ($1, 'Twin Testalike', false)
+     ON CONFLICT (id) DO NOTHING`,
+    TWIN_IDS
+  );
+
   await pool.query(
     `INSERT INTO games (id, game_date, home_team_id, away_team_id)
      VALUES
@@ -86,7 +96,7 @@ test.before(async () => {
 test.after(async () => {
   await pool.query("DELETE FROM player_game_stats WHERE player_id = $1", [PLAYER_ID]);
   await pool.query("DELETE FROM games WHERE id IN ($1, $2)", [GAME_ID_OLD, GAME_ID_NEW]);
-  await pool.query("DELETE FROM players WHERE id IN ($1, $2)", [PLAYER_ID, OTHER_PLAYER_ID]);
+  await pool.query("DELETE FROM players WHERE id = ANY($1)", [[PLAYER_ID, OTHER_PLAYER_ID, ...TWIN_IDS]]);
   await pool.query("DELETE FROM teams WHERE id IN ($1, $2)", [TEAM_ID, RIVAL_TEAM_ID]);
   await pool.end();
 });
@@ -105,6 +115,17 @@ test("GET /players?search= finds a player by partial, case-insensitive name", as
   const found = res.body.find((p) => p.id === PLAYER_ID);
   assert.ok(found, "expected seeded player to appear in search results");
   assert.strictEqual(found.full_name, "Zaphod Testington");
+});
+
+test("GET /players?search= pages same-name players in a stable id order", async () => {
+  const pages = [];
+  for (const skip of [0, 1]) {
+    const res = await request(app).get("/players").query({ search: "twin testalike", skip, limit: 1 });
+    assert.strictEqual(res.status, 200);
+    pages.push(...res.body.map((p) => p.id));
+  }
+  // Ordering by name alone left ties unordered, so a player could repeat or vanish across pages.
+  assert.deepStrictEqual(pages, TWIN_IDS);
 });
 
 test("GET /players?search= with no match returns an empty array, not an error", async () => {

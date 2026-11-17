@@ -24,6 +24,7 @@ MAX_POINTS = 100
 MAX_REBOUNDS = 60
 MAX_ASSISTS = 40
 PCT_TOLERANCE = 0.002  # Source percentages are rounded to 3 decimals.
+RECENT_MINUTES_TOLERANCE = 0.01  # Same tolerance as prediction_readiness.
 
 # Every stat row with its player, game and opponent, kept even when a reference is missing.
 STATS = """
@@ -135,6 +136,29 @@ CHECKS = [
      "g.game_date > CURRENT_DATE", STAT_KEY),
     ("relationships", "warning", "every stored game has at least one stat row",
      "games g", "NOT EXISTS (SELECT 1 FROM player_game_stats s WHERE s.game_id = g.id)", "g.id"),
+
+    # Consistency across rows (SCRUM-140)
+    # Same definition as recalculate_recent_minutes_avg: mean minutes of the player's previous 5 stored games.
+    ("consistency", "error", "recent_minutes_avg equals the prior-5-game minutes average",
+     ("(SELECT s.player_id, s.game_id, s.recent_minutes_avg, AVG(s.minutes) OVER ("
+      "PARTITION BY s.player_id ORDER BY g.game_date, s.game_id"
+      " ROWS BETWEEN 5 PRECEDING AND 1 PRECEDING) AS expected"
+      " FROM player_game_stats s JOIN games g ON g.id = s.game_id) r"),
+     (f"(r.recent_minutes_avg IS NULL) <> (r.expected IS NULL)"
+     f" OR ABS(r.recent_minutes_avg - r.expected) > {RECENT_MINUTES_TOLERANCE}"),
+     "r.player_id, r.game_id, r.recent_minutes_avg, r.expected"),
+    ("consistency", "error", "teammates in a game agree on win_loss, matchup and opponent",
+     ("(SELECT game_id, is_home, COUNT(DISTINCT win_loss) AS results, COUNT(DISTINCT matchup) AS matchups,"
+      " COUNT(DISTINCT opponent_team_id) AS opponents FROM player_game_stats"
+      " WHERE is_home IS NOT NULL GROUP BY 1, 2) d"),
+     "d.results > 1 OR d.matchups > 1 OR d.opponents > 1", "d.game_id, d.is_home"),
+    ("consistency", "error", "home and away sides of a game have opposite results",
+     ("(SELECT game_id, BOOL_OR(is_home AND win_loss = 'W') AS home_won, BOOL_OR(NOT is_home AND win_loss = 'W')"
+      " AS away_won, BOOL_OR(is_home AND win_loss = 'L') AS home_lost,"
+      " BOOL_OR(NOT is_home AND win_loss = 'L') AS away_lost FROM player_game_stats GROUP BY 1) d"),
+     "(d.home_won AND d.away_won) OR (d.home_lost AND d.away_lost)", "d.game_id"),
+    ("consistency", "error", "matchup 'vs.' / '@' agrees with is_home", STATS,
+     "s.matchup IS NOT NULL AND s.is_home IS NOT NULL AND s.is_home <> (s.matchup LIKE '% vs. %')", STAT_KEY),
 ]
 
 TABLES = ["teams", "players", "games", "player_game_stats"]

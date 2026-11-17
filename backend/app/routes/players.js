@@ -26,7 +26,7 @@ router.get(
           `SELECT id, full_name, first_name, last_name, is_active, team_id
            FROM players
            WHERE full_name ILIKE $1
-           ORDER BY full_name
+           ORDER BY full_name, id
            OFFSET $2 LIMIT $3`,
           [`%${search}%`, skip, limit]
         )

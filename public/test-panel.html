@@ -72,6 +72,10 @@
                 <h2>NBA Games Starting Within 7 Days</h2>
             </div>
             <div class="action-row">
+                <label for="mockAwayTeam">Away team</label>
+                <select id="mockAwayTeam" class="money-input" aria-label="Mock game away team"></select>
+                <label for="mockHomeTeam">Home team</label>
+                <select id="mockHomeTeam" class="money-input" aria-label="Mock game home team"></select>
                 <button id="createMockButton" class="panel-button" type="button">Create Mock NBA Game</button>
                 <span class="muted-text">Mock game starts in 15 seconds and ends in 30 seconds.</span>
             </div>
@@ -101,6 +105,8 @@
     const depositButton = document.getElementById("depositButton");
     const withdrawButton = document.getElementById("withdrawButton");
     const createMockButton = document.getElementById("createMockButton");
+    const mockAwayTeam = document.getElementById("mockAwayTeam");
+    const mockHomeTeam = document.getElementById("mockHomeTeam");
     const nbaUnavailableMessage = "Unable to retrieve NBA data right now. Please try again later.";
     let currentBalance = 1000;
     let currentBets = [];
@@ -360,12 +366,39 @@
     depositButton.addEventListener("click", () => changeFunds("deposit"));
     withdrawButton.addEventListener("click", () => changeFunds("withdraw"));
 
+    async function loadMockTeams() {
+        try {
+            const data = await request("/api/frontend-test-panel/teams");
+            for (const select of [mockAwayTeam, mockHomeTeam]) {
+                select.replaceChildren();
+                for (const name of data.teams) {
+                    const option = document.createElement("option");
+                    option.value = name;
+                    option.textContent = name;
+                    select.appendChild(option);
+                }
+            }
+            mockAwayTeam.value = "Los Angeles Lakers";
+            mockHomeTeam.value = "Golden State Warriors";
+            createMockButton.disabled = false;
+        } catch (error) {
+            gameMessage.textContent = "Unable to load NBA teams for mock games.";
+        }
+    }
+
+    createMockButton.disabled = true;
+    void loadMockTeams();
+
     createMockButton.addEventListener("click", async () => {
+        if (!mockAwayTeam.value || !mockHomeTeam.value || mockAwayTeam.value === mockHomeTeam.value) {
+            gameMessage.textContent = "Select two different NBA teams for the mock game.";
+            return;
+        }
         gameMessage.textContent = "";
         try {
             const data = await request("/api/frontend-test-panel/mock-games", {
                 method: "POST",
-                body: "{}"
+                body: JSON.stringify({ awayTeam: mockAwayTeam.value, homeTeam: mockHomeTeam.value })
             });
             stateVersion++;
             currentMockGames.push(data.game);

@@ -20,6 +20,39 @@ const PYTHON_COMMAND =
     process.env.PYTHON_COMMAND ||
     (process.platform === "win32" ? "python" : "python3");
 
+const NBA_TEAM_NAMES = [
+    "Atlanta Hawks",
+    "Boston Celtics",
+    "Brooklyn Nets",
+    "Charlotte Hornets",
+    "Chicago Bulls",
+    "Cleveland Cavaliers",
+    "Dallas Mavericks",
+    "Denver Nuggets",
+    "Detroit Pistons",
+    "Golden State Warriors",
+    "Houston Rockets",
+    "Indiana Pacers",
+    "Los Angeles Clippers",
+    "Los Angeles Lakers",
+    "Memphis Grizzlies",
+    "Miami Heat",
+    "Milwaukee Bucks",
+    "Minnesota Timberwolves",
+    "New Orleans Pelicans",
+    "New York Knicks",
+    "Oklahoma City Thunder",
+    "Orlando Magic",
+    "Philadelphia 76ers",
+    "Phoenix Suns",
+    "Portland Trail Blazers",
+    "Sacramento Kings",
+    "San Antonio Spurs",
+    "Toronto Raptors",
+    "Utah Jazz",
+    "Washington Wizards"
+];
+
 const FRONTEND_TEST_STARTING_BALANCE = 1000;
 const frontendTestState = {
     balance: FRONTEND_TEST_STARTING_BALANCE,
@@ -183,7 +216,7 @@ function settleMockGames() {
             const losingScore = 90 + Math.floor(Math.random() * 15);
 
             game.status = "final";
-            game.winner = sampleOneWins ? "Sample Team 1" : "Sample Team 2";
+            game.winner = sampleOneWins ? game.awayTeam : game.homeTeam;
             game.sampleTeam1Score = sampleOneWins ? winningScore : losingScore;
             game.sampleTeam2Score = sampleOneWins ? losingScore : winningScore;
         } else if (
@@ -463,15 +496,30 @@ app.post("/api/frontend-test-panel/withdraw", (req, res) => {
     return res.json({ success: true, balance: frontendTestState.balance });
 });
 
+app.get("/api/frontend-test-panel/teams", (req, res) => {
+    res.json({ success: true, teams: NBA_TEAM_NAMES });
+});
+
 app.post("/api/frontend-test-panel/mock-games", (req, res) => {
+    const { awayTeam, homeTeam } = req.body || {};
+    if (
+        !NBA_TEAM_NAMES.includes(awayTeam) ||
+        !NBA_TEAM_NAMES.includes(homeTeam) ||
+        awayTeam === homeTeam
+    ) {
+        return res.status(400).json({
+            success: false,
+            message: "Select two different NBA teams for the mock game."
+        });
+    }
     const createdAt = new Date();
     const startsAt = new Date(createdAt.getTime() + 15 * 1000);
     const endsAt = new Date(createdAt.getTime() + 30 * 1000);
     const game = {
         id: `mock-${frontendTestState.nextMockGameId++}`,
         gameType: "mock",
-        awayTeam: "Sample Team 1",
-        homeTeam: "Sample Team 2",
+        awayTeam,
+        homeTeam,
         createdAt: createdAt.toISOString(),
         startsAt: startsAt.toISOString(),
         endsAt: endsAt.toISOString(),

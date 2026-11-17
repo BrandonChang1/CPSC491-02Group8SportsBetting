@@ -15,7 +15,7 @@ async function searchPlayersInDatabase(term) {
      WHERE full_name ILIKE $1
      ORDER BY is_active DESC,
        CASE WHEN full_name ILIKE $2 THEN 0 ELSE 1 END,
-       full_name
+       full_name, id
      LIMIT 10`,
     [`%${term}%`, `${term}%`]
   );

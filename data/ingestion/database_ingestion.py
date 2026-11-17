@@ -573,6 +573,10 @@ def ingest_player_game_stats(game_logs, connection=None) -> dict:
         # Keep the refresh in the caller's transaction when one was supplied.
         if successful:
             refresh_player_team_ids(active_connection)
+            # The batch's own rolling averages ignore games already stored (e.g. the
+            # previous season), so recompute each player's from full stored history.
+            for player_id in contextualized_logs["player_id"].dropna().unique():
+                recalculate_recent_minutes_avg(connection=active_connection, player_id=int(player_id))
 
     return {
         "processed": processed,

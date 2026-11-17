@@ -13,8 +13,8 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from ml import predict_player  # noqa: E402
-from ml.model_integrity import (  # noqa: E402
+from ml import predict_player
+from ml.model_integrity import (
     REGISTRY_PATH,
     ModelIntegrityError,
     approved_entry,

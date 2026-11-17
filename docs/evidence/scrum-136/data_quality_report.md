@@ -1,6 +1,6 @@
 # NBA Database Data-Quality Report
 
-Generated: 2026-11-17T00:26:30+00:00  
+Generated: 2026-11-17T01:27:49+00:00  
 Result: **PASS**  
 Games stored: 2024-10-22 to 2026-04-12
 
@@ -12,8 +12,8 @@ Games stored: 2024-10-22 to 2026-04-12
 | players rows | 5185 |
 | games rows | 1252 |
 | player_game_stats rows | 5047 |
-| Checks run | 32 |
-| Checks passed | 31 |
+| Checks run | 36 |
+| Checks passed | 35 |
 | Failed error checks | 0 |
 | Failed warning checks | 1 |
 | Stat records checked | 5047 |
@@ -56,6 +56,10 @@ Games stored: 2024-10-22 to 2026-04-12
 | relationships | error | player's current team exists | 5185 | 0 | pass |
 | relationships | error | stat rows are for games on or before today | 5047 | 0 | pass |
 | relationships | warning | every stored game has at least one stat row | 1252 | 0 | pass |
+| consistency | error | recent_minutes_avg equals the prior-5-game minutes average | 5047 | 0 | pass |
+| consistency | error | teammates in a game agree on win_loss, matchup and opponent | 2137 | 0 | pass |
+| consistency | error | home and away sides of a game have opposite results | 1252 | 0 | pass |
+| consistency | error | matchup 'vs.' / '@' agrees with is_home | 5047 | 0 | pass |
 
 ## Sample failing rows
 

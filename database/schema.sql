@@ -16,6 +16,12 @@ CREATE TABLE players (
     FOREIGN KEY (team_id) REFERENCES teams(id)
 );
 
+-- Trigram index for player search (full_name ILIKE '%term%'); see migration 006.
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+CREATE INDEX IF NOT EXISTS players_full_name_trgm
+    ON players USING gin (full_name gin_trgm_ops);
+
 CREATE TABLE games (
     id VARCHAR(20) PRIMARY KEY,
     game_date DATE NOT NULL,

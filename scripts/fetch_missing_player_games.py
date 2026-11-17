@@ -9,8 +9,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from data.collection.espn import (  # noqa: E402
-    espn_player_id, game_summary, player_boxscore, player_events,
+from data.collection.espn import (
+    espn_player_id,
+    game_summary,
+    player_boxscore,
+    player_events,
 )
 
 

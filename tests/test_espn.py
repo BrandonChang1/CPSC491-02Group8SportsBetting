@@ -136,6 +136,14 @@ def test_missing_athlete_fails_instead_of_silent_partial_data(summary):
         espn.player_boxscore(summary, "not-curry", 201939)
 
 
+def test_teammate_without_athlete_id_is_skipped(summary):
+    # ESPN event 401810815 listed a bench player as {"links": [], "shortName": "Olbrich"}.
+    group = summary["boxscore"]["players"][0]["statistics"][0]
+    group["athletes"].insert(0, {"athlete": {"links": [], "shortName": "Olbrich"}, "stats": []})
+    group["athletes"].insert(0, {"stats": []})
+    assert espn.player_boxscore(summary, "3975", 201939)["PTS"] > 0
+
+
 def test_bad_shooting_values_rejected(summary):
     group = next(
         g
@@ -149,16 +157,61 @@ def test_bad_shooting_values_rejected(summary):
         espn.player_boxscore(summary, "3975", 201939)
 
 
-def test_http_timeout_and_failure_propagate(monkeypatch):
-    get = Mock(side_effect=requests.Timeout("timeout"))
+def response(payload=None, status=200):
+    """A requests-like response; status >= 400 raises HTTPError carrying itself."""
+    result = Mock(status_code=status)
+    result.json.return_value = payload if payload is not None else {"ok": True}
+    if status >= 400:
+        result.raise_for_status.side_effect = requests.HTTPError(f"{status}", response=result)
+    return result
+
+
+def test_transient_failures_are_retried_with_backoff_then_recover(monkeypatch, caplog):
+    caplog.set_level("INFO", logger="data.ingestion")
+    monkeypatch.setattr(espn, "RETRY_BASE_DELAY", 1.0)
+    sleep = Mock()
+    monkeypatch.setattr(espn.time, "sleep", sleep)
+    get = Mock(side_effect=[requests.ConnectionError("reset"), response(status=503), response({"teams": []})])
     monkeypatch.setattr(espn.requests, "get", get)
-    with pytest.raises(requests.Timeout):
+
+    assert espn.request_json(espn.SITE, "teams") == {"teams": []}
+    assert get.call_count == 3
+    get.assert_called_with(f"{espn.SITE}/teams", params={}, timeout=15)
+    assert [c.args[0] for c in sleep.call_args_list] == [1.0, 2.0]
+    assert "espn_request_retry path=teams attempt=1 status=None error_type=ConnectionError" in caplog.text
+    assert "espn_request_retry path=teams attempt=2 status=503 error_type=HTTPError" in caplog.text
+    assert "espn_request_recovered path=teams attempts=3" in caplog.text
+
+
+@pytest.mark.parametrize("failure", [
+    requests.Timeout("timeout"), requests.ConnectionError("down"), response(status=500), response(status=429),
+])
+def test_retry_limit_stops_after_three_attempts(monkeypatch, caplog, failure):
+    get = Mock(side_effect=lambda *a, **k: (_ for _ in ()).throw(failure) if isinstance(failure, Exception) else failure)
+    monkeypatch.setattr(espn.requests, "get", get)
+    with pytest.raises((requests.Timeout, requests.ConnectionError, requests.HTTPError)):
         espn.request_json(espn.SITE, "teams")
-    get.assert_called_once_with(f"{espn.SITE}/teams", params={}, timeout=15)
-    get.side_effect = None
-    get.return_value.raise_for_status.side_effect = requests.HTTPError("503")
+    assert get.call_count == espn.RETRY_ATTEMPTS == 3
+    assert "espn_request_failed path=teams attempts=3" in caplog.text
+
+
+@pytest.mark.parametrize("status", [400, 403, 404])
+def test_client_errors_are_not_retried(monkeypatch, caplog, status):
+    get = Mock(return_value=response(status=status))
+    monkeypatch.setattr(espn.requests, "get", get)
     with pytest.raises(requests.HTTPError):
         espn.request_json(espn.SITE, "teams")
+    get.assert_called_once()
+    assert f"espn_request_failed path=teams attempts=1 status={status} error_type=HTTPError" in caplog.text
+
+
+def test_truncated_json_is_retried(monkeypatch):
+    bad = response()
+    bad.json.side_effect = requests.JSONDecodeError("Expecting value", "", 0)
+    get = Mock(side_effect=[bad, response({"teams": []})])
+    monkeypatch.setattr(espn.requests, "get", get)
+    assert espn.request_json(espn.SITE, "teams") == {"teams": []}
+    assert get.call_count == 2
 
 
 def test_invalid_payload_rejected(monkeypatch):
@@ -169,6 +222,7 @@ def test_invalid_payload_rejected(monkeypatch):
     )
     with pytest.raises(ValueError, match="Invalid ESPN response"):
         espn.request_json(espn.SITE, "teams")
+    espn.requests.get.assert_called_once()  # a malformed payload is not retried
 
 
 def test_zero_attempts_and_clock_minutes(summary):

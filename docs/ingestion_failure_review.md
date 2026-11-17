@@ -1,5 +1,7 @@
 # Ingestion failure logging and anomaly review
 
+Retry and recovery behavior: see [ingestion retry and failure recovery](ingestion_retry_recovery.md).
+
 This procedure covers the ESPN NBA ingestion commands, including the historical
 backfill. ESPN is the current NBA data provider; the Jira task's “NBA API” failure
 cases are simulated at the ESPN request boundary. No live outage or production

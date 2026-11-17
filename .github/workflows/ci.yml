@@ -204,15 +204,22 @@ jobs:
           --junitxml=assessment-results/incremental-refresh.xml -o junit_logging=all
 
       # -----------------------------------------
-      # Sprint 3 Data & Storage regression tests
+      # Data & Storage regression tests (Sprint 3, extended in SCRUM-140)
       # -----------------------------------------
-      - name: Run Sprint 3 data regression tests
+      - name: Run data pipeline regression tests
         run: |
           python -m pytest \
             tests/test_database_integrity.py \
             tests/test_ingestion_idempotency.py \
             tests/test_modeling_dataset_validation.py \
+            tests/test_pipeline_anomalies.py \
+            tests/test_pipeline_regressions.py \
+            tests/test_data_quality_report.py \
             -v
+
+      # SCRUM-136/140: read-only report; fails the job on any error-level check.
+      - name: Run data-quality report
+        run: python -m data.processing.data_quality_report >> "$GITHUB_STEP_SUMMARY"
 
       # -----------------------------------------
       # Python project tests
@@ -223,6 +230,8 @@ jobs:
             --ignore=tests/test_ingestion_idempotency.py \
             --ignore=tests/test_modeling_dataset_validation.py \
             --ignore=tests/test_pipeline_anomalies.py \
+            --ignore=tests/test_pipeline_regressions.py \
+            --ignore=tests/test_data_quality_report.py \
             --ignore=tests/test_ingestion_failure_logging.py \
             --ignore=tests/test_data_freshness.py \
             --ignore=tests/test_incremental_refresh.py \

@@ -192,13 +192,16 @@
                     return;
                 }
 
-                if (!data.data || data.data.length === 0) {
+                const activePlayers = (Array.isArray(data.data) ? data.data : [])
+                    .filter(player => player.is_active === true);
+
+                if (activePlayers.length === 0) {
                     playerSuggestions.textContent =
                         "No matching players found.";
                     return;
                 }
 
-                data.data.forEach(player => {
+                activePlayers.forEach(player => {
                     const suggestion =
                         document.createElement("div");
 

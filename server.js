@@ -3,7 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const { execFile } = require("child_process");
 const path = require("path");
-const { searchPlayersInDatabase, getPlayerStatsFromDatabase } = require("./backend/app/services/fastPlayerLookup");
+const { searchPlayersInDatabase } = require("./backend/app/services/fastPlayerLookup");
 const { retrieve: getHybridHistory } = require("./backend/app/services/hybridPlayerHistory");
 const healthRouter = require("./backend/app/routes/health");
 const playersRouter = require("./backend/app/routes/players");
@@ -419,7 +419,7 @@ app.get("/api/frontend-test-panel/state", async (req, res) => {
             mockGames: frontendTestState.mockGames,
             realGames
         });
-    } catch (error) {
+    } catch {
         return res.status(502).json({
             success: false,
             message: "Unable to retrieve NBA data right now. Please try again later.",

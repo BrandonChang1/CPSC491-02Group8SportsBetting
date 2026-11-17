@@ -89,7 +89,7 @@ app.use(express.json());
 // Protect these documents before express.static can serve them.
 // The client-side popup improves navigation; it is not the security boundary.
 const loginOnlyPages = new Set([
-    "/test-panel.html",
+    "/betting.html",
     "/upcoming-games.html",
     "/upcoming_games.html"
 ]);

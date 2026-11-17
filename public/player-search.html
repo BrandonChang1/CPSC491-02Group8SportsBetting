@@ -121,11 +121,18 @@
             document.querySelectorAll('input[name="reviewType"]');
 
         let searchTimeout;
+        let searchController;
+        let statsController;
+        let searchVersion = 0;
+        const historyCache = new Map();
         const nbaUnavailableMessage = "Unable to retrieve NBA data right now. Please try again later.";
 
 
         playerSearch.addEventListener("input", () => {
             clearTimeout(searchTimeout);
+            searchVersion += 1;
+            if (searchController) searchController.abort();
+            if (statsController) statsController.abort();
 
             // A new typed value means the old selected player is no longer valid.
             delete playerSearch.dataset.playerId;
@@ -169,13 +176,15 @@
                 return;
             }
 
+            const version = searchVersion;
+            searchController = new AbortController();
             try {
                 const response = await fetch(
-                    "/search-players?q=" +
-                    encodeURIComponent(query)
+                    "/search-players?q=" + encodeURIComponent(query),
+                    { signal: searchController.signal }
                 );
-
                 const data = await response.json();
+                if (version !== searchVersion || playerSearch.value.trim() !== query) return;
 
                 if (!data.success) {
                     playerSuggestions.textContent =
@@ -213,6 +222,7 @@
                 });
 
             } catch (error) {
+                if (error.name === "AbortError" || version !== searchVersion) return;
                 console.error("Player search error:", error);
 
                 playerSuggestions.textContent =
@@ -231,18 +241,30 @@
             status.textContent =
                 "Loading " + reviewText + " for " + playerName + "...";
 
-            averageContainer.innerHTML = "";
-            gameContainer.innerHTML = "";
+            averageContainer.replaceChildren();
+            gameContainer.replaceChildren();
+            if (statsController) statsController.abort();
+            const controller = new AbortController();
+            statsController = controller;
+            const cacheKey = `${playerId}:${review}`;
 
             try {
-                const response = await fetch(
-                    "/player-stats?id=" +
-                    encodeURIComponent(playerId) +
-                    "&review=" +
-                    encodeURIComponent(review)
-                );
-
-                const data = await response.json();
+                const cached = historyCache.get(cacheKey);
+                let data = cached && Date.now() - cached.savedAt < 5 * 60 * 1000 ? cached.data : null;
+                if (!data) {
+                    const response = await fetch(
+                        "/player-stats?id=" + encodeURIComponent(playerId) +
+                        "&review=" + encodeURIComponent(review) +
+                        "&name=" + encodeURIComponent(playerName),
+                        { signal: controller.signal }
+                    );
+                    data = await response.json();
+                    if (data.success) {
+                        historyCache.set(cacheKey, { data, savedAt: Date.now() });
+                        if (historyCache.size > 40) historyCache.delete(historyCache.keys().next().value);
+                    }
+                }
+                if (controller.signal.aborted || String(playerSearch.dataset.playerId) !== String(playerId) || getSelectedReview() !== review) return;
 
                 if (!data.success) {
                     status.textContent =
@@ -251,7 +273,7 @@
                 }
 
                 status.textContent =
-                    data.player.name +
+                    (data.player.name.startsWith("Player ") ? playerName : data.player.name) +
                     " - " + data.season +
                     " - " + data.review_label;
 
@@ -259,6 +281,7 @@
                 displayGames(data.data, data.review_label);
 
             } catch (error) {
+                if (error.name === "AbortError" || controller.signal.aborted) return;
                 console.error("Player stats error:", error);
 
                 status.textContent =

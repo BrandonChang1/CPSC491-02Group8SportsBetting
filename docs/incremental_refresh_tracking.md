@@ -30,7 +30,8 @@ attempt tracking is required. No scheduler is installed.
 `--status` does not fetch ESPN or write data. It prints the latest attempt and
 last successful refresh for the exact player/season, plus `is_stale`. No attempts
 prints JSON `null` and exits 1. It exits 0 only when the latest attempt succeeded
-and the last successful refresh is at most **48 elapsed hours** old. A failed,
+and the last successful refresh is at most **48 elapsed hours** old (configurable; see
+[data freshness tracking](data_freshness_tracking.md)). A failed,
 running, never-refreshed or stale scope returns 1. This is a proposed refresh-age
 policy to confirm with the owner, not a provider SLA.
 
@@ -60,7 +61,8 @@ or rewritten by the migration.
 
 `last_successful_refresh` is derived as the maximum `finished_at` of succeeded
 attempts for the scope. It is not a mutable pointer that a failed attempt could
-advance. `is_stale` is true when no success exists or it is older than 48 hours.
+advance. `is_stale` is true when no success exists or it is older than the threshold
+(default 48 hours, configurable; see [data freshness tracking](data_freshness_tracking.md)).
 
 1. Commit a `running` journal entry before requesting source data.
 2. Fetch the selected season using the existing ESPN game-log/box-score adapter.

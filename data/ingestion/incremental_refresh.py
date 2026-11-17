@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import os
 
 import pandas as pd
 import psycopg
@@ -98,42 +99,88 @@ def refresh_player(player_id, season):
             return 1
 
 
-def get_refresh_status(player_id, season):
-    """Return latest attempt and last success for this exact scope, or None."""
-    if player_id <= 0:
-        raise ValueError("Use a positive internal player ID")
-    season_end_year(season)
+DEFAULT_MAX_AGE_HOURS = 48
+MAX_AGE_ENV = "DATA_FRESHNESS_MAX_AGE_HOURS"
+
+# One row for the scope (NULL player/season = whole database), even with no attempts.
+# freshness: failed/running (latest attempt), never_refreshed, stale or fresh (last success age).
+FRESHNESS_QUERY = """
+    WITH scoped AS (
+        SELECT * FROM ingestion_refresh_runs
+        WHERE (%(player_id)s::bigint IS NULL OR player_id = %(player_id)s::bigint)
+          AND (%(season)s::text IS NULL OR season = %(season)s::text)
+    ),
+    latest AS (SELECT * FROM scoped ORDER BY id DESC LIMIT 1),
+    success AS (
+        SELECT MAX(finished_at) AS last_successful_refresh,
+               MAX(finished_at) < CURRENT_TIMESTAMP - %(max_age_hours)s * INTERVAL '1 hour' AS too_old
+        FROM scoped WHERE status = 'succeeded'
+    )
+    SELECT latest.*, success.last_successful_refresh,
+           COALESCE(success.too_old, TRUE) AS is_stale,
+           CASE WHEN latest.status IN ('failed', 'running') THEN latest.status
+                WHEN success.last_successful_refresh IS NULL THEN 'never_refreshed'
+                WHEN success.too_old THEN 'stale'
+                ELSE 'fresh' END AS freshness,
+           %(max_age_hours)s::float AS max_age_hours
+    FROM success LEFT JOIN latest ON TRUE
+"""
+
+
+def max_age_hours(value=None):
+    """Freshness threshold in hours: the argument, else $DATA_FRESHNESS_MAX_AGE_HOURS, else 48."""
+    raw = value if value is not None else os.getenv(MAX_AGE_ENV, DEFAULT_MAX_AGE_HOURS)
+    hours = float(raw)
+    if not 0 < hours < float("inf"):
+        raise ValueError(f"{MAX_AGE_ENV} must be a positive number of hours")
+    return hours
+
+
+def _freshness(player_id, season, hours):
     with (
         psycopg.connect(get_database_url()) as connection,
         connection.cursor(row_factory=dict_row) as cursor,
     ):
         connection.execute("SET TRANSACTION READ ONLY")
-        cursor.execute(
-            """SELECT r.*, success.last_successful_refresh,
-                      (success.last_successful_refresh IS NULL OR
-                       success.last_successful_refresh < CURRENT_TIMESTAMP - INTERVAL '48 hours') AS is_stale
-               FROM ingestion_refresh_runs r
-               CROSS JOIN LATERAL (
-                   SELECT MAX(finished_at) AS last_successful_refresh
-                   FROM ingestion_refresh_runs
-                   WHERE player_id = r.player_id AND season = r.season AND status = 'succeeded'
-               ) success
-               WHERE r.player_id = %s AND r.season = %s ORDER BY r.id DESC LIMIT 1""",
-            (player_id, season),
-        )
+        cursor.execute(FRESHNESS_QUERY,
+                       {"player_id": player_id, "season": season, "max_age_hours": max_age_hours(hours)})
         return cursor.fetchone()
+
+
+def get_refresh_status(player_id, season, max_age=None):
+    """Return latest attempt, last success and freshness for this exact scope, or None if never attempted."""
+    if player_id <= 0:
+        raise ValueError("Use a positive internal player ID")
+    season_end_year(season)
+    status = _freshness(player_id, season, max_age)
+    return status if status["id"] is not None else None
+
+
+def get_database_freshness(max_age=None):
+    """Return latest attempt, last success and freshness across every player and season.
+
+    Always returns a dict; freshness is 'never_refreshed' when no attempt has been recorded.
+    """
+    return _freshness(None, None, max_age)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--player-id", type=int, required=True)
-    parser.add_argument("--season", required=True, help="NBA season as YYYY-YY")
-    parser.add_argument("--status", action="store_true", help="Read status without fetching or writing")
+    parser.add_argument("--player-id", type=int)
+    parser.add_argument("--season", help="NBA season as YYYY-YY")
+    parser.add_argument("--status", action="store_true",
+                        help="Read freshness without fetching or writing; omit player and season for the whole database")
+    parser.add_argument("--max-age-hours", type=float,
+                        help=f"Stale threshold (default ${MAX_AGE_ENV} or {DEFAULT_MAX_AGE_HOURS})")
     args = parser.parse_args()
+    scoped = args.player_id is not None, args.season is not None
+    if scoped != (True, True) and (not args.status or any(scoped)):
+        parser.error("--player-id and --season are required together (both may be omitted only with --status)")
     if args.status:
-        status = get_refresh_status(args.player_id, args.season)
+        status = (get_refresh_status(args.player_id, args.season, args.max_age_hours) if any(scoped)
+                  else get_database_freshness(args.max_age_hours))
         print(json.dumps(status, default=str))
-        return 0 if status and status["status"] == "succeeded" and not status["is_stale"] else 1
+        return 0 if status and status["freshness"] == "fresh" else 1
     return refresh_player(args.player_id, args.season)
 
 

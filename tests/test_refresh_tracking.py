@@ -215,10 +215,87 @@ def test_invalid_scope_is_rejected_before_database_access(monkeypatch, player_id
     connect.assert_not_called()
 
 
-@pytest.mark.parametrize(("status", "stale", "expected"), [("succeeded", False, 0), ("failed", False, 1), ("running", False, 1), ("succeeded", True, 1), (None, True, 1)])
-def test_status_command_reports_monitoring_exit_status(monkeypatch, capsys, status, stale, expected):
-    value = {"status": status, "is_stale": stale} if status else None
+@pytest.mark.parametrize(("freshness", "expected"), [
+    ("fresh", 0), ("failed", 1), ("running", 1), ("stale", 1), ("never_refreshed", 1), (None, 1),
+])
+def test_status_command_reports_monitoring_exit_status(monkeypatch, capsys, freshness, expected):
+    value = {"freshness": freshness} if freshness else None
     monkeypatch.setattr(refresh, "get_refresh_status", lambda *args: value)
     monkeypatch.setattr("sys.argv", ["refresh", "--player-id", str(PLAYER), "--season", SEASON, "--status"])
     assert refresh.main() == expected
     assert json.loads(capsys.readouterr().out) == value
+
+
+def age_runs(connection, hours):
+    connection.execute("""
+        UPDATE ingestion_refresh_runs SET started_at = clock_timestamp() - %s * INTERVAL '1 hour',
+        finished_at = clock_timestamp() - %s * INTERVAL '1 hour'
+    """, (hours + 1, hours))
+
+
+def test_freshness_distinguishes_fresh_stale_failed_and_never_refreshed(scope):
+    connection, _ = scope
+    assert refresh.get_database_freshness()["freshness"] == "never_refreshed"
+    assert refresh.get_database_freshness()["is_stale"]
+
+    assert refresh.refresh_player(PLAYER, SEASON) == 0
+    assert refresh.get_refresh_status(PLAYER, SEASON)["freshness"] == "fresh"
+    assert refresh.get_database_freshness()["freshness"] == "fresh"
+
+    age_runs(connection, 49)
+    assert refresh.get_refresh_status(PLAYER, SEASON)["freshness"] == "stale"
+    assert refresh.get_database_freshness()["freshness"] == "stale"
+
+    refresh.fetch_player_game_log.side_effect = requests.ConnectionError("down")
+    assert refresh.refresh_player(PLAYER, SEASON) == 1
+    status = refresh.get_database_freshness()
+    assert status["freshness"] == "failed" and status["error_type"] == "ConnectionError"
+    assert status["is_stale"]  # the failed attempt did not refresh the last-success time
+
+
+def test_failed_attempt_does_not_overwrite_last_successful_refresh(scope):
+    connection, _ = scope
+    assert refresh.refresh_player(PLAYER, SEASON) == 0
+    age_runs(connection, 10)
+    last_success = refresh.get_refresh_status(PLAYER, SEASON)["last_successful_refresh"]
+
+    refresh.fetch_player_game_log.side_effect = requests.Timeout("slow")
+    assert refresh.refresh_player(PLAYER, SEASON) == 1
+    status = refresh.get_refresh_status(PLAYER, SEASON)
+    assert status["status"] == "failed"
+    assert status["last_successful_refresh"] == last_success
+    assert refresh.get_database_freshness()["last_successful_refresh"] == last_success
+
+
+def test_freshness_threshold_is_configurable(scope, monkeypatch):
+    connection, _ = scope
+    assert refresh.refresh_player(PLAYER, SEASON) == 0
+    age_runs(connection, 10)
+    assert refresh.get_refresh_status(PLAYER, SEASON)["freshness"] == "fresh"  # default 48h
+    assert refresh.get_refresh_status(PLAYER, SEASON, max_age=6)["freshness"] == "stale"
+    monkeypatch.setenv(refresh.MAX_AGE_ENV, "6")
+    status = refresh.get_database_freshness()
+    assert status["freshness"] == "stale" and status["max_age_hours"] == 6
+    assert refresh.get_database_freshness(max_age=12)["freshness"] == "fresh"
+
+
+@pytest.mark.parametrize("value", ["0", "-5", "nan", "inf", "abc"])
+def test_invalid_freshness_threshold_is_rejected(monkeypatch, value):
+    monkeypatch.setenv(refresh.MAX_AGE_ENV, value)
+    with pytest.raises(ValueError):
+        refresh.max_age_hours()
+
+
+def test_database_status_command_needs_no_scope(monkeypatch, capsys):
+    monkeypatch.setattr(refresh, "get_database_freshness", lambda hours: {"freshness": "fresh", "max_age_hours": hours})
+    monkeypatch.setattr("sys.argv", ["refresh", "--status", "--max-age-hours", "12"])
+    assert refresh.main() == 0
+    assert json.loads(capsys.readouterr().out) == {"freshness": "fresh", "max_age_hours": 12}
+
+
+@pytest.mark.parametrize("argv", [[], ["--player-id", "1"], ["--status", "--season", SEASON]])
+def test_refresh_requires_player_and_season_together(monkeypatch, argv):
+    monkeypatch.setattr("sys.argv", ["refresh", *argv])
+    with pytest.raises(SystemExit) as exit_info:
+        refresh.main()
+    assert exit_info.value.code == 2

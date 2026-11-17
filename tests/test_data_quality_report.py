@@ -86,6 +86,8 @@ def test_detects_duplicate_player_game_date_and_reversed_game(connection):
         "one stat row per player per game date": 1,
         "one game per date and team pair (either home/away order)": 1,
         "one game per team per date": 2,
+        # QA2 is the player's second stored game, so its NULL recent_minutes_avg is also wrong.
+        "recent_minutes_avg equals the prior-5-game minutes average": 1,
     }
 
 
@@ -131,6 +133,39 @@ def test_detects_inconsistent_player_game_relationships(connection):
     assert found["opponent and is_home agree with the game's teams"] == 2
     assert found["matchup's team abbreviation is one of the game's teams"] == 1
     assert found["stat rows are for games on or before today"] == 1
+
+
+def test_detects_cross_row_inconsistencies(connection):
+    teammate = PLAYER + 1
+
+    def plant(conn):
+        conn.execute("INSERT INTO players (id, full_name, is_active) VALUES (%s, 'QA Teammate', true)", (teammate,))
+        add_game(conn, "QA1", "2025-01-01")
+        add_game(conn, "QA2", "2025-01-02")
+        add_game(conn, "QA3", "2025-01-03")
+        add_stats(conn, "QA1")
+        add_stats(conn, "QA1", player_id=teammate, win_loss="L")  # same side, different result
+        add_stats(conn, "QA2", recent_minutes_avg=30)
+        add_stats(conn, "QA2", player_id=teammate, is_home=False, opponent_team_id=HOME,
+                  matchup="QAA @ QAH", recent_minutes_avg=30)  # both sides won
+        add_stats(conn, "QA3", matchup="QAH @ QAA", recent_minutes_avg=30)  # '@' but is_home
+
+    found = new_failures(connection, plant)
+    assert found == {
+        "teammates in a game agree on win_loss, matchup and opponent": 1,
+        "home and away sides of a game have opposite results": 1,  # QA2: both sides won
+        "matchup 'vs.' / '@' agrees with is_home": 1,
+    }
+
+
+def test_detects_recent_minutes_avg_not_matching_stored_history(connection):
+    def plant(conn):
+        for day, minutes, recent in [(1, 40, None), (2, 40, 40.0), (3, 20, 40.0), (4, 30, 20.0)]:
+            add_game(conn, f"QA{day}", f"2025-01-0{day}")
+            add_stats(conn, f"QA{day}", minutes=minutes, recent_minutes_avg=recent)
+
+    # Game 4 should be mean(40, 40, 20) = 33.33; 20.0 is a batch-local value.
+    assert new_failures(connection, plant) == {"recent_minutes_avg equals the prior-5-game minutes average": 1}
 
 
 def test_error_failures_fail_the_report_and_are_counted(connection):

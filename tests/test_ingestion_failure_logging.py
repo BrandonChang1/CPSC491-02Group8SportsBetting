@@ -45,6 +45,7 @@ def test_row_failure_is_safe_counted_and_followed_by_success(
     monkeypatch.setattr(ingestion, "get_team_id_map", lambda connection: {"GSW": 1, "LAC": 2})
     monkeypatch.setattr(ingestion, "canonical_game_id", lambda connection, row, team_ids: row["game_id"])
     monkeypatch.setattr(ingestion, "refresh_player_team_ids", Mock())
+    monkeypatch.setattr(ingestion, "recalculate_recent_minutes_avg", Mock())
     if stage == "teams":
         monkeypatch.setattr(ingestion.teams, "get_teams", Mock(return_value=[
             {"id": n, "full_name": "Test", "abbreviation": "T", "city": "Test"} for n in (1, 2)

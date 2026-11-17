@@ -60,13 +60,17 @@ python -m data.processing.data_quality_report --output docs/evidence/scrum-136/d
 | relationships | player's current team exists | error |
 | relationships | stat rows are for games on or before today | error |
 | relationships | every stored game has at least one stat row | warning |
+| consistency | `recent_minutes_avg` equals the prior-5-stored-game minutes average (±0.01) | error |
+| consistency | teammates in a game agree on `win_loss`, `matchup` and opponent | error |
+| consistency | home and away sides of a game have opposite results | error |
+| consistency | matchup `vs.` / `@` agrees with `is_home` | error |
 
 Checks skip a row when the fields they compare are `NULL`; missing values are
 reported by the "missing" checks instead.
 
 ## Findings on the development database (2026-11-16)
 
-- 32 checks, 0 error failures, result **PASS** over 5,047 stat rows, 1,252 games and 5,185 players.
+- 36 checks (4 consistency checks added in SCRUM-140, see `docs/sprint5_data_fixes.md`), 0 error failures, result **PASS** over 5,047 stat rows, 1,252 games and 5,185 players.
 - 1 warning: player `1628396`, game `0022400942` has 0 minutes and 1 rebound.
   Minutes are stored as whole numbers, so a sub-minute stint rounds to 0. This
   is real data, which is why that check is a warning rather than an error.
@@ -76,5 +80,7 @@ reported by the "missing" checks instead.
 `tests/test_data_quality_report.py` plants bad rows inside a rolled-back
 transaction (duplicates, missing fields, invalid numbers, mismatched
 relationships) and asserts the report flags each one. It also checks that the
-report runs in a `READ ONLY` transaction. It needs the test database and runs in
-the CI "Run Python project tests" step.
+report runs in a `READ ONLY` transaction. It needs the test database. CI runs it in the
+"Run data pipeline regression tests" step, then runs the report itself against the
+seeded database in the "Run data-quality report" step, which fails the job on any
+error-level check.

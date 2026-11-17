@@ -12,8 +12,12 @@ import pandas as pd
 
 # Import the project's existing season calculation rather than duplicating it.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from data.processing.points_features import assign_season  # noqa: E402
-from ml.model_integrity import REGISTRY_PATH, ModelIntegrityError, load_approved_model  # noqa: E402
+from data.processing.points_features import assign_season
+from ml.model_integrity import (
+    REGISTRY_PATH,
+    ModelIntegrityError,
+    load_approved_model,
+)
 
 # The served model is the registry's single "approved" entry (ml/models/registry.json).
 REGISTRY = REGISTRY_PATH

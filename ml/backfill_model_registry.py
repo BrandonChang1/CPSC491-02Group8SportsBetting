@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from ml.model_integrity import ARTIFACT_DIR, REGISTRY_PATH, register_model  # noqa: E402
+from ml.model_integrity import ARTIFACT_DIR, REGISTRY_PATH, register_model
 
 # predict_player.MODEL_PATH before the registry replaced it.
 PREVIOUSLY_SERVED = ARTIFACT_DIR / "random_forest_points.joblib"

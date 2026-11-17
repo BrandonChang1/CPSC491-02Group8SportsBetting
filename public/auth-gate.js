@@ -5,7 +5,7 @@
 
     const restrictedPages = new Map([
         ["/app", "your Account Dashboard"],
-        ["/test-panel.html", "the User Flow Test Panel"],
+        ["/betting.html", "the User Flow Test Panel"],
         ["/upcoming-games.html", "upcoming NBA games and win estimates"],
         ["/upcoming_games.html", "upcoming NBA games and win estimates"]
     ]);

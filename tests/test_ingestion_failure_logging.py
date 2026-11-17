@@ -1,7 +1,7 @@
 """Offline failure simulations: safe diagnostics, partial results and exit status."""
 
 import logging
-from unittest.mock import MagicMock, Mock
+from unittest.mock import ANY, MagicMock, Mock
 
 import pandas as pd
 import psycopg
@@ -95,6 +95,7 @@ def command_stages(monkeypatch, game_logs):
     monkeypatch.setattr(backfill, "get_player_game_stat_count", Mock(side_effect=[0, 1, 1]))
     monkeypatch.setattr(backfill, "recalculate_recent_minutes_avg", Mock())
     monkeypatch.setattr(backfill.time, "sleep", Mock())
+    monkeypatch.setattr(backfill.psycopg, "connect", MagicMock())
 
 
 @pytest.mark.parametrize("module", [ingestion, backfill], ids=["ingestion", "backfill"])
@@ -130,7 +131,7 @@ def test_backfill_continues_with_next_player(monkeypatch, command_stages, game_l
     backfill.get_player_game_stat_count.side_effect = [0, 0, 1, 1]
     assert run(backfill.main) == 1
     assert backfill.fetch_player_game_log.call_count == 2
-    backfill.ingest_games.assert_called_once_with(game_logs)
+    backfill.ingest_games.assert_called_once_with(game_logs, connection=ANY)
     assert "player_season_failed player_id=1" in caplog.text
 
 

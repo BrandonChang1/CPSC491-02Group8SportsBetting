@@ -69,6 +69,12 @@ def build_approved_model(directory, monkeypatch, *, bundle_features=None):
     return ApprovedModel(artifact_path, manifest_path, dataset_path, registry_path)
 
 
+@pytest.fixture(autouse=True)
+def no_retry_wait(monkeypatch):
+    """ESPN retries keep their count but don't sleep in tests."""
+    monkeypatch.setattr(espn, "RETRY_BASE_DELAY", 0)
+
+
 @pytest.fixture
 def approved_model(tmp_path, monkeypatch):
     return build_approved_model(tmp_path, monkeypatch)

@@ -40,6 +40,26 @@ def get_player_game_stat_count() -> int:
     return row[0]
 
 
+def ingest_player_season(player_id, season):
+    """Fetch and store one player-season as a single transaction.
+
+    Returns (game_results, stat_results), or None when the source has no games.
+    Any failed row rolls back the whole batch and raises ValueError, so a bad
+    source never leaves a partial season or changes previously stored rows.
+    Upserts keyed on (player_id, game_id) make a rerun add no duplicates.
+    """
+    # Fetch (with request_json's retries) before opening a transaction, so no lock is held during network waits.
+    game_logs = fetch_player_game_log(player_id=player_id, season=season)
+    if game_logs.empty:
+        return None
+    with psycopg.connect(get_database_url()) as connection, connection.transaction():
+        game_results = ingest_games(game_logs, connection=connection)
+        stat_results = ingest_player_game_stats(game_logs, connection=connection)
+        if game_results["failed"] or stat_results["failed"]:
+            raise ValueError("Player-season batch had failed rows; rolled back")
+    return game_results, stat_results
+
+
 def main():
     print("Starting historical NBA backfill...")
     print(
@@ -92,26 +112,13 @@ def main():
                     f"Fetching {season} game logs..."
                 )
 
-                game_logs = fetch_player_game_log(
-                    player_id=player_id,
-                    season=season,
-                )
+                results = ingest_player_season(player_id, season)
 
-                if game_logs.empty:
+                if results is None:
                     logger.warning("no_game_logs player_id=%d season=%s", player_id, season)
                     continue
 
-                game_results = ingest_games(
-                    game_logs
-                )
-
-                stat_results = (
-                    ingest_player_game_stats(
-                        game_logs
-                    )
-                )
-
-                failures += game_results["failed"] + stat_results["failed"]
+                game_results, stat_results = results
 
                 print(
                     f"{season}: "

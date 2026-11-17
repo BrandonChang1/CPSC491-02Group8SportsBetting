@@ -248,7 +248,8 @@ def player_boxscore(summary, athlete_id, player_id):
     for team in summary["boxscore"]["players"]:
         for group in team["statistics"]:
             for entry in group["athletes"]:
-                if str(entry["athlete"]["id"]) != str(athlete_id):
+                # ESPN sometimes lists a teammate with no athlete id; they can't be the requested player.
+                if str(entry.get("athlete", {}).get("id")) != str(athlete_id):
                     continue
                 if entry.get("didNotPlay"):
                     return None

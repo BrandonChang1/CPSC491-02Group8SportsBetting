@@ -136,6 +136,14 @@ def test_missing_athlete_fails_instead_of_silent_partial_data(summary):
         espn.player_boxscore(summary, "not-curry", 201939)
 
 
+def test_teammate_without_athlete_id_is_skipped(summary):
+    # ESPN event 401810815 listed a bench player as {"links": [], "shortName": "Olbrich"}.
+    group = summary["boxscore"]["players"][0]["statistics"][0]
+    group["athletes"].insert(0, {"athlete": {"links": [], "shortName": "Olbrich"}, "stats": []})
+    group["athletes"].insert(0, {"stats": []})
+    assert espn.player_boxscore(summary, "3975", 201939)["PTS"] > 0
+
+
 def test_bad_shooting_values_rejected(summary):
     group = next(
         g

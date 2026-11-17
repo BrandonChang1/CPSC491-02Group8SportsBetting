@@ -3,6 +3,8 @@ require("dotenv").config();
 const express = require("express");
 const { execFile } = require("child_process");
 const path = require("path");
+const { searchPlayersInDatabase, getPlayerStatsFromDatabase } = require("./backend/app/services/fastPlayerLookup");
+const { retrieve: getHybridHistory } = require("./backend/app/services/hybridPlayerHistory");
 const healthRouter = require("./backend/app/routes/health");
 const playersRouter = require("./backend/app/routes/players");
 const predictionsRouter = require("./backend/app/routes/predictions");
@@ -301,69 +303,36 @@ app.get("/run-test", (req, res) => {
     );
 });
 
-app.get("/search-players", (req, res) => {
-    const query = req.query.q;
-
-    if (!query || query.trim().length < 2) {
-        return res.json({
-            success: true,
-            message: "Enter at least 2 characters.",
-            data: []
-        });
+// Prefer local PostgreSQL data. ESPN is an expensive network fallback only.
+app.get("/search-players", async (req, res) => {
+    const query = typeof req.query.q === "string" ? req.query.q.trim() : "";
+    if (query.length < 2) {
+        return res.json({ success: true, data: [], message: "Enter at least 2 characters." });
     }
-
-    const scriptPath = path.join(
-        __dirname,
-        "scripts",
-        "webpage_player_search.py"
-    );
-
+    try {
+        const matches = await searchPlayersInDatabase(query);
+        if (matches.length) return res.json({ success: true, data: matches, source: "database" });
+    } catch (error) {
+        console.warn("Local player search unavailable, using ESPN fallback:", error.message);
+    }
     return runPythonScript(
-        scriptPath,
-        ["search", query.trim()],
-        res
+        path.join(__dirname, "scripts", "webpage_player_search.py"),
+        ["search", query], res
     );
 });
 
-app.get("/player-stats", (req, res) => {
-    const playerId = req.query.id;
-    const review =
-        (req.query.review || "5").toLowerCase();
-    const validReviews =
-        new Set(["5", "10", "season"]);
-
-    if (!playerId) {
-        return res.status(400).json({
-            success: false,
-            message: "No player ID was provided.",
-            data: []
-        });
+app.get("/player-stats", async (req, res) => {
+    const id = String(req.query.id || "");
+    const review = String(req.query.review || "5").toLowerCase();
+    if (!/^\d+$/.test(id)) return res.status(400).json({ success: false, message: "Valid player ID required.", data: [] });
+    if (!["5", "10", "season"].includes(review)) return res.status(400).json({ success: false, message: "Review must be 5, 10, or season.", data: [] });
+    try {
+        const displayName = typeof req.query.name === "string" ? req.query.name.trim().slice(0, 100) : "";
+        return res.json(await getHybridHistory(id, review, displayName));
+    } catch (error) {
+        console.warn("Unable to load player history:", error.message);
+        return res.status(502).json({ success: false, message: "Player game history is temporarily unavailable.", data: [] });
     }
-
-    if (!validReviews.has(review)) {
-        return res.status(400).json({
-            success: false,
-            message:
-                "Review must be 5, 10, or season.",
-            data: []
-        });
-    }
-
-    const scriptPath = path.join(
-        __dirname,
-        "scripts",
-        "webpage_player_search.py"
-    );
-
-    return runPythonScript(
-        scriptPath,
-        [
-            "stats",
-            playerId,
-            review
-        ],
-        res
-    );
 });
 
 // Schedule endpoint used by public/upcoming-games.html.

@@ -48,6 +48,7 @@ EXPECTED_ROWS_PER_SEASON = (25_000, 27_000)
 RETRIES = 5
 TIMEOUT = 30
 NAME_SUFFIXES = re.compile(r"(jr|sr|ii|iii|iv|v)$")
+SKIPPED_NO_ID = []  # (game_id, team, short name) of box-score entries without an ESPN athlete id
 
 
 class FetchError(RuntimeError):
@@ -240,8 +241,17 @@ def parse_summary(summary, teams, season):
             for entry in group["athletes"]:
                 if entry.get("didNotPlay") or not entry.get("stats"):
                     continue
+                # "--" minutes with all-zero stats is ESPN's placeholder for a listed
+                # player who never entered; a real scoreless cameo shows "0".
+                if dict(zip(labels, entry["stats"])).get("MIN") in ("--", ""):
+                    continue
+                athlete = entry.get("athlete") or {}
+                if "id" not in athlete:
+                    # ESPN occasionally lists a player with no athlete id; the row
+                    # cannot be tied to a player, so it is skipped and reported.
+                    SKIPPED_NO_ID.append((game_id, team_block["team"].get("abbreviation"), athlete.get("shortName")))
+                    continue
                 stats = dict(zip(labels, entry["stats"], strict=True))
-                athlete = entry["athlete"]
                 fgm, fga = made_attempted(stats["FG"])
                 fg3m, fg3a = made_attempted(stats["3PT"])
                 ftm, fta = made_attempted(stats["FT"])
@@ -342,7 +352,7 @@ def strip_suffix(normalized):
     return NAME_SUFFIXES.sub("", normalized)
 
 
-def build_id_map(players):
+def build_id_map(players, bios=None):
     """Map each ESPN athlete to the app's player_id, never guessing between names.
 
     Order: verified espn_player_ids.json, then a unique normalized-name match in
@@ -395,10 +405,23 @@ def build_id_map(players):
     id_map = pd.DataFrame(rows)
     id_map["nba_player_id"] = id_map["nba_player_id"].astype("Int64")
 
-    duplicated = id_map["nba_player_id"].dropna().duplicated(keep=False)
-    if duplicated.any():
-        clashes = id_map.loc[id_map["nba_player_id"].notna()][duplicated.to_numpy()]
-        raise ValueError(f"Two ESPN athletes mapped to one NBA id:\n{clashes}")
+    # ESPN sometimes keeps two athlete records for one person (e.g. Trevon Scott).
+    # Several ESPN ids may share an NBA id only when their bios agree on birth date
+    # and height; any other clash is a bad match and stops the build.
+    matched = id_map[id_map["nba_player_id"].notna()]
+    clashes = matched[matched["nba_player_id"].duplicated(keep=False)]
+    if not clashes.empty:
+        if bios is None:
+            raise ValueError(f"Two ESPN athletes mapped to one NBA id:\n{clashes}")
+        bio = clashes.merge(bios, on="espn_player_id", how="left")
+        same_person = bio.groupby("nba_player_id").agg(
+            dob=("date_of_birth", lambda s: s.notna().all() and s.nunique() == 1),
+            height=("height_in", lambda s: s.notna().all() and s.nunique() == 1),
+        )
+        bad = same_person[~(same_person["dob"] & same_person["height"])]
+        if not bad.empty:
+            raise ValueError(f"Two ESPN athletes mapped to one NBA id:\n{bio}")
+        id_map.loc[clashes.index, "match_method"] += "+duplicate_espn_record"
     return id_map
 
 
@@ -426,6 +449,8 @@ def fetch_all(fetcher, seasons, workers):
 
     players = pd.DataFrame(player_rows)
     team_games = pd.DataFrame(team_rows)
+    if SKIPPED_NO_ID:
+        print(f"Skipped {len(SKIPPED_NO_ID)} played box-score entries with no ESPN athlete id: {SKIPPED_NO_ID}")
 
     last_season = players.groupby("espn_player_id")["season"].max()
     athlete_ids = sorted(last_season.index, key=int)
@@ -476,7 +501,7 @@ def main(argv=None):
 
     from data.processing import full_features
 
-    id_map = build_id_map(players)
+    id_map = build_id_map(players, bios)
     dataset = full_features.build_features(players, team_games, bios, id_map)
     full_features.validate(dataset, EXPECTED_ROWS_PER_SEASON)
 

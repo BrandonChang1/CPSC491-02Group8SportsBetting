@@ -1,0 +1,470 @@
+{
+  "model_version": "xgboost-points-full-cleaned-v1+20261128T060013Z.694f4e0",
+  "model_sha256": "bff037c3f8d05ae4181a5de66d32beeba66b6c16d16b63ce4ea6e952cd3197a7",
+  "dataset_version": "NBA_player_stats_cleaned_12b1dc585f9a",
+  "dataset_hash": "12b1dc585f9a783c2727fa1a68ca194d94fcee5102b258ec04da0f3a1cb7cd84",
+  "git_commit_sha": "694f4e06e53302cfd7ad713be3a9b22e1fcd4df8",
+  "feature_schema": [
+    {
+      "name": "min_ewm",
+      "dtype": "float64"
+    },
+    {
+      "name": "min_last1",
+      "dtype": "float64"
+    },
+    {
+      "name": "min_season_avg",
+      "dtype": "float64"
+    },
+    {
+      "name": "min_std_last10",
+      "dtype": "float64"
+    },
+    {
+      "name": "team_min_share_ewm",
+      "dtype": "float64"
+    },
+    {
+      "name": "fouls_per_min_ewm",
+      "dtype": "float64"
+    },
+    {
+      "name": "starter_rate_last10",
+      "dtype": "float64"
+    },
+    {
+      "name": "pts_ewm",
+      "dtype": "float64"
+    },
+    {
+      "name": "fga_ewm",
+      "dtype": "float64"
+    },
+    {
+      "name": "fg3a_ewm",
+      "dtype": "float64"
+    },
+    {
+      "name": "fta_ewm",
+      "dtype": "float64"
+    },
+    {
+      "name": "usg_pct_ewm",
+      "dtype": "float64"
+    },
+    {
+      "name": "ts_pct_ewm",
+      "dtype": "float64"
+    },
+    {
+      "name": "pts_season_avg",
+      "dtype": "float64"
+    },
+    {
+      "name": "fga_season_avg",
+      "dtype": "float64"
+    },
+    {
+      "name": "fg3a_season_avg",
+      "dtype": "float64"
+    },
+    {
+      "name": "fta_season_avg",
+      "dtype": "float64"
+    },
+    {
+      "name": "usg_pct_season_avg",
+      "dtype": "float64"
+    },
+    {
+      "name": "ts_pct_season_avg",
+      "dtype": "float64"
+    },
+    {
+      "name": "pts_last5_avg",
+      "dtype": "float64"
+    },
+    {
+      "name": "pts_last10_avg",
+      "dtype": "float64"
+    },
+    {
+      "name": "pts_per_min_ewm",
+      "dtype": "float64"
+    },
+    {
+      "name": "pts_std_last10",
+      "dtype": "float64"
+    },
+    {
+      "name": "pts_last5_minus_season",
+      "dtype": "float64"
+    },
+    {
+      "name": "prev_season_pts_avg",
+      "dtype": "float64"
+    },
+    {
+      "name": "prev_season_min_avg",
+      "dtype": "float64"
+    },
+    {
+      "name": "games_played_season",
+      "dtype": "int64"
+    },
+    {
+      "name": "prior_games",
+      "dtype": "int64"
+    },
+    {
+      "name": "rotation_size",
+      "dtype": "float64"
+    },
+    {
+      "name": "rotation_out",
+      "dtype": "float64"
+    },
+    {
+      "name": "missing_ppg",
+      "dtype": "float64"
+    },
+    {
+      "name": "missing_min",
+      "dtype": "float64"
+    },
+    {
+      "name": "top3_scorers_out",
+      "dtype": "float64"
+    },
+    {
+      "name": "games_missed_last14",
+      "dtype": "float64"
+    },
+    {
+      "name": "days_since_last_game",
+      "dtype": "float64"
+    },
+    {
+      "name": "is_home",
+      "dtype": "int64"
+    },
+    {
+      "name": "days_rest",
+      "dtype": "float64"
+    },
+    {
+      "name": "is_back_to_back",
+      "dtype": "int64"
+    },
+    {
+      "name": "games_last7",
+      "dtype": "float64"
+    },
+    {
+      "name": "opp_days_rest",
+      "dtype": "float64"
+    },
+    {
+      "name": "opp_is_back_to_back",
+      "dtype": "int64"
+    },
+    {
+      "name": "team_off_rating",
+      "dtype": "float64"
+    },
+    {
+      "name": "team_def_rating",
+      "dtype": "float64"
+    },
+    {
+      "name": "team_pace",
+      "dtype": "float64"
+    },
+    {
+      "name": "opp_off_rating",
+      "dtype": "float64"
+    },
+    {
+      "name": "opp_def_rating",
+      "dtype": "float64"
+    },
+    {
+      "name": "opp_pace",
+      "dtype": "float64"
+    },
+    {
+      "name": "opp_pts_allowed",
+      "dtype": "float64"
+    },
+    {
+      "name": "opp_fg3a_allowed",
+      "dtype": "float64"
+    },
+    {
+      "name": "opp_fta_allowed",
+      "dtype": "float64"
+    },
+    {
+      "name": "opp_pts_allowed_pos",
+      "dtype": "float64"
+    },
+    {
+      "name": "opp_pts_allowed_pos_rel",
+      "dtype": "float64"
+    },
+    {
+      "name": "league_off_rating",
+      "dtype": "float64"
+    },
+    {
+      "name": "exp_pace",
+      "dtype": "float64"
+    },
+    {
+      "name": "exp_team_pts",
+      "dtype": "float64"
+    },
+    {
+      "name": "exp_margin",
+      "dtype": "float64"
+    },
+    {
+      "name": "exp_margin_abs",
+      "dtype": "float64"
+    },
+    {
+      "name": "position",
+      "dtype": "category"
+    },
+    {
+      "name": "pos_group",
+      "dtype": "category"
+    },
+    {
+      "name": "height_in",
+      "dtype": "float64"
+    },
+    {
+      "name": "age_at_game",
+      "dtype": "float64"
+    },
+    {
+      "name": "experience_years",
+      "dtype": "float64"
+    },
+    {
+      "name": "low_minutes_prior",
+      "dtype": "int64"
+    },
+    {
+      "name": "insufficient_history",
+      "dtype": "int64"
+    }
+  ],
+  "training_config": {
+    "training_script": "ml/training/XGBoost_full_dataset.ipynb",
+    "feature_builder": "data/processing/full_features.py",
+    "estimator": "XGBRegressor(objective=reg:squarederror, tree_method=hist, enable_categorical=True)",
+    "xgboost_params": {
+      "max_depth": 3,
+      "learning_rate": 0.03,
+      "min_child_weight": 10,
+      "subsample": 0.8,
+      "colsample_bytree": 0.5,
+      "reg_lambda": 10,
+      "gamma": 1,
+      "n_estimators": 1089,
+      "random_state": 42
+    },
+    "tuning": {
+      "search": "random",
+      "n_configs": 40,
+      "param_distributions": {
+        "max_depth": [
+          3,
+          4,
+          5,
+          6,
+          8
+        ],
+        "learning_rate": [
+          0.01,
+          0.03,
+          0.05,
+          0.1
+        ],
+        "min_child_weight": [
+          1,
+          5,
+          10,
+          20,
+          50
+        ],
+        "subsample": [
+          0.6,
+          0.8,
+          1.0
+        ],
+        "colsample_bytree": [
+          0.5,
+          0.7,
+          1.0
+        ],
+        "reg_lambda": [
+          0,
+          1,
+          5,
+          10
+        ],
+        "gamma": [
+          0,
+          0.5,
+          1
+        ]
+      },
+      "early_stopping_rounds": 100,
+      "best_val_n_trees": 815,
+      "selected_on": "val"
+    },
+    "features": [
+      "min_ewm",
+      "min_last1",
+      "min_season_avg",
+      "min_std_last10",
+      "team_min_share_ewm",
+      "fouls_per_min_ewm",
+      "starter_rate_last10",
+      "pts_ewm",
+      "fga_ewm",
+      "fg3a_ewm",
+      "fta_ewm",
+      "usg_pct_ewm",
+      "ts_pct_ewm",
+      "pts_season_avg",
+      "fga_season_avg",
+      "fg3a_season_avg",
+      "fta_season_avg",
+      "usg_pct_season_avg",
+      "ts_pct_season_avg",
+      "pts_last5_avg",
+      "pts_last10_avg",
+      "pts_per_min_ewm",
+      "pts_std_last10",
+      "pts_last5_minus_season",
+      "prev_season_pts_avg",
+      "prev_season_min_avg",
+      "games_played_season",
+      "prior_games",
+      "rotation_size",
+      "rotation_out",
+      "missing_ppg",
+      "missing_min",
+      "top3_scorers_out",
+      "games_missed_last14",
+      "days_since_last_game",
+      "is_home",
+      "days_rest",
+      "is_back_to_back",
+      "games_last7",
+      "opp_days_rest",
+      "opp_is_back_to_back",
+      "team_off_rating",
+      "team_def_rating",
+      "team_pace",
+      "opp_off_rating",
+      "opp_def_rating",
+      "opp_pace",
+      "opp_pts_allowed",
+      "opp_fg3a_allowed",
+      "opp_fta_allowed",
+      "opp_pts_allowed_pos",
+      "opp_pts_allowed_pos_rel",
+      "league_off_rating",
+      "exp_pace",
+      "exp_team_pts",
+      "exp_margin",
+      "exp_margin_abs",
+      "position",
+      "pos_group",
+      "height_in",
+      "age_at_game",
+      "experience_years",
+      "low_minutes_prior",
+      "insufficient_history"
+    ],
+    "categorical_features": [
+      "position",
+      "pos_group"
+    ],
+    "target": "target_pts",
+    "split": {
+      "fit": "train + val (2021-22 to 2024-25)",
+      "tuning": "val (2024-25)",
+      "test": "test (2025-26)"
+    },
+    "dataset": "data/NBA_player_stats_cleaned.csv",
+    "dataset_sha256": "12b1dc585f9a783c2727fa1a68ca194d94fcee5102b258ec04da0f3a1cb7cd84",
+    "xgboost_version": "3.4.1",
+    "git_worktree_clean": false
+  },
+  "evaluation_metrics": {
+    "model": "XGBoost",
+    "val_tuning": {
+      "candidate": 31.0,
+      "subsample": 0.8,
+      "reg_lambda": 10.0,
+      "min_child_weight": 10.0,
+      "max_depth": 3.0,
+      "learning_rate": 0.03,
+      "gamma": 1.0,
+      "colsample_bytree": 0.5,
+      "n_trees": 815.0,
+      "MAE": 4.476,
+      "RMSE": 5.856,
+      "R2": 0.556,
+      "train_MAE": 4.381
+    },
+    "test": {
+      "n": 25963.0,
+      "MAE": 4.463,
+      "RMSE": 5.81,
+      "R2": 0.547
+    },
+    "baselines_test": {
+      "Season avg": {
+        "n": 25963.0,
+        "MAE": 4.687,
+        "RMSE": 6.189,
+        "R2": 0.486
+      },
+      "Last 5 avg": {
+        "n": 25963.0,
+        "MAE": 4.801,
+        "RMSE": 6.31,
+        "R2": 0.466
+      },
+      "Last 10 avg": {
+        "n": 25963.0,
+        "MAE": 4.676,
+        "RMSE": 6.142,
+        "R2": 0.494
+      },
+      "EWM": {
+        "n": 25963.0,
+        "MAE": 4.625,
+        "RMSE": 6.073,
+        "R2": 0.505
+      }
+    },
+    "best_baseline": "EWM",
+    "beats_best_baseline": true,
+    "test_all_rows": {
+      "n": 26540,
+      "MAE": 4.458,
+      "RMSE": 5.812,
+      "R2": 0.548
+    }
+  },
+  "generated_at": "2026-11-28T06:00:13.288225+00:00"
+}

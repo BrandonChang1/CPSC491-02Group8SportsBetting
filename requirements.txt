@@ -7,3 +7,4 @@ scikit-learn==1.9.1
 xgboost==3.4.1
 ruff
 python-dotenv
+lets-plot==4.11.0

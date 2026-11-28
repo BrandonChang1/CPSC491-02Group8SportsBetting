@@ -166,7 +166,7 @@ FEATURE_DOCS = {
     "pos_group": ("Player", "G / F / C from the player's most common box-score position", ESPN_BOX),
     "height_in": ("Player", "Height in inches", ESPN_BIO),
     "age_at_game": ("Player", "Age in years on game date", ESPN_BIO),
-    "experience_years": ("Player", "season − ESPN debutYear (0 = rookie)", ESPN_BIO),
+    "experience_years": ("Player", "season − debut season (0 = rookie). Debut = ESPN debutYear; ESPN omits it for 2021+ debuts, so a player first seen after the first dataset season debuted then; NaN if first seen in the first season with no debutYear (rookie vs veteran unknown)", ESPN_BIO),
     # flags
     "low_minutes_prior": ("Flags", f"min_ewm < {LOW_MINUTES}", DERIVED),
     "insufficient_history": ("Flags", f"Fewer than {MIN_HISTORY} prior games", DERIVED),
@@ -442,7 +442,11 @@ def build_features(players, team_games, bios, id_map):
     df["pos_group"] = df["modal_position"].map(_pos_group).fillna(df["bio_position"].map(_pos_group))
     dob = pd.to_datetime(df["date_of_birth"], utc=True, errors="coerce").dt.tz_localize(None)
     df["age_at_game"] = (df["game_date"] - dob).dt.days / 365.25
-    df["experience_years"] = (df["season"] - pd.to_numeric(df["debut_year"], errors="coerce")).clip(lower=0)
+    debut = pd.to_numeric(df["debut_year"], errors="coerce")
+    first_seen = df.groupby("espn_player_id")["season"].transform("min")
+    # ESPN leaves debutYear empty for players who debuted in 2021 or later.
+    debut = debut.fillna(first_seen.where(first_seen > df["season"].min()))
+    df["experience_years"] = (df["season"] - debut).clip(lower=0)
 
     df = df.sort_values(["player_id", "game_date", "game_id"]).reset_index(drop=True)
     if df.duplicated(["player_id", "game_id"]).any():
